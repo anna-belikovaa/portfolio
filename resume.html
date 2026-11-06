@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Резюме. Анна Беликова</title>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family: 'Soyuz Grotesk'; src: url('assets/fonts/soyuz-grotesk-bold.woff') format('woff'); font-weight: 700; }
+  @font-face { font-family: 'Denistina'; src: url('assets/fonts/denistina.ttf') format('truetype'); }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-regular.otf') format('opentype'); font-weight: 400; }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-black.otf') format('opentype'); font-weight: 900; }
+  @page { size: A4; margin: 0; }
+  :root { --paper: #F2EEE7; --ink: #151413; --mute: #6E6862; --red: #C8321F; --coral: #EE8B6D; --line: rgba(21,20,19,.16); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #d8d2c8; font-family: 'Golos Text', sans-serif; color: var(--ink); font-size: 8.9pt; line-height: 1.36; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 210mm; height: 297mm; margin: 10mm auto; background: var(--paper); padding: 11mm 15mm 12mm; position: relative; overflow: hidden; }
+  @media print { body { background: none; } .page { margin: 0; } }
+  .display { font-family: 'Soyuz Grotesk', sans-serif; font-weight: 700; letter-spacing: -.02em; line-height: .9; }
+  .hand { font-family: 'Denistina', cursive; color: var(--red); line-height: 1; }
+  .latin { font-family: 'Aileron', 'Golos Text', sans-serif; }
+  .label { font-family: 'Aileron', 'Golos Text', sans-serif; font-size: 7pt; letter-spacing: .16em; text-transform: uppercase; color: var(--mute); }
+
+  header { display: grid; grid-template-columns: 1fr 34mm; gap: 8mm; align-items: start; }
+  h1 { font-size: 34pt; }
+  .role { margin-top: 3mm; font-size: 12pt; font-weight: 500; line-height: 1.2; }
+  .role span { color: var(--red); }
+  .contacts { margin-top: 4mm; display: flex; flex-wrap: wrap; gap: 1.2mm 5mm; font-size: 8.6pt; }
+  .contacts b { font-weight: 500; }
+  .photo { width: 34mm; height: 43mm; object-fit: cover; object-position: top; display: block; }
+  .meta { margin-top: 1.5mm; font-size: 7.4pt; color: var(--mute); line-height: 1.3; }
+
+  .summary { margin-top: 5mm; padding: 3.4mm 6mm; background: #F7D9CC; position: relative; font-size: 9.8pt; line-height: 1.42; }
+  .summary .hand { position: absolute; right: 6mm; bottom: -6mm; font-size: 30pt; transform: rotate(-5deg); }
+
+  h2 { font-family: 'Soyuz Grotesk', sans-serif; font-weight: 700; font-size: 15pt; letter-spacing: -.01em; border-bottom: 1px solid var(--ink); padding-bottom: 1.5mm; margin: 4.6mm 0 2.6mm; display: flex; justify-content: space-between; align-items: baseline; }
+  h2 small { font-family: 'Aileron', sans-serif; font-size: 7pt; letter-spacing: .16em; text-transform: uppercase; color: var(--mute); font-weight: 400; }
+
+  .skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6mm 5mm; }
+  .skills h3 { font-size: 9.4pt; font-weight: 600; margin-bottom: .8mm; }
+  .skills h3 i { font-style: normal; color: var(--red); font-family: 'Aileron'; font-weight: 900; margin-right: 1.5mm; }
+  .skills p { font-size: 8.2pt; color: #3b3835; line-height: 1.35; }
+
+  .job { display: grid; grid-template-columns: 30mm 1fr; gap: 5mm; padding: 2.4mm 0; border-bottom: 1px solid var(--line); }
+  .job:last-child { border-bottom: 0; }
+  .when { font-family: 'Aileron', sans-serif; font-size: 8pt; color: var(--mute); line-height: 1.35; }
+  .when b { display: block; color: var(--ink); font-weight: 900; font-size: 9pt; }
+  .job h3 { font-size: 11pt; font-weight: 600; line-height: 1.2; }
+  .job .pos { color: var(--red); font-weight: 500; margin: .6mm 0 1.6mm; font-size: 9.4pt; }
+  .job ul { list-style: none; }
+  .job li { position: relative; padding-left: 4mm; margin-bottom: .7mm; }
+  .job li::before { content: ''; position: absolute; left: .6mm; top: .55em; width: 1.4mm; height: 1.4mm; border-radius: 50%; background: var(--red); }
+  .job li b { font-weight: 600; }
+
+  .job .sub { font-family: 'Aileron', sans-serif; font-size: 7pt; letter-spacing: .16em; text-transform: uppercase; color: var(--mute); margin: 1.6mm 0 1mm; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+  .edu li { list-style: none; margin-bottom: 1.8mm; display: grid; grid-template-columns: 17mm 1fr; gap: 2mm; }
+  .edu .y { font-family: 'Aileron'; font-size: 8pt; color: var(--mute); padding-top: .4mm; }
+  .tags { display: flex; flex-wrap: wrap; gap: 1.4mm; }
+  .tags span { font-family: 'Aileron', 'Golos Text', sans-serif; font-size: 8pt; border: 1px solid var(--line); border-radius: 10mm; padding: .6mm 2.6mm; }
+  .lang { display: flex; gap: 6mm; margin-top: 3mm; }
+  .lang b { font-family: 'Aileron'; font-weight: 900; color: var(--red); margin-left: 1mm; }
+  .foot { position: absolute; left: 15mm; right: 15mm; bottom: 6mm; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<section class="page">
+  <header>
+    <div>
+      <p class="label">Резюме</p>
+      <h1 class="display" style="margin-top:4mm">Анна<br>Беликова</h1>
+      <p class="role">Специалист по внутренним коммуникациям, креатор, менеджер проектов</p>
+      <div class="contacts">
+        <span class="latin"><b>+7 (963) 719-86-68</b></span>
+        <span class="latin"><b>taraburinaanna@gmail.com</b></span>
+        <span class="latin">t.me/anna_reek</span>
+        <span>Москва</span>
+      </div>
+    </div>
+    <div>
+      <img class="photo" src="assets/img/anna-portrait.jpg" alt="">
+      <p class="meta">Готова к командировкам<br>офис, гибрид или удалённо</p>
+    </div>
+  </header>
+
+  <div class="summary">
+    <span class="hand">обо мне</span>
+    Специалист по коммуникациям и креатор с опытом работы в автомобильном холдинге и продюсировании крупных городских и всероссийских проектов. Разрабатываю креативные концепции, создаю материалы, которые вовлекают сотрудников и зрителей, реализую культурно-просветительские программы, выставки и фестивали, корпоративные события и презентации брендов. Пишу тексты, создаю фирменный стиль и мерч, запускаю каналы коммуникации от соцсетей и телеграм-ботов до 3D-лендингов.
+  </div>
+
+  <h2>Опыт работы</h2>
+  <div class="job">
+    <div class="when"><b>09.2025 – н. в.</b>сентябрь 2025 –<br>настоящее время</div>
+    <div>
+      <h3>ГК FAVORIT MOTORS</h3>
+      <p class="pos">Менеджер по контенту и коммуникациям, куратор спецпроектов</p>
+      <p class="sub">Обязанности</p>
+      <ul>
+        <li><b>Развитие каналов внутренних коммуникаций.</b> Сбор инфоповодов в подразделениях холдинга, подготовка корпоративных новостей и регулярных рассылок для сотрудников.</li>
+        <li><b>Создание контента и креатив.</b> Написание сценариев для видеороликов в социальных сетях и интерактивных квизов, а также создание видеоконтента с помощью современных ИИ-инструментов.</li>
+        <li><b>Концептуальная работа и сторителлинг.</b> Подготовка концепций, текстов и сценариев для спецпроектов.</li>
+        <li>Организация и проведение презентаций, корпоративных и клиентских мероприятий.</li>
+        <li>Проведение лекций по истории и тенденциям автодизайна, а также тематических программ для детей и семей сотрудников.</li>
+        <li>Разработка креативных концепций, фирменного стиля и линейки мерча (одежда, стикерпаки, полиграфия) для летней серии автомобильных фестивалей холдинга.</li>
+      </ul>
+      <p class="sub">Достижения</p>
+      <ul>
+        <li>Организовала и провела <b>более 10 презентаций и корпоративных событий</b>, в том числе запуск новой модели Foton с иммерсивным спектаклем, презентации Changan и спецпрограмму для РЕСО. Суммарно они объединили <b>свыше 20 000 участников</b>.</li>
+        <li>С нуля разработала и запустила концепцию фестивального мерча, которая стала визуальной основой серии летних событий компании.</li>
+        <li>Разработала и реализовала курс и серию мероприятий для детей сотрудников, которые повысили лояльность и вовлечённость.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="job">
+    <div class="when"><b>2026</b>дополнительные проекты</div>
+    <div>
+      <h3>Дополнительные проекты</h3>
+      <p class="pos">Куратор, автор текстов</p>
+      <ul>
+        <li>Подготовила обзорную статью для каталога масштабной выставки «Код лошади» в Новом Манеже, а также провела цикл авторских экскурсий и лекций. Проект освещали в сюжетах Первого канала и телеканала «Россия-Культура».</li>
+        <li>Разработала концепцию интерактивного цифрового пространства для исторической усадьбы с применением Three.js и генеративных инструментов. Спроектировала 3D-лендинг и форму обратной связи «Телеграф памяти» для сбора архивных фотографий и воспоминаний жителей.</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="foot label"><span>Анна Беликова · резюме</span><span class="latin">1 / 2</span></p>
+</section>
+
+<section class="page">
+  <div class="job" style="padding-top:0">
+    <div class="when"><b>2022 – 2025</b>3 года</div>
+    <div>
+      <h3>Московский продюсерский центр (Департамент культуры г. Москвы)</h3>
+      <p class="pos">Менеджер арт-проектов отдела по поддержке современного искусства</p>
+      <p class="sub">Обязанности и ключевые достижения</p>
+      <ul>
+        <li><b>«СТРИТАРТЕРИЯ.FEST» в креативном пространстве «Новый Манеж», 2023.</b> Руководила застройкой площадки площадью более 1000 м². В разгар сезона и в условиях сжатых сроков нашла и привлекла опытного застройщика по цене ниже рыночной, что позволило реализовать 4 масштабных арт-объекта и экспозицию с участием более 40 художников.</li>
+        <li><b>Digital-выставка в парке «Зарядье», 2024.</b> Организовала показ на крупнейшем столичном медиаэкране площадью более 250 м², который увидели более 50 000 зрителей. Провела open call (сбор и обработка около 100 заявок), разработала лендинг, написала тексты, создала сценарий показа и в течение 8 дней координировала работу на площадке.</li>
+        <li><b>Фестиваль «Моспродюсер.LINK» в фудмоллах «Депо», 2023.</b> Разработала стратегию и фирменный стиль проекта. Организовала open call на 100+ заявок, отбор 36 победителей, печать и монтаж 36 арт-принтов, а также трансляцию 24 digital-работ на площадках с проходимостью более 500 000 человек.</li>
+        <li><b>Всероссийский проект «Арт-Драйв», 2024.</b> Разработала концепцию и тексты, организовала open call, вела работу с художниками, партнёрами и документацией, ставила задачи командам дизайна, маркетинга и PR. За 3 месяца проект собрал более 80 заявок и объединил 10 автомобилей, а выставку и перформанс в «Депо» увидели более 36 000 человек.</li>
+        <li><b>Всероссийский проект «Контуры культуры», 2023–2025.</b> Координировала подготовку площадок, создание муралов и стрит-арта на 20+ площадках столицы, запустила телеграм-бот для художников, вела отчётность и привлекла партнёров для производства мерча.</li>
+        <li><b>Локальная выставочная программа.</b> Курировала 15 выставок с участием более 30 художников. Писала концепции и экспликации, организовывала монтаж. Для вовлечения аудитории разработала саунд-дизайн и запустила интерактивный телеграм-бот (1000+ прослушиваний), а также организовала семейный квест-конкурс, фотосъёмки, reels и интервью.</li>
+        <li><b>Корпоративное производство и оформление.</b> Организовала производство и логистику более 3000 корпоративных подарков в условиях жёстких сроков. Разработала и реализовала концепцию новогоднего оформления двух площадок, «Моспродюсера» и «Нового Манежа».</li>
+      </ul>
+    </div>
+  </div>
+  <div class="two">
+    <div>
+      <h2>Образование</h2>
+      <ul class="edu">
+        <li><span class="y">2024–2027</span><span><b>РГХПУ им. С. Г. Строганова</b>, магистратура, «Дизайн-кураторство. Креативные технологии и экспертиза».</span></li>
+        <li><span class="y">2018–2022</span><span><b>РГУ им. А. Н. Косыгина</b>, «Теория и история искусств», искусствовед.</span></li>
+      </ul>
+      <h2>Курсы</h2>
+      <ul class="edu">
+        <li><span class="y">2026</span><span>«AI в креативных индустриях», агентство verlab и студия PROЩе Production</span></li>
+        <li><span class="y">2023</span><span>«Современные художественные практики», Школа Родченко</span></li>
+        <li><span class="y">2022</span><span>«Управление проектами в сфере культуры», РГУ им. А. Н. Косыгина</span></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Инструменты</h2>
+      <div class="tags"><span>Figma</span><span>Illustrator</span><span>Photoshop</span><span>Tilda</span><span>Notion</span><span>Jira</span><span>Kaiten</span><span>Bitrix24</span><span>MS Office</span><span>BotHelp</span><span>Ableton</span><span>Weavy</span><span>Veo 3.1</span><span>Kling</span><span>Suno</span><span>Claude</span><span>Three.js</span></div>
+      <h2>Языки</h2>
+      <div class="lang"><span>Английский<b>B2</b></span><span>Польский<b>A2</b></span><span>Итальянский<b>A1</b></span></div>
+      <h2>Достижения</h2>
+      <p>Музыка под псевдонимом <b>Анна Реек</b>. Трек «Себя» победил в проекте «Плейлист | Музыка в парках» и вошёл в редакторский плейлист «Звука». Призёр фотопроекта FOTORUAT (2021), третье место в конкурсе журнала SEASONS (2022).</p>
+    </div>
+  </div>
+  <p class="foot label"><span>Портфолио и презентация во вложении</span><span class="latin">2 / 2</span></p>
+</section>
+</body>
+</html>

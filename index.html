@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Анна Беликова. Портфолио</title>
+<meta name="description" content="Портфолио Анны Беликовой. Арт-куратор, искусствовед, менеджер по контенту и коммуникациям.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        paper: '#F4F1EC', paper2: '#E9E4DC', ink: '#151413', mute: '#6B6560',
+        cinnabar: '#DE5454', redink: '#B93C3C', coral: '#F0A08C', blush: '#F8DDD5'
+      },
+      fontFamily: {
+        display: ['"Soyuz Grotesk"', 'Golos Text', 'sans-serif'],
+        hand: ['Denistina', 'cursive'],
+        latin: ['Aileron', 'Golos Text', 'sans-serif'],
+        body: ['"Golos Text"', 'system-ui', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+<style>
+  @font-face { font-family: 'Soyuz Grotesk'; src: url('assets/fonts/soyuz-grotesk-bold.woff') format('woff'); font-weight: 700; font-display: swap; }
+  @font-face { font-family: 'Denistina'; src: url('assets/fonts/denistina.ttf') format('truetype'); font-display: swap; }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-light.otf') format('opentype'); font-weight: 300; font-display: swap; }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-black.otf') format('opentype'); font-weight: 900; font-display: swap; }
+
+  html { scroll-behavior: smooth; }
+  body { background: #F4F1EC; color: #151413; -webkit-font-smoothing: antialiased; }
+  ::selection { background: #DE5454; color: #fff; }
+
+  .display { font-family: 'Soyuz Grotesk', 'Golos Text', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: -.02em; line-height: .88; }
+  .hand { font-family: 'Denistina', cursive; font-weight: 400; line-height: 1; text-transform: none; letter-spacing: 0; }
+  .latin { font-family: 'Aileron', 'Golos Text', sans-serif; }
+  .label { font-family: 'Aileron', 'Golos Text', sans-serif; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+  .outline { color: transparent; -webkit-text-stroke: 1.5px #151413; }
+  .outline-light { color: transparent; -webkit-text-stroke: 1.5px #F4F1EC; }
+  .rule { border-color: rgba(21,20,19,.14); }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .ph img, .ph video { transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
+  .ph:hover img { transform: scale(1.03); }
+  .tab[aria-selected="true"] { background: #151413; color: #F4F1EC; }
+  .tab[aria-selected="true"] .tab-y { color: #F0A08C; }
+
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  #lightbox[hidden], #player[hidden] { display: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+</style>
+</head>
+<body class="font-body overflow-x-hidden">
+
+<header id="top" class="fixed top-0 inset-x-0 z-50 bg-paper/85 backdrop-blur border-b border-ink/10">
+  <div class="mx-auto max-w-[1440px] px-4 md:px-10 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-baseline gap-3">
+      <span class="display text-2xl">а.т.</span>
+      <span class="hand text-cinnabar text-3xl hidden sm:inline">архитектор смыслов</span>
+    </a>
+    <nav class="hidden lg:flex items-center gap-7 text-sm">
+      <a href="#about" class="hover:text-cinnabar">Обо мне</a>
+      <a href="#experience" class="hover:text-cinnabar">Опыт</a>
+      <a href="#numbers" class="hover:text-cinnabar">В цифрах</a>
+      <a href="#favorit-block" class="hover:text-cinnabar">Проекты</a>
+      <a href="#hobby" class="hover:text-cinnabar">Увлечения</a>
+      <a href="#contact" class="hover:text-cinnabar">Контакты</a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <a href="files/resume.pdf" download class="hidden sm:inline-flex items-center gap-2 rounded-full border border-ink px-4 py-2 text-sm hover:bg-ink hover:text-paper transition">Резюме <span class="latin text-xs">PDF</span></a>
+      <button class="lg:hidden w-10 h-10 grid place-items-center rounded-full border border-ink" aria-label="Меню" data-menu-btn>
+        <svg width="16" height="10" viewBox="0 0 16 10"><path d="M0 1h16M0 9h16" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="lg:hidden hidden border-t rule bg-paper px-4 py-3" data-menu>
+    <a href="#about" class="block py-2">Обо мне</a>
+    <a href="#experience" class="block py-2">Опыт</a>
+    <a href="#numbers" class="block py-2">В цифрах</a>
+    <a href="#favorit-block" class="block py-2">Проекты</a>
+    <a href="#hobby" class="block py-2">Увлечения</a>
+    <a href="#contact" class="block py-2">Контакты</a>
+    <a href="files/resume.pdf" download class="block py-2 text-redink">Скачать резюме (PDF)</a>
+  </div>
+</header>
+
+<main>
+
+<!-- HERO -->
+<section class="relative mx-auto max-w-[1440px] px-4 md:px-10 pt-24 md:pt-28 pb-16 md:pb-24 overflow-hidden">
+  <div class="flex flex-wrap items-center justify-between gap-3 border-b rule pb-4 label text-mute">
+    <span>Портфолио · <span class="latin">portfolio</span></span>
+    <span>Москва · 2026</span>
+  </div>
+  <div class="grid grid-cols-12 gap-x-6 mt-8 md:mt-12 items-end">
+    <div class="col-span-12 lg:col-span-7 relative z-10">
+      <p class="hand text-cinnabar text-[clamp(56px,8vw,140px)] -rotate-6 -mb-4 ml-1 reveal">Арт-куратор</p>
+      <h1 class="display text-[clamp(60px,10.4vw,176px)]">
+        <span class="block reveal">анна</span>
+        <span class="block reveal" style="transition-delay:.08s">бели<span class="outline">кова</span></span>
+      </h1>
+      <p class="mt-8 max-w-xl text-lg md:text-2xl leading-snug reveal" style="transition-delay:.16s">Менеджер по контенту и коммуникациям, креатор, арт-куратор и искусствовед.</p>
+      <div class="mt-8 flex flex-wrap gap-3 reveal" style="transition-delay:.24s">
+        <a href="#favorit-block" class="inline-flex items-center gap-3 rounded-full bg-ink text-paper px-6 py-4 hover:bg-cinnabar transition">Смотреть проекты <span aria-hidden="true">↓</span></a>
+        <a href="#contact" class="inline-flex items-center gap-3 rounded-full border border-ink px-6 py-4 hover:bg-ink hover:text-paper transition">Связаться</a>
+      </div>
+    </div>
+    <div class="col-span-12 lg:col-span-5 relative mt-12 lg:mt-0 reveal" style="transition-delay:.2s">
+      <div class="relative mx-auto w-[86%] sm:w-[60%] lg:w-full max-w-[520px] aspect-[4/5]">
+        <div class="absolute right-0 top-0 w-[78%] aspect-square rounded-full bg-cinnabar"></div>
+        <img src="assets/img/anna-folder.png" alt="Анна Беликова" class="absolute bottom-0 left-[6%] h-full w-auto object-contain">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ОБО МНЕ -->
+<section id="about" class="border-t border-ink scroll-mt-16">
+  <div class="mx-auto max-w-[1440px] px-4 md:px-10 py-20 md:py-28 grid grid-cols-12 gap-6">
+    <div class="col-span-12 lg:col-span-4">
+      <p class="label text-redink mb-4">01 · Обо мне</p>
+      <h2 class="display text-[clamp(48px,6vw,96px)]">обо мне</h2>
+      <p class="hand text-cinnabar text-6xl md:text-7xl -rotate-3 mt-2">Архитектор смыслов</p>
+      <img src="assets/img/anna-smile.jpg" alt="" class="mt-10 w-full max-w-[360px] h-auto hidden lg:block" loading="lazy">
+    </div>
+    <div class="col-span-12 lg:col-span-7 lg:col-start-6">
+      <div class="space-y-6 text-lg md:text-[21px] leading-relaxed" data-about></div>
+      <h3 class="label text-mute mt-14 mb-5">Ключевые навыки</h3>
+      <div class="grid sm:grid-cols-2 gap-px bg-ink/15 border border-ink/15" data-skills></div>
+      <h3 class="label text-mute mt-10 mb-4">Инструменты</h3>
+      <div class="flex flex-wrap gap-2" data-tools></div>
+    </div>
+  </div>
+</section>
+
+<!-- ОПЫТ -->
+<section id="experience" class="bg-paper2/60 border-y border-ink/10 scroll-mt-16">
+  <div class="mx-auto max-w-[1440px] px-4 md:px-10 py-20 md:py-28">
+    <div class="grid grid-cols-12 gap-6 items-end mb-12">
+      <div class="col-span-12 md:col-span-8">
+        <p class="label text-redink mb-4">02 · Опыт</p>
+        <h2 class="display text-[clamp(48px,6.5vw,104px)]">где я работала<br><span class="text-cinnabar">и училась</span></h2>
+      </div>
+      <p class="col-span-12 md:col-span-4 text-mute">Нажмите на место работы, чтобы увидеть роль, задачи и проекты.</p>
+    </div>
+    <div class="grid grid-cols-12 gap-6">
+      <div class="col-span-12 lg:col-span-5 flex flex-col border-t border-ink" role="tablist" aria-label="Места работы и учёбы" data-tabs></div>
+      <div class="col-span-12 lg:col-span-7 lg:pl-6">
+        <div class="bg-paper p-6 md:p-10 min-h-[440px]" data-panel role="tabpanel" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- В ЦИФРАХ -->
+<section id="numbers" class="bg-ink text-paper scroll-mt-16">
+  <div class="mx-auto max-w-[1440px] px-4 md:px-10 py-20 md:py-28">
+    <div class="flex flex-wrap items-end justify-between gap-4 mb-12">
+      <div>
+        <p class="label text-coral mb-4">03 · В цифрах</p>
+        <h2 class="display text-[clamp(48px,6.5vw,104px)]">в цифрах</h2>
+      </div>
+      <p class="hand text-coral text-5xl md:text-6xl -rotate-3">за каждой цифрой люди</p>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 border-t border-paper/20" data-stats></div>
+  </div>
+</section>
+
+<!-- ПРОЕКТЫ -->
+<div data-blocks></div>
+
+<!-- УВЛЕЧЕНИЯ -->
+<section id="hobby" class="scroll-mt-16">
+  <div class="mx-auto max-w-[1440px] px-4 md:px-10 py-20 md:py-28">
+    <div class="flex flex-wrap items-end justify-between gap-4 mb-12">
+      <div>
+        <p class="label text-redink mb-4">05 · Увлечения</p>
+        <h2 class="display text-[clamp(48px,6.5vw,104px)]">увлечения</h2>
+      </div>
+      <p class="hand text-cinnabar text-5xl md:text-7xl -rotate-3">и достижения</p>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-12" data-hobby></div>
+  </div>
+</section>
+
+<!-- КОНТАКТЫ -->
+<section id="contact" class="bg-cinnabar text-white scroll-mt-16">
+  <div class="mx-auto max-w-[1440px] px-4 md:px-10 py-20 md:py-32">
+    <p class="label text-white/75 mb-6">06 · Контакты</p>
+    <h2 class="display text-[clamp(64px,13vw,220px)]">спасибо</h2>
+    <p class="hand text-[clamp(44px,5.6vw,92px)] -rotate-3 mt-2 ml-[8vw]">буду рада знакомству</p>
+    <a href="mailto:taraburinaanna@gmail.com" class="latin block mt-12 text-[clamp(22px,4.4vw,64px)] font-light break-all border-b border-white/50 pb-3 hover:border-white">taraburinaanna@gmail.com</a>
+    <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-lg">
+      <a href="tel:+79637198668" class="hover:underline"><span class="label text-white/75 block mb-1">Телефон</span><span class="latin">+7 (963) 719-86-68</span></a>
+      <a href="https://t.me/anna_reek" target="_blank" rel="noopener" class="hover:underline"><span class="label text-white/75 block mb-1">Telegram</span><span class="latin">@anna_reek</span></a>
+      <a href="https://vk.com/annareek" target="_blank" rel="noopener" class="hover:underline"><span class="label text-white/75 block mb-1">ВКонтакте</span><span class="latin">vk.com/annareek</span></a>
+      <div><span class="label text-white/75 block mb-1">Город</span>Москва, готова к командировкам</div>
+    </div>
+    <div class="mt-14 flex flex-wrap gap-3">
+      <a href="files/resume.pdf" download class="rounded-full bg-white text-ink px-6 py-4 hover:bg-ink hover:text-white transition">Скачать резюме <span class="latin text-xs">PDF</span></a>
+      <a href="files/portfolio.pdf" download class="rounded-full border border-white px-6 py-4 hover:bg-white hover:text-cinnabar transition">Скачать презентацию <span class="latin text-xs">PDF</span></a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="bg-ink text-paper/60">
+  <div class="mx-auto max-w-[1440px] px-4 md:px-10 py-6 flex flex-wrap justify-between gap-2 label">
+    <span>Анна Беликова · 2026</span>
+    <a href="#top" class="hover:text-paper">Наверх ↑</a>
+  </div>
+</footer>
+
+<div id="lightbox" hidden class="fixed inset-0 z-[70] bg-ink/95 text-paper flex flex-col" role="dialog" aria-modal="true" aria-label="Фотографии проекта">
+  <div class="flex items-center justify-between px-4 md:px-10 h-16">
+    <p class="label" data-lb-title></p>
+    <button class="w-10 h-10 rounded-full border border-paper/40 grid place-items-center hover:bg-paper hover:text-ink" data-lb-close aria-label="Закрыть">✕</button>
+  </div>
+  <div class="flex-1 relative flex items-center justify-center px-4 md:px-20 pb-4 min-h-0">
+    <img data-lb-img alt="" class="max-h-full max-w-full object-contain">
+    <button class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-paper/10 hover:bg-paper hover:text-ink" data-lb-prev aria-label="Назад">←</button>
+    <button class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-paper/10 hover:bg-paper hover:text-ink" data-lb-next aria-label="Вперёд">→</button>
+  </div>
+  <p class="text-center pb-6 latin text-sm text-paper/60" data-lb-count></p>
+</div>
+
+<div id="player" hidden class="fixed inset-0 z-[70] bg-ink/95 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Видео">
+  <button class="absolute top-4 right-4 w-10 h-10 rounded-full border border-paper/40 text-paper grid place-items-center hover:bg-paper hover:text-ink" data-player-close aria-label="Закрыть">✕</button>
+  <video class="max-w-full max-h-[88vh] bg-black" controls playsinline preload="none"></video>
+</div>
+
+<script src="data.js"></script>
+<script>
+const IMG = (n) => `assets/img/${n.includes('.') ? n : n + '.jpg'}`;
+const VID = { 'volyshovo-teaser.mp4': 'assets/video/volyshovo-teaser.mp4', 'ai-favorit.mp4': 'assets/video/ai-favorit.mp4', 'ai-atdom.mp4': 'assets/video/ai-atdom.mp4' };
+const AR = (n) => { const s = SIZES[n]; return s ? s[0] / s[1] : 1.5; };
+const caseById = Object.fromEntries(CASES.map(c => [c.id, c]));
+const gallery = (id) => caseById[id] || EXTRA[id] || (id.endsWith('-cutout') && { title: caseById[id.replace('-cutout', '')].title, imgs: [caseById[id.replace('-cutout', '')].cutout] });
+
+/* ряд фото без обрезки: ширина каждой ячейки пропорциональна пропорциям кадра */
+function row(gid, list, start, extra = '') {
+  return `<div class="flex gap-2">${list.map((n, i) => `
+    <button class="ph relative block overflow-hidden bg-ink/5" style="flex:${AR(n).toFixed(4)} 1 0%" data-gallery="${gid}" data-index="${start + i}" aria-label="Открыть фото ${start + i + 1}">
+      <img src="${IMG(n)}" alt="" loading="lazy" class="block w-full h-auto">
+      ${i === list.length - 1 ? extra : ''}
+    </button>`).join('')}</div>`;
+}
+function rows(gid, imgs, pattern) {
+  let k = 0, out = '';
+  pattern.forEach((cnt, r) => {
+    const part = imgs.slice(k, k + cnt);
+    const last = r === pattern.length - 1;
+    const more = last && imgs.length > k + cnt ? `<span class="absolute bottom-3 right-3 rounded-full bg-paper/90 text-ink px-3 py-1 text-xs latin">+${imgs.length - k - cnt} фото</span>` : '';
+    out += row(gid, part, k, more); k += cnt;
+  });
+  return `<div class="space-y-2">${out}</div>`;
+}
+
+/* обо мне */
+document.querySelector('[data-about]').innerHTML = ABOUT.map((p, i) => `<p class="reveal ${i ? 'text-mute' : ''}">${p}</p>`).join('');
+document.querySelector('[data-skills]').innerHTML = SKILLS.map(([t, d], i) => `<div class="bg-paper p-5 reveal"><p class="font-semibold"><span class="latin font-black text-redink mr-2">0${i + 1}</span>${t}</p><p class="text-[15px] text-mute mt-2 leading-snug">${d}</p></div>`).join('');
+document.querySelector('[data-tools]').innerHTML = TOOLS.map(t => `<span class="latin rounded-full border border-ink/25 px-3 py-1.5 text-sm">${t}</span>`).join('');
+
+/* опыт: вкладки */
+const tabsEl = document.querySelector('[data-tabs]'), panelEl = document.querySelector('[data-panel]');
+tabsEl.innerHTML = JOBS.map((j, i) => `
+  <button role="tab" class="tab text-left flex items-baseline gap-5 border-b border-ink/20 px-4 py-6 transition hover:bg-ink/5" aria-selected="${i === 0}" data-job="${j.id}">
+    <span class="tab-y latin font-black text-redink w-[104px] shrink-0">${j.years}</span>
+    <span><span class="block text-xl md:text-2xl font-medium leading-tight">${j.org}</span><span class="block text-sm opacity-60 mt-1">${j.sub}</span></span>
+  </button>`).join('');
+function showJob(id) {
+  const j = JOBS.find(x => x.id === id);
+  tabsEl.querySelectorAll('[role=tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.job === id));
+  panelEl.innerHTML = `
+    <p class="hand text-cinnabar text-5xl md:text-6xl -rotate-2 mb-3">${j.study ? 'учёба' : 'роль'}</p>
+    <p class="display normal-case text-2xl md:text-4xl leading-[.98]" style="text-transform:none">${j.role}</p>
+    ${j.tasks ? `<ul class="mt-8 grid sm:grid-cols-2 gap-x-8 gap-y-3">${j.tasks.map(t => `<li class="flex gap-3"><span class="text-cinnabar">•</span><span>${t}</span></li>`).join('')}</ul>` : ''}
+    ${j.study ? `<ul class="mt-8 space-y-4">${j.study.map(([y, o, d]) => `<li class="grid grid-cols-[92px_1fr] gap-4"><span class="latin text-sm text-mute pt-0.5">${y}</span><span><b class="font-medium">${o}</b><span class="block text-mute text-[15px] mt-0.5">${d}</span></span></li>`).join('')}</ul>` : ''}
+    ${j.cases ? `<div class="mt-8 pt-6 border-t border-ink/15"><p class="label text-mute mb-3">Проекты</p><div class="flex flex-wrap gap-2">${j.cases.map(c => `<a href="#case-${c}" class="rounded-full bg-paper2 px-4 py-2 text-sm hover:bg-ink hover:text-paper transition">${caseById[c].title}</a>`).join('')}</div></div>` : ''}`;
+}
+tabsEl.addEventListener('click', e => { const b = e.target.closest('[data-job]'); if (b) showJob(b.dataset.job); });
+tabsEl.addEventListener('keydown', e => {
+  if (!['ArrowDown', 'ArrowUp'].includes(e.key)) return;
+  const bs = [...tabsEl.querySelectorAll('[role=tab]')], i = bs.indexOf(document.activeElement);
+  const n = bs[(i + (e.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length]; n.focus(); showJob(n.dataset.job); e.preventDefault();
+});
+showJob(JOBS[0].id);
+
+/* цифры */
+document.querySelector('[data-stats]').innerHTML = STATS.map(([n, t, p]) => `
+  <div class="border-b border-r border-paper/20 p-5 md:p-8 reveal">
+    <p class="latin font-black text-[clamp(34px,4.4vw,68px)] leading-none tracking-tight whitespace-nowrap">${n}</p>
+    <p class="mt-3 text-paper/80 text-sm md:text-base">${t}</p>
+    <p class="label text-coral mt-2">${p}</p>
+  </div>`).join('');
+
+/* проекты */
+const pts = (c, dark) => c.points.length ? `<ul class="mt-5 space-y-2 text-[15px]">${c.points.map(p => `<li class="flex gap-3"><span class="${dark ? 'text-coral' : 'text-cinnabar'}">•</span><span>${p}</span></li>`).join('')}</ul>` : '';
+const mets = (c, dark) => c.metrics ? `<div class="mt-6 grid grid-cols-2 sm:grid-cols-${Math.min(c.metrics.length, 4)} gap-px ${dark ? 'bg-paper/15 border-paper/15' : 'bg-ink/15 border-ink/15'} border">${c.metrics.map(([v, l]) => `<div class="${dark ? 'bg-ink' : 'bg-paper'} p-3 md:p-4"><p class="latin font-black text-xl md:text-2xl leading-none whitespace-nowrap ${dark ? 'text-coral' : 'text-redink'}">${v}</p><p class="text-[13px] mt-1.5 ${dark ? 'text-paper/70' : 'text-mute'} leading-tight">${l}</p></div>`).join('')}</div>` : '';
+const links = (c, dark) => c.links ? `<div class="mt-6 grid sm:grid-cols-2 gap-3">${c.links.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener" class="group border ${dark ? 'border-paper/40' : 'border-ink'} p-4 hover:bg-ink hover:text-paper transition"><span class="label ${dark ? 'text-paper/60' : 'text-mute'} group-hover:text-paper/60">Сюжет</span><span class="block mt-2 font-medium">${t} ↗</span></a>`).join('')}</div>` : '';
+const text = (c, dark) => `
+  <p class="label ${dark ? 'text-paper/60' : 'text-mute'}"><span class="${dark ? 'text-coral' : 'text-redink'}">${c.n}</span> · ${c.year}</p>
+  <h3 class="display mt-3 text-[clamp(34px,3.6vw,56px)]">${c.title}</h3>
+  <p class="mt-2 ${dark ? 'text-paper/60' : 'text-mute'}">${c.place}</p>
+  <p class="mt-5 text-lg leading-snug">${c.lead}</p>
+  ${pts(c, dark)}${mets(c, dark)}${links(c, dark)}
+  <div class="mt-5 pt-4 border-t ${dark ? 'border-paper/15' : 'border-ink/15'}"><p class="label ${dark ? 'text-paper/50' : 'text-mute'}">Роль</p><p class="mt-1 text-[15px]">${c.role}</p></div>`;
+
+function media(c, dark) {
+  if (c.cutout) return `<div class="grid grid-cols-5 gap-2 items-end">
+      <button class="relative col-span-2 aspect-[3/5]" data-gallery="${c.id}-cutout" data-index="0" aria-label="Открыть фото">
+        <span class="absolute left-1/2 top-[12%] -translate-x-1/2 w-[92%] aspect-square rounded-full bg-cinnabar"></span>
+        <img src="${IMG(c.cutout)}" alt="Анна с баллончиком краски" class="relative block w-full h-auto">
+      </button>
+      <div class="col-span-3">${rows(c.id, c.imgs, c.rows)}</div></div>`;
+  if (!c.imgs && !c.videos) return '';
+  let v = '';
+  if (c.videos) v = `<div class="flex gap-2 mb-2">${c.videos.map(([f, cap]) => `
+      <figure style="flex:${AR(f).toFixed(4)} 1 0%" class="relative">
+        <video class="block w-full h-auto bg-black" src="${VID[f]}" ${f === 'ai-atdom.mp4' ? 'autoplay muted loop' : 'controls'} playsinline preload="metadata" poster="${IMG(f.replace('.mp4', '-poster'))}" data-vid="${f}"></video>
+        <figcaption class="label ${dark ? 'text-paper/60' : 'text-mute'} mt-2">${cap}</figcaption></figure>`).join('')}</div>`;
+  const ex = c.extra ? `<p class="label ${dark ? 'text-paper/60' : 'text-mute'} mt-8 mb-3">${c.extra.title}</p>${rows(c.extra.id, c.extra.imgs, c.extra.rows)}` : '';
+  return v + (c.imgs ? rows(c.id, c.imgs, c.rows) : '') + ex;
+}
+
+function caseHTML(c, dark, flip) {
+  if (c.half) return `<article id="case-${c.id}" class="col-span-12 md:col-span-6 reveal scroll-mt-24">${media(c, dark)}<div class="${c.imgs ? 'mt-6' : ''}">${text(c, dark)}</div></article>`;
+  return `<article id="case-${c.id}" class="grid grid-cols-12 gap-6 md:gap-12 reveal scroll-mt-24 items-start">
+    <div class="col-span-12 lg:col-span-7 ${flip ? 'lg:order-2' : ''}">${media(c, dark)}</div>
+    <div class="col-span-12 lg:col-span-5">${text(c, dark)}</div></article>`;
+}
+
+document.querySelector('[data-blocks]').innerHTML = BLOCKS.map(b => {
+  const dark = b.tone === 'dark';
+  const list = CASES.filter(c => c.b === b.id);
+  const full = list.filter(c => !c.half), halves = list.filter(c => c.half);
+  return `<section id="${b.id}" class="${dark ? 'bg-ink text-paper' : ''} scroll-mt-16 ${b.id === 'favorit' ? '' : ''}">
+    <div class="mx-auto max-w-[1440px] px-4 md:px-10 py-20 md:py-28">
+      <div class="grid grid-cols-12 gap-6 items-end border-b ${dark ? 'border-paper/30' : 'border-ink'} pb-8 mb-14 md:mb-20">
+        <div class="col-span-12 md:col-span-8">
+          <p class="label ${dark ? 'text-coral' : 'text-redink'} mb-4">04 · Проекты · ${b.n}</p>
+          <h2 class="display text-[clamp(44px,7vw,120px)]">${b.title}</h2>
+        </div>
+        <div class="col-span-12 md:col-span-4 md:text-right">
+          <p class="latin font-black text-3xl md:text-5xl ${dark ? 'text-coral' : 'text-redink'}">${b.years}</p>
+          <p class="mt-2 ${dark ? 'text-paper/70' : 'text-mute'} text-[15px]">${b.sub}</p>
+        </div>
+      </div>
+      <div class="space-y-20 md:space-y-28">
+        ${full.map(c => caseHTML(c, dark)).join('')}
+        ${halves.length ? `<div class="grid grid-cols-12 gap-x-6 md:gap-x-12 gap-y-16">${halves.map(c => caseHTML(c, dark)).join('')}</div>` : ''}
+        ${b.id === 'mosprod' ? `<div class="reveal">
+          ${rows('team', EXTRA.team.imgs, [3])}
+        </div>` : ''}
+      </div>
+    </div>
+  </section>`;
+}).join('');
+
+/* увлечения */
+const H = HOBBY;
+document.querySelector('[data-hobby]').innerHTML = `
+  <article class="reveal">${rows('music', EXTRA.music.imgs, [3])}
+    <h3 class="display text-4xl mt-6">музыка</h3><p class="mt-3 leading-relaxed">${H.music[0]}</p>
+    <ul class="mt-5 space-y-3 text-[15px]">${H.music[1].map(t => `<li class="flex gap-3"><span class="text-cinnabar">✳</span><span>${t}</span></li>`).join('')}</ul>
+    <a href="https://music.yandex.ru/album/35222351" target="_blank" rel="noopener" class="mt-5 inline-flex items-center gap-2 border-b border-ink pb-1 hover:text-cinnabar hover:border-cinnabar">Слушать на Яндекс Музыке ↗</a></article>
+  <article class="reveal">
+    <div class="aspect-[4/3] bg-ink text-paper p-6 flex flex-col justify-between"><span class="label text-paper/60">Фотоконкурсы</span><p class="latin font-black text-[clamp(72px,7vw,110px)] leading-none text-coral">2</p><span class="hand text-coral text-6xl -rotate-3 self-end">награды</span></div>
+    <h3 class="display text-4xl mt-6">фотография</h3><p class="mt-3 leading-relaxed">${H.photo[0]}</p>
+    <ul class="mt-5 space-y-3 text-[15px]">${H.photo[1].map(([y, t]) => `<li class="flex gap-3"><span class="latin font-black text-redink">${y}</span><span>${t}</span></li>`).join('')}</ul></article>
+  <article class="reveal">${rows('sweets', EXTRA.sweets.imgs, [2])}
+    <h3 class="display text-4xl mt-6">кондитерское искусство</h3><p class="mt-3 leading-relaxed">${H.sweets}</p></article>`;
+
+/* лайтбокс */
+const lb = document.getElementById('lightbox'), lbImg = lb.querySelector('[data-lb-img]');
+let lbList = [], lbI = 0, lbTitle = '';
+function lbShow() { lbImg.src = IMG(lbList[lbI]); lbImg.alt = `${lbTitle}, фото ${lbI + 1}`; lb.querySelector('[data-lb-count]').textContent = `${lbI + 1} / ${lbList.length}`; lb.querySelectorAll('[data-lb-prev],[data-lb-next]').forEach(b => b.hidden = lbList.length < 2); }
+function lbOpen(id, i = 0) { const g = gallery(id); lbList = g.imgs; lbI = i; lbTitle = g.title; lb.querySelector('[data-lb-title]').textContent = g.title; lbShow(); lb.hidden = false; document.body.style.overflow = 'hidden'; lb.querySelector('[data-lb-close]').focus(); }
+function lbClose() { lb.hidden = true; document.body.style.overflow = ''; }
+lb.querySelector('[data-lb-prev]').onclick = () => { lbI = (lbI - 1 + lbList.length) % lbList.length; lbShow(); };
+lb.querySelector('[data-lb-next]').onclick = () => { lbI = (lbI + 1) % lbList.length; lbShow(); };
+lb.querySelector('[data-lb-close]').onclick = lbClose;
+
+/* плеер */
+const pl = document.getElementById('player'), plV = pl.querySelector('video');
+function plOpen(key) { plV.src = VID[key]; pl.hidden = false; document.body.style.overflow = 'hidden'; plV.play().catch(() => {}); }
+function plClose() { plV.pause(); pl.hidden = true; document.body.style.overflow = ''; }
+pl.querySelector('[data-player-close]').onclick = plClose;
+pl.addEventListener('click', e => { if (e.target === pl) plClose(); });
+
+document.addEventListener('click', e => {
+  const p = e.target.closest('[data-play]'); if (p) { e.preventDefault(); plOpen(p.dataset.play); return; }
+  const g = e.target.closest('[data-gallery]'); if (g) lbOpen(g.dataset.gallery, +(g.dataset.index || 0));
+});
+document.addEventListener('keydown', e => {
+  if (!lb.hidden) { if (e.key === 'Escape') lbClose(); if (e.key === 'ArrowLeft') lb.querySelector('[data-lb-prev]').click(); if (e.key === 'ArrowRight') lb.querySelector('[data-lb-next]').click(); }
+  if (!pl.hidden && e.key === 'Escape') plClose();
+});
+
+/* меню */
+const menu = document.querySelector('[data-menu]');
+document.querySelector('[data-menu-btn]').onclick = () => menu.classList.toggle('hidden');
+menu.addEventListener('click', e => { if (e.target.closest('a')) menu.classList.add('hidden'); });
+
+/* появление */
+const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }), { rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

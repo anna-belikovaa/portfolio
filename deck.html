@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Портфолио. Анна Беликова</title>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family: 'Soyuz Grotesk'; src: url('assets/fonts/soyuz-grotesk-bold.woff') format('woff'); font-weight: 700; }
+  @font-face { font-family: 'Denistina'; src: url('assets/fonts/denistina.ttf') format('truetype'); }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-regular.otf') format('opentype'); font-weight: 400; }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-black.otf') format('opentype'); font-weight: 900; }
+  @page { size: 1600px 900px; margin: 0; }
+  :root { --ink: #151413; --mute: #6B6560; --red: #DE5454; --redink: #B93C3C; --coral: #F0A08C; --line: rgba(21,20,19,.14); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #8c867e; font-family: 'Golos Text', sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .s { width: 1600px; height: 900px; position: relative; overflow: hidden; background: #fff; margin: 0 auto 24px; break-after: page; }
+  @media print { body { background: none; } .s { margin: 0; } }
+  .dark { background: var(--ink); color: #fff; }
+  .display { font-family: 'Soyuz Grotesk', sans-serif; font-weight: 700; letter-spacing: -.02em; line-height: .9; }
+  .hand { font-family: 'Denistina', cursive; color: var(--red); line-height: 1; font-weight: 400; }
+  .dark .hand { color: var(--coral); }
+  .latin { font-family: 'Aileron', 'Golos Text', sans-serif; }
+  .label { font-family: 'Aileron', 'Golos Text', sans-serif; font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: var(--mute); }
+  .dark .label { color: rgba(255,255,255,.6); }
+  .top { position: absolute; top: 40px; left: 64px; right: 64px; display: flex; justify-content: space-between; align-items: center; font-size: 16px; z-index: 5; }
+  .arrow { width: 54px; height: 2px; background: currentColor; position: relative; }
+  .arrow::after { content: ''; position: absolute; right: 0; top: -5px; width: 10px; height: 10px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; transform: rotate(45deg); }
+  .pageno { position: absolute; bottom: 30px; right: 64px; font-family: 'Aileron'; font-size: 13px; color: var(--mute); z-index: 5; }
+  .dark .pageno { color: rgba(255,255,255,.55); }
+  .circle { position: absolute; border-radius: 50%; background: var(--red); }
+  ul.dots { list-style: none; }
+  ul.dots li { position: relative; padding-left: 20px; margin-bottom: 7px; font-size: 16px; line-height: 1.36; }
+  ul.dots li::before { content: ''; position: absolute; left: 2px; top: .55em; width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+  .dark ul.dots li::before { background: var(--coral); }
+  .mets { display: flex; gap: 26px; margin: 14px 0 12px; }
+  .mets b { display: block; font-family: 'Aileron'; font-weight: 900; font-size: 32px; color: var(--redink); }
+  .dark .mets b { color: var(--coral); }
+  .mets span { font-size: 13px; color: var(--mute); }
+  .dark .mets span { color: rgba(255,255,255,.6); }
+  .j { position: absolute; }
+  .j img { position: absolute; display: block; }
+  .role { font-size: 14px; color: var(--mute); margin-top: 10px; }
+  .dark .role { color: rgba(255,255,255,.6); }
+  .role b { font-weight: 500; color: var(--ink); }
+  .dark .role b { color: #fff; }
+</style>
+</head>
+<body>
+<div id="deck"></div>
+<script src="data.js"></script>
+<script>
+const IMG = (n) => `assets/img/${n.includes('.') ? n : n + '.jpg'}`;
+const AR = (n) => { const s = SIZES[n]; return s ? s[0] / s[1] : 1.5; };
+const by = Object.fromEntries(CASES.map(c => [c.id, c]));
+const WORDS = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
+const NUM = (c) => +c.n;
+let page = 0;
+const S = (inner, cls = '') => `<section class="s ${cls}"><div class="top"><span>${NAME}</span><span class="arrow"></span></div>${inner}<span class="pageno">${String(++page).padStart(2, '0')}</span></section>`;
+
+/* фото рядами без обрезки: ряды по шаблону, всё вписано в рамку x, y, w, h */
+function justify(imgs, pattern, x, y, w, h, gap = 10, align = 'start') {
+  const rowsList = []; let k = 0;
+  for (const cnt of pattern) { rowsList.push(imgs.slice(k, k + cnt)); k += cnt; }
+  const heights = rowsList.map(r => (w - gap * (r.length - 1)) / r.reduce((s, n) => s + AR(n), 0));
+  const total = heights.reduce((a, b) => a + b, 0) + gap * (rowsList.length - 1);
+  const sc = Math.min(1, h / total), blockH = total * sc;
+  let cy = align === 'center' ? (h - blockH) / 2 : 0, out = '';
+  rowsList.forEach((r, ri) => {
+    const rh = heights[ri] * sc, rw = r.reduce((s, n) => s + AR(n) * rh, 0) + gap * (r.length - 1);
+    let cx = (w - rw) / 2;
+    r.forEach(n => { const iw = AR(n) * rh; out += `<img src="${IMG(n)}" alt="" style="left:${cx.toFixed(1)}px;top:${cy.toFixed(1)}px;width:${iw.toFixed(1)}px;height:${rh.toFixed(1)}px">`; cx += iw + gap; });
+    cy += rh + gap;
+  });
+  return `<div class="j" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">${out}</div>`;
+}
+
+const mets = (c) => c.metrics ? `<div class="mets">${c.metrics.map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>` : '';
+const dots = (list, size = 16) => list.length ? `<ul class="dots">${list.map(p => `<li style="font-size:${size}px">${p}</li>`).join('')}</ul>` : '';
+const proj = (k) => `<div style="display:flex;align-items:flex-end;height:92px"><span class="display" style="font-size:60px">project</span><span class="hand" style="font-size:112px;margin-left:-6px;transform:rotate(-8deg) translateY(16px)">${WORDS[k]}</span></div>`;
+const head = (c, size = 52, title) => `<h2 class="display" style="font-size:${size}px;margin-top:22px">${title || c.title}</h2>
+  <p style="color:var(--mute);font-size:15px;margin-top:8px">${c.place} · ${c.year}</p>`;
+
+/* кейс: текст слева, фото справа */
+function caseSlide(c, o = {}) {
+  return S(`
+    <div style="position:absolute;left:64px;top:100px;width:600px;bottom:56px">
+      ${proj(o.k || NUM(c))}
+      ${head(c, o.size, o.title)}
+      <p style="font-size:18px;line-height:1.4;margin:14px 0 2px">${o.lead || c.lead}</p>
+      ${o.noMets ? '' : mets(c)}
+      ${dots(o.points || c.points, o.fs || 15.5)}
+      ${o.after || ''}
+      <p class="role">Роль. <b>${c.role}</b></p>
+    </div>
+    ${o.media || justify(o.imgs || c.imgs, o.rows || c.rows, 720, 100, 816, 750, 10, 'center')}`, o.cls);
+}
+/* два проекта на слайде */
+function half(c, x, media) {
+  return `<div style="position:absolute;left:${x}px;top:100px;width:712px">
+      <p class="label"><span style="color:var(--redink)">project ${WORDS[NUM(c)]}</span> · ${c.year}</p>
+      <h2 class="display" style="font-size:44px;margin-top:10px">${c.title}</h2>
+      <p style="color:var(--mute);font-size:15px;margin-top:6px">${c.place}</p>
+      ${mets(c)}
+      ${dots(c.points.slice(0, 3), 14.5)}
+      <p class="role">Роль. <b>${c.role}</b></p>
+    </div>
+    ${media}`;
+}
+const slides = [];
+
+/* 1. обложка */
+slides.push(S(`
+  <p class="hand" style="position:absolute;left:330px;top:160px;font-size:190px;transform:rotate(-10deg);white-space:nowrap">Арт-куратор</p>
+  <h1 class="display" style="position:absolute;left:150px;top:300px;font-size:250px">portfolio</h1>
+  <p style="position:absolute;left:64px;bottom:60px;font-size:18px;text-decoration:underline">portfolio-artmanagement.tilda.ws</p>
+  <p style="position:absolute;right:64px;bottom:60px;font-size:18px">Москва, 2026</p>`));
+
+/* 2. обо мне */
+slides.push(S(`
+  <div class="circle" style="width:520px;height:520px;right:110px;top:-110px"></div>
+  <img src="${IMG('anna-folder.png')}" alt="" style="position:absolute;right:120px;bottom:0;height:800px">
+  <div style="position:absolute;left:64px;top:110px;width:820px">
+    <h1 class="display" style="font-size:110px">обо мне</h1>
+    <p class="hand" style="font-size:96px;margin:-6px 0 0 70px;transform:rotate(-4deg)">Архитектор смыслов</p>
+    <p style="font-size:18px;line-height:1.46;margin-top:40px">${ABOUT[0]}</p>
+    <p style="font-size:18px;line-height:1.46;margin-top:10px;color:var(--mute)">${ABOUT[1]}</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px 24px;margin-top:24px">
+      ${SKILLS.map(([t, d], i) => `<div><p style="font-size:16px;font-weight:600"><span class="latin" style="font-weight:900;color:var(--redink);margin-right:6px">0${i + 1}</span>${t}</p><p style="font-size:13px;color:var(--mute);line-height:1.35;margin-top:3px">${d}</p></div>`).join('')}
+    </div>
+  </div>`));
+
+/* 3. опыт */
+const jobCol = (j) => `<div style="border-top:2px solid ${j.current ? 'var(--red)' : 'var(--ink)'};padding-top:22px">
+    <p class="latin" style="font-weight:900;font-size:26px;color:${j.current ? 'var(--redink)' : 'var(--ink)'}">${j.years}</p>
+    <h3 class="display" style="font-size:38px;margin-top:14px">${j.org}</h3>
+    <p style="color:var(--mute);font-size:15px;margin-top:8px">${j.sub}</p>
+    <p style="font-size:17px;font-weight:500;line-height:1.3;margin:14px 0 14px">${j.role}</p>
+    ${j.tasks ? dots(j.tasks, 14.5) : `<ul style="list-style:none">${j.study.map(([y, o, d]) => `<li style="margin-bottom:9px;font-size:13.5px;line-height:1.3"><span class="latin" style="color:var(--mute);margin-right:8px">${y}</span><b style="font-weight:600">${o}</b><br><span style="color:var(--mute)">${d}</span></li>`).join('')}</ul>`}
+  </div>`;
+slides.push(S(`
+  <div style="position:absolute;left:64px;top:100px;right:64px">
+    <div style="display:flex;align-items:flex-end;gap:30px"><h1 class="display" style="font-size:96px">опыт работы</h1><p class="hand" style="font-size:80px;transform:rotate(-5deg) translateY(10px)">и учёба</p></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:44px;margin-top:36px">${JOBS.map(jobCol).join('')}</div>
+  </div>`));
+
+/* 4. в цифрах */
+slides.push(S(`
+  <div style="position:absolute;left:64px;top:96px;right:64px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end"><h1 class="display" style="font-size:100px">в цифрах</h1><p class="hand" style="font-size:76px;transform:rotate(-4deg)">за каждой цифрой люди</p></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);margin-top:30px;border-top:1px solid rgba(255,255,255,.2)">
+      ${STATS.map(([n, t, p], i) => `<div style="padding:22px 22px 22px ${i % 4 ? '22px' : '0'};border-bottom:1px solid rgba(255,255,255,.2);${i % 4 ? 'border-left:1px solid rgba(255,255,255,.2)' : ''}"><p class="latin" style="font-weight:900;font-size:58px;line-height:1;white-space:nowrap">${n}</p><p style="font-size:15px;opacity:.85;margin-top:10px">${t}</p><p class="label" style="color:var(--coral);margin-top:6px;font-size:11px">${p}</p></div>`).join('')}
+    </div>
+  </div>`, 'dark'));
+
+/* 5–6. FAVORIT MOTORS */
+const fv = by.favorit;
+slides.push(caseSlide(fv, { points: fv.points.slice(0, 5), fs: 14.5, size: 46, imgs: ['fav-1', 'fav-2', 'fav-3', 'fav-4'], rows: [2, 2] }));
+slides.push(caseSlide(fv, { size: 46, noMets: true, title: 'Мерч «Кетчерская 9»', lead: 'Летняя серия автомобильных фестивалей холдинга.', points: [fv.points[5], 'Концепция фестивального мерча стала визуальной основой серии летних событий компании.'],
+  media: justify(fv.extra.imgs, fv.extra.rows, 720, 100, 816, 750, 14, 'center') }));
+
+/* 7. Стритартерия */
+slides.push(caseSlide(by.strit, { points: by.strit.points.slice(0, 4) }));
+
+/* 8. Зарядье и LINK */
+slides.push(S(half(by.zar, 64, justify(['zaryadye', 'zar-anna'], [2], 64, 470, 712, 380)) + half(by.link, 824, justify(['link-depo'], [1], 824, 470, 712, 380))));
+
+/* 9. Арт-Драйв и Контуры культуры */
+const kn = by.kontury;
+slides.push(S(half(by.artdrive, 64, justify(['artdrive-cars', 'artdrive-paint'], [2], 64, 470, 712, 380)) + half(kn, 824, `
+  <div class="circle" style="width:300px;height:300px;left:850px;top:500px"></div>
+  <img src="${IMG(kn.cutout)}" alt="" style="position:absolute;left:870px;top:470px;height:400px;z-index:2">
+  ${justify(kn.imgs, [1], 1110, 470, 426, 380, 10, 'center')}`)));
+
+/* 10. Выставки, СимфоСинтез, подарки */
+const ex = by.exh, sf = by.simfo, gf = by.gifts;
+slides.push(caseSlide(ex, { points: ex.points.slice(0, 4), fs: 14.5, imgs: ['exh-6', 'exh-signs', 'exh-grid', 'exh-texts'], rows: [2, 2],
+  after: `<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+    <div><p class="label"><span style="color:var(--redink)">project ${WORDS[NUM(sf)]}</span> · ${sf.year}</p><p style="font-size:18px;font-weight:600;margin-top:6px">${sf.title}</p><p style="font-size:13.5px;line-height:1.35;margin-top:4px">${sf.lead} Open call, отбор с экспертным жюри, полиграфия и концерт.</p></div>
+    <div><p class="label"><span style="color:var(--redink)">project ${WORDS[NUM(gf)]}</span> · ${gf.year}</p><p style="font-size:18px;font-weight:600;margin-top:6px">${gf.title}</p><p style="font-size:13.5px;line-height:1.35;margin-top:4px">${gf.lead} Концепция новогоднего оформления двух площадок.</p></div>
+  </div>` }));
+
+/* 11. команда */
+slides.push(S(`${justify(['strit-team', 'kontury-team', 'anna-collage', 'simfosintez'], [2, 2], 64, 100, 1472, 750, 10, 'center')}`, 'dark'));
+
+/* 12. Код лошади */
+const kd = by.kod;
+slides.push(caseSlide(kd, { after: `<div style="display:grid;gap:10px;margin-top:16px">${kd.links.map(([t, u]) => `<a href="${u}" style="display:block;border:1.5px solid var(--ink);padding:12px 16px;color:var(--ink);text-decoration:none"><span class="label">Сюжет</span><span style="display:block;font-size:17px;font-weight:500;margin-top:4px">${t} ↗</span></a>`).join('')}</div>` }));
+
+/* 13. Волышово */
+slides.push(caseSlide(by.vol, { size: 46, after: '<p style="font-size:14px;color:var(--mute);margin-top:12px">Тизер проекта можно посмотреть на сайте-портфолио.</p>',
+  imgs: ['vol-cover', 'vol-hero', 'vol-map', 'volb-1', 'volb-9'], rows: [1, 2, 2] }));
+
+/* 14. AI-видео */
+slides.push(caseSlide(by.ai, { after: '<p style="font-size:14px;color:var(--mute);margin-top:12px">Ролики можно посмотреть на сайте-портфолио.</p>',
+  imgs: ['ai-favorit-poster', 'ai-atdom-poster', 'ai-1930', 'ai-3', 'ai-4'], rows: [2, 3] }));
+
+/* 15. увлечения и контакты */
+slides.push(S(`
+  <div style="position:absolute;left:64px;top:100px;width:620px">
+    <h1 class="display" style="font-size:84px">увлечения</h1>
+    <p class="hand" style="font-size:76px;margin:-4px 0 0 60px;transform:rotate(-4deg)">и достижения</p>
+    <p style="font-size:18px;font-weight:600;margin-top:18px">Музыка</p>
+    <p style="font-size:15px;line-height:1.4;margin-top:4px">${HOBBY.music[0]}</p>
+    ${dots(HOBBY.music[1], 14)}
+    <p style="font-size:18px;font-weight:600;margin-top:12px">Фотография</p>
+    <p style="font-size:15px;line-height:1.4;margin-top:4px">${HOBBY.photo[0]}</p>
+    ${dots(HOBBY.photo[1].map(([y, t]) => `${t}, ${y}`), 14)}
+    <p style="font-size:18px;font-weight:600;margin-top:12px">Кондитерское искусство</p>
+    <p style="font-size:15px;line-height:1.4;margin-top:4px">${HOBBY.sweets}</p>
+  </div>
+  ${justify(['anna-reek', 'music-poster', 'sweets-1', 'sweets-2'], [2, 2], 740, 100, 420, 620, 10)}
+  <div style="position:absolute;right:64px;top:100px;width:330px">
+    <h2 class="display" style="font-size:88px">спасибо</h2>
+    <p class="hand" style="font-size:54px;margin-top:6px;transform:rotate(-4deg)">буду рада знакомству</p>
+    <div style="font-size:17px;line-height:1.7;margin-top:30px" class="latin">taraburinaanna@gmail.com<br>+7 (963) 719-86-68<br>t.me/anna_reek</div>
+  </div>
+  <div class="circle" style="width:300px;height:300px;right:-90px;bottom:-120px"></div>`));
+
+document.getElementById('deck').innerHTML = slides.join('');
+</script>
+</body>
+</html>
