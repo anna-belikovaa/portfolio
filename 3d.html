@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Анна Беликова. The Light Void</title>
+<meta name="description" content="Анна Беликова. Менеджер проектов, креатор, арт-куратор. Интерактивное портфолио.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: { void: '#0b0b0e', ash: '#16161b', bone: '#ECE7DF', smoke: '#9A958E', ember: '#E8B98A', rose: '#DE5454' },
+      fontFamily: { serif: ['"Cormorant Garamond"', 'Georgia', 'serif'], sans: ['"Golos Text"', 'system-ui', 'sans-serif'] }
+    }
+  }
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #0b0b0e; color: #ECE7DF; -webkit-font-smoothing: antialiased; }
+  ::selection { background: #E8B98A; color: #0b0b0e; }
+  #scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+  .veil { position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(90deg, rgba(11,11,14,.92) 0%, rgba(11,11,14,.72) 38%, rgba(11,11,14,0) 66%); }
+  @media (max-width: 1023px) { .veil { background: linear-gradient(90deg, rgba(11,11,14,.86) 0%, rgba(11,11,14,.7) 70%, rgba(11,11,14,.45) 100%); } }
+  .font-serif { font-variant-numeric: lining-nums; font-feature-settings: 'lnum' 1; }
+  .eyebrow { font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #9A958E; }
+  .rule { height: 1px; background: linear-gradient(90deg, rgba(236,231,223,.28), rgba(236,231,223,0)); }
+
+  /* кейсы и луч света */
+  .case { position: relative; border-top: 1px solid rgba(236,231,223,.12); transition: opacity .5s ease, color .5s ease; }
+  .case::before { content: ''; position: absolute; inset: -1px -24px 0 -24px; pointer-events: none; opacity: 0; transition: opacity .6s ease;
+    background: radial-gradient(120% 90% at 30% -10%, rgba(232,185,138,.22), rgba(232,185,138,.06) 45%, rgba(232,185,138,0) 70%); }
+  .list.dim .case { opacity: .32; }
+  .list.dim .case.lit { opacity: 1; }
+  .case.lit::before { opacity: 1; }
+  .case.lit .case-title { color: #fff; }
+  .case .more { opacity: .55; transition: opacity .4s ease, transform .4s ease; }
+  .case.lit .more { opacity: 1; transform: translateX(4px); }
+
+  /* панель кейса */
+  #drawer { transform: translateX(100%); transition: transform .9s cubic-bezier(.2,.7,.1,1); }
+  main, .veil, header { transition: opacity 1s ease; }
+  body.focus main, body.focus .veil { opacity: 0; pointer-events: none; }
+  body.focus header { opacity: .3; }
+  #drawer.open { transform: none; }
+  #drawer .scroll { scrollbar-width: thin; scrollbar-color: rgba(236,231,223,.2) transparent; }
+  .reveal { opacity: 0; transform: translateY(24px); }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1 !important; transform: none !important; } #drawer { transition: none; } }
+</style>
+</head>
+<body class="font-sans overflow-x-hidden">
+
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="veil"></div>
+
+<header class="fixed top-0 inset-x-0 z-30 bg-gradient-to-b from-[#0b0b0e] via-[#0b0b0e]/80 to-transparent">
+  <div class="mx-auto max-w-[1440px] px-4 md:px-10 h-16 flex items-center justify-between">
+    <a href="#hero" class="font-serif text-2xl tracking-wide">А. Беликова</a>
+    <nav class="hidden md:flex items-center gap-7 text-[13px] text-smoke">
+      <a href="#numbers" class="hover:text-bone transition">В цифрах</a>
+      <a href="#moscow" class="hover:text-bone transition">Моспродюсер</a>
+      <a href="#favorit" class="hover:text-bone transition">FAVORIT MOTORS</a>
+      <a href="#special" class="hover:text-bone transition">Спецпроекты</a>
+      <a href="#edu" class="hover:text-bone transition">Образование</a>
+      <a href="#contact" class="hover:text-bone transition">Контакты</a>
+    </nav>
+  </div>
+</header>
+
+<main class="relative z-10">
+
+<!-- 1. ГЛАВНЫЙ ЭКРАН -->
+<section id="hero" data-cam="hero" class="min-h-screen flex items-center">
+  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 pt-24 pb-16">
+    <div class="max-w-[680px]">
+      <p class="eyebrow reveal">The Light Void · портфолио</p>
+      <h1 class="font-serif font-medium leading-[.9] mt-6 text-[clamp(64px,10vw,152px)] reveal">Анна<br><em class="font-normal text-ember">Беликова</em></h1>
+      <p class="mt-8 text-lg md:text-xl text-bone/90 reveal">Менеджер проектов, креатор, арт-куратор</p>
+      <div class="rule my-8 reveal"></div>
+      <p class="text-[17px] md:text-lg leading-relaxed text-bone/85 reveal">Более четырех лет реализую проекты на стыке культуры, бизнеса и технологий. Мой опыт объединяет управление масштабными событиями в государственном секторе, разработку корпоративных программ и коммуникаций в автомобильном холдинге, а также создание визуальных концепций, брендинга и цифровых продуктов. Выстраиваю диалог между междисциплинарными командами, пишу емкие тексты и перевожу сложные идеи в работающие форматы.</p>
+      <div class="mt-10 reveal">
+        <p class="eyebrow mb-3">Контакты</p>
+        <p class="flex flex-wrap gap-x-4 gap-y-2 text-[15px]">
+          <a href="tel:+79637198668" class="hover:text-ember transition">+7 (963) 719-86-68</a><span class="text-smoke">|</span>
+          <a href="mailto:taraburinaanna@gmail.com" class="hover:text-ember transition">taraburinaanna@gmail.com</a><span class="text-smoke">|</span>
+          <a href="https://t.me/anna_reek" target="_blank" rel="noopener" class="hover:text-ember transition">t.me/anna_reek</a><span class="text-smoke">|</span>
+          <span>Москва</span>
+        </p>
+      </div>
+      <a href="#numbers" class="inline-flex items-center gap-3 mt-12 text-sm text-smoke hover:text-bone transition reveal"><span class="w-10 h-px bg-current"></span>Войти в пространство</a>
+    </div>
+  </div>
+</section>
+
+<!-- 2. В ЦИФРАХ -->
+<section id="numbers" data-cam="numbers" class="min-h-screen flex items-center">
+  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-24">
+    <p class="eyebrow reveal">В цифрах</p>
+    <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-none mt-4 reveal">Масштаб <em class="text-ember">в цифрах</em></h2>
+    <div class="grid sm:grid-cols-2 gap-x-10 max-w-[760px] mt-12" data-stats></div>
+  </div>
+</section>
+
+<!-- 3. БЛОК 1 -->
+<section id="moscow" data-cam="moscow" class="min-h-screen">
+  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-28">
+    <div class="max-w-[720px]">
+      <p class="eyebrow reveal">Блок 1</p>
+      <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-[.95] mt-4 reveal">Масштабные городские события <em class="text-ember">(Моспродюсер)</em></h2>
+      <dl class="mt-10 grid sm:grid-cols-[120px_1fr] gap-x-6 gap-y-3 text-[15px] reveal">
+        <dt class="eyebrow pt-1">Компания</dt><dd>Московский продюсерский центр (Департамент культуры г. Москвы), 2022–2025</dd>
+        <dt class="eyebrow pt-1">Роль</dt><dd>Менеджер арт-проектов отдела по поддержке современного искусства</dd>
+      </dl>
+      <p class="eyebrow mt-14 mb-2 reveal">Проекты</p>
+      <div class="list" data-list="moscow"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. БЛОК 2 -->
+<section id="favorit" data-cam="favorit" class="min-h-screen">
+  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-28">
+    <div class="max-w-[720px]">
+      <p class="eyebrow reveal">Блок 2</p>
+      <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-[.95] mt-4 reveal">Автомобильный бизнес и <em class="text-ember">внутренние коммуникации</em></h2>
+      <dl class="mt-10 grid sm:grid-cols-[120px_1fr] gap-x-6 gap-y-3 text-[15px] reveal">
+        <dt class="eyebrow pt-1">Компания</dt><dd>Группа компаний FAVORIT MOTORS, сентябрь 2025 – настоящее время</dd>
+        <dt class="eyebrow pt-1">Роль</dt><dd>Менеджер по контенту и коммуникациям, куратор спецпроектов</dd>
+      </dl>
+      <p class="eyebrow mt-14 mb-2 reveal">Задачи и кейсы</p>
+      <div class="list" data-list="favorit"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. БЛОК 3 -->
+<section id="special" data-cam="special" class="min-h-screen">
+  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-28">
+    <div class="max-w-[720px]">
+      <p class="eyebrow reveal">Блок 3</p>
+      <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-[.95] mt-4 reveal">Спецпроекты, исследования <em class="text-ember">и мультимедиа</em></h2>
+      <div class="list mt-12" data-list="special"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. ОБРАЗОВАНИЕ И НАВЫКИ -->
+<section id="edu" data-cam="edu" class="min-h-screen flex items-center">
+  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-28">
+    <div class="max-w-[720px]">
+      <p class="eyebrow reveal">Образование и навыки</p>
+      <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-[.95] mt-4 reveal">Образование <em class="text-ember">и навыки</em></h2>
+      <div class="mt-12 space-y-7 text-[16px] leading-relaxed">
+        <div class="reveal"><p class="font-serif text-2xl">РГХПУ им. С. Г. Строганова <span class="text-smoke text-lg">(2024–2027)</span></p><p class="text-bone/80 mt-1">Магистратура кафедры промышленного дизайна, «Дизайн-кураторство. Креативные технологии и экспертиза».</p></div>
+        <div class="reveal"><p class="font-serif text-2xl">РГУ им. А. Н. Косыгина <span class="text-smoke text-lg">(2018–2022)</span></p><p class="text-bone/80 mt-1">«Теория и история искусств», искусствовед.</p></div>
+        <div class="rule reveal"></div>
+        <dl class="grid sm:grid-cols-[120px_1fr] gap-x-6 gap-y-5 reveal">
+          <dt class="eyebrow pt-1">Курсы</dt><dd class="text-bone/85">«AI в креативных индустриях» (verlab и PROЩе Production, 2026), «Современные художественные практики» (Школа Родченко, 2023), «Управление проектами в сфере культуры» (РГУ им. Косыгина, 2022).</dd>
+          <dt class="eyebrow pt-1">Инструменты</dt><dd class="text-bone/85">Figma, Adobe Creative Cloud, Tilda, Notion, Jira, Kaiten, Three.js, Weavy, Veo, Kling.</dd>
+          <dt class="eyebrow pt-1">Языки</dt><dd class="text-bone/85">Английский B2, польский A2, итальянский A1.</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. УВЛЕЧЕНИЯ -->
+<section id="hobby" data-cam="hobby" class="min-h-[80vh] flex items-center">
+  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-28">
+    <div class="max-w-[720px]">
+      <p class="eyebrow reveal">Увлечения</p>
+      <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-[.95] mt-4 reveal">Увлечения</h2>
+      <dl class="mt-12 grid sm:grid-cols-[180px_1fr] gap-x-6 gap-y-7 text-[16px] leading-relaxed">
+        <dt class="font-serif text-2xl reveal">Музыка</dt><dd class="text-bone/85 reveal">Пишу треки под псевдонимом Анна Реек, создаю саунд-дизайн для выставок. Трек «Себя» победил в конкурсе «Музыка в парках» и вошел в плейлист платформы «Звук».</dd>
+        <dt class="font-serif text-2xl reveal">Фотография</dt><dd class="text-bone/85 reveal">Призер международного фотопроекта FOTORUAT (2021), третье место в конкурсе журнала SEASONS (2022).</dd>
+        <dt class="font-serif text-2xl reveal">Кондитерское искусство</dt><dd class="text-bone/85 reveal">С 2017 года.</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- КОНТАКТЫ -->
+<section id="contact" data-cam="contact" class="min-h-[80vh] flex items-end">
+  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 pb-16 pt-28">
+    <h2 class="font-serif text-[clamp(56px,9vw,140px)] leading-[.9] reveal">Анна <em class="text-ember">Беликова</em></h2>
+    <p class="mt-6 text-lg text-bone/85 reveal">Менеджер проектов, креатор, арт-куратор</p>
+    <p class="flex flex-wrap gap-x-4 gap-y-2 mt-8 text-[17px] reveal">
+      <a href="tel:+79637198668" class="hover:text-ember transition">+7 (963) 719-86-68</a><span class="text-smoke">|</span>
+      <a href="mailto:taraburinaanna@gmail.com" class="hover:text-ember transition">taraburinaanna@gmail.com</a><span class="text-smoke">|</span>
+      <a href="https://t.me/anna_reek" target="_blank" rel="noopener" class="hover:text-ember transition">t.me/anna_reek</a><span class="text-smoke">|</span>
+      <span>Москва</span>
+    </p>
+    <div class="rule mt-14 mb-5"></div>
+    <p class="eyebrow">Анна Беликова · 2026</p>
+  </div>
+</section>
+</main>
+
+<!-- ПАНЕЛЬ КЕЙСА -->
+<aside id="drawer" class="fixed top-0 right-0 bottom-0 z-40 w-full lg:w-[52vw] max-w-[860px] bg-[#101014]/95 backdrop-blur-md border-l border-white/10 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="d-title" hidden>
+  <div class="flex items-center justify-between px-6 md:px-10 h-16 border-b border-white/10 shrink-0">
+    <p class="eyebrow" id="d-eyebrow"></p>
+    <button class="w-10 h-10 rounded-full border border-white/20 grid place-items-center hover:bg-bone hover:text-void transition" data-close aria-label="Закрыть">✕</button>
+  </div>
+  <div class="scroll overflow-y-auto px-6 md:px-10 py-8" id="d-body"></div>
+</aside>
+
+<script>
+/* ——— тексты блоков: дословно ——— */
+const STATS = [
+  ['500 000+', 'посетителей площадок фестиваля Моспродюсер.LINK'],
+  ['50 000+', 'зрителей digital-выставки в парке «Зарядье»'],
+  ['36 000+', 'зрителей выставки и перформанса «Арт-Драйв»'],
+  ['20 000+', 'участников событий и презентаций FAVORIT MOTORS'],
+  ['20+', 'выставок и фестивалей'],
+  ['100+', 'художников в проектах'],
+  ['3 000+', 'корпоративных подарков'],
+  ['1 000+', 'кв. м застройки фестиваля СТРИТАРТЕРИЯ.FEST'],
+  ['20+', 'площадок с муралами в проекте «Контуры культуры»'],
+  ['1 000+', 'прослушиваний авторского саунд-гида']
+];
+
+const LISTS = {
+  moscow: [
+    ['strit', 'Фестиваль «СТРИТАРТЕРИЯ.FEST» в креативном пространстве «Новый Манеж»', 'Руководила застройкой площадки более 1000 кв. м, нашла опытного подрядчика по цене ниже рыночной в пик сезона, реализовала 4 масштабных арт-объекта и координировала работу более 40 художников.'],
+    ['zar', 'Digital-выставка в парке «Зарядье»', 'Провела открытый конкурс со сбором 100 заявок, создала лендинг, написала тексты, сформировала сценарий показа на медиаэкране 250 кв. м и координировала восьмидневную экспозицию с охватом свыше 50 000 зрителей.'],
+    ['link', 'Фестиваль «Моспродюсер.LINK» в фудмоллах «Депо»', 'Разработала стратегию и фирменный стиль, организовала конкурсный отбор, монтаж 36 арт-принтов и трансляцию 24 цифровых работ на площадках с проходимостью более 500 000 человек.'],
+    ['artdrive', 'Всероссийский проект «Арт-Драйв»', 'Подготовила концепцию, вела коммуникацию с партнерами и документацию, поставила задачи дизайнерам и PR-службам, объединив 10 арт-автомобилей с охватом выставки свыше 36 000 человек.'],
+    ['kontury', 'Проект «Контуры культуры»', 'Координировала создание муралов на 20+ площадках, разработала чат-бот для художников и привлекла партнеров для производства мерча.'],
+    ['exh', 'Локальная выставочная программа', 'Курировала 15 экспозиций с участием более 30 авторов, создавала экспликации, интерактивные чат-боты, саунд-дизайн и семейные квесты.'],
+    ['gifts', 'Корпоративное производство', 'Организовала выпуск и логистику более 3000 подарков, разработала новогоднее оформление двух культурных площадок столицы.']
+  ],
+  favorit: [
+    [null, null, 'Развиваю внутренние коммуникации холдинга, организую сбор инфоповодов в подразделениях и готовлю регулярные новостные рассылки для сотрудников.'],
+    ['ai', null, 'Пишу сценарии для видеороликов в социальных сетях, интерактивных квизов, а также создаю видеоконтент с применением генеративных нейросетей.'],
+    [null, null, 'Разрабатываю концепции, тексты и сценарии для специальных проектов холдинга.'],
+    ['favorit', null, 'Организую и провожу презентации новых моделей, корпоративные и клиентские события (включая запуск новой модели Foton с иммерсивным спектаклем, презентации Changan и спецпрограмму для РЕСО с совокупной аудиторией свыше 20 000 участников).'],
+    ['favorit', null, 'Читаю лекции по истории автодизайна, провожу образовательные программы для детей и семей сотрудников.'],
+    ['ket', null, 'С нуля создала визуальную концепцию, айдентику и линейку мерча для летней серии автомобильных фестивалей «Кетчерская 9».']
+  ],
+  special: [
+    ['kod', 'Выставка «Код лошади» в Новом Манеже (2026)', 'Подготовила исследовательскую статью для каталога юбилейной выставки и провела цикл кураторских лекций, получивших освещение на Первом канале и телеканале «Россия-Культура».'],
+    ['vol', 'Цифровой проект «Волышово. Возрождение» (магистратура Строгановки)', 'Разработала концепцию интерактивного цифрового пространства усадьбы Строгановых в Псковской области, спроектировала трехмерный лендинг и модуль сбора архивов «Телеграф памяти».'],
+    ['ai', 'AI-видео и генеративные медиа', 'Создаю видео с помощью нейросетей (Weavy, Nano Banana, Veo 3.1, Kling, Suno), включая рекламный ролик для FAVORIT MOTORS, видео для международной выставки дизайна ARTDOM и исторические стилизации.']
+  ]
+};
+
+/* ——— подробные описания проектов (со старого сайта) ——— */
+const CASES = {"strit":{"title":"СТРИТАРТЕРИЯ.FEST","place":"Креативное пространство «Новый Манеж»","year":"2023","role":"Менеджер, руководитель застройки фестиваля","lead":"Трехдневный фестиваль уличного искусства с участием более 40 художников.","points":["Провела анализ рынка и в разгар сезона, в условиях сжатых сроков и ограниченного бюджета, привлекла опытного застройщика по цене ниже рыночной.","Составила сметы, технические задания и план застройки.","Руководила застройкой, контролировала монтажные работы и готовила отчетность.","Участвовала в разработке экспозиции и реализации арт-объектов, вела коммуникацию с художниками.","Отвечала за event-менеджмент на площадке фестиваля."],"metrics":[["1000+","м²"],["4","арт-объекта"],["40+","художников"],["3","дня"]],"imgs":["stritarteria","novyi-manezh","strit-a","strit-masterclass"],"videos":null,"links":null},"zar":{"title":"Когда город становится искусством","place":"Digital-выставка в парке «Зарядье»","year":"2024","role":"Курирующий менеджер","lead":"Показ digital-искусства на крупнейшем столичном медиаэкране площадью более 250 м².","points":["Организовала open call, разработала лендинг и написала тексты.","Исследовала сообщество digital-художников, собрала около 100 заявок и сопровождала авторов на всех этапах проекта.","Создала сценарий показа digital-работ, распределила задачи между исполнителями и контролировала сборку.","В течение 8 дней координировала выставку на площадке."],"metrics":[["100+","заявок"],["8","дней"],["50 000+","зрителей"]],"imgs":["zaryadye","zar-anna","zar-1","zar-2"],"videos":null,"links":null},"link":{"title":"Моспродюсер.LINK","place":"Фудмоллы «Депо.Москва» и «Три вокзала. Депо»","year":"2023","role":"Менеджер","lead":"Фестиваль на двух площадках столичных фудмоллов «Депо» с проходимостью более 500 000 человек.","points":["Участвовала в разработке стратегии и управлении проектом.","Создала фирменный стиль проекта.","Организовала open call арт-направления на 100+ заявок и отбор 36 победителей.","Организовала печать и монтаж 36 арт-принтов в интерьерах «Депо», а также показ 24 digital-работ на экранах."],"metrics":[["100+","заявок"],["36","арт-принтов"],["24","digital-работы"]],"imgs":["link-depo"],"videos":null,"links":null},"artdrive":{"title":"Арт-Драйв","place":"Всероссийский арт-проект","year":"2024","role":"Курирующий менеджер","lead":"Проект, в рамках которого работы художников перенесли на автомобили. Выставку и перформанс в «Депо» увидели более 36 000 человек.","points":["Разработала концепцию проекта и написала тексты.","Вела коммуникацию с партнерами, готовила презентационные материалы, договоры и документацию проекта.","Ставила задачи дизайнеру, отделу маркетинга и PR, контролировала разработку лендинга и фирменного стиля.","Организовала open call и итоговый отбор работ.","Участвовала в организации выставки автомобилей с работами победителей в «Депо»."],"metrics":[["80+","заявок"],["10","автомобилей"],["3","месяца"],["36 000+","зрителей"]],"imgs":["art-drive","artdrive-cars","artdrive-paint"],"videos":null,"links":null},"kontury":{"title":"Контуры культуры","place":"Всероссийский арт-проект","year":"2023–2025","role":"Менеджер","lead":"Муралы и стрит-арт площадью от 65 до 150 м² на 20+ площадках столицы. Среди художников проекта Степан Краснов (310) и Евгений Чес.","points":["Координировала подготовку площадок и создание муралов.","Создала телеграм-бот с полезными материалами для привлечения художников и коммуникации с ними.","На протяжении двух лет участвовала в организации итоговых отборов, готовила электронные материалы и отчетность.","Контролировала закупку материалов для художников.","Привлекла партнера для производства мерча проекта, сумок и шоперов из тайвека."],"metrics":[["65–150","м², площадь муралов"],["20+","площадок"],["2","года отборов"]],"imgs":["kontury-spray.png","kontury"],"videos":null,"links":null},"exh":{"title":"Локальная выставочная программа","place":"Московский продюсерский центр","year":"2022–2025","role":"Курирующий менеджер, фотограф","lead":"Серия выставок живописи, графики и саунд-арта.","points":["Курировала организацию 15 выставок, привлекала художников и работала с договорами.","Писала концепции и сопроводительные тексты, создавала и верстала экспликации и этикетаж, отвечала за монтаж и демонтаж работ.","Для вовлечения аудитории разработала саунд-дизайн и телеграм-бот к нескольким выставкам (1000+ прослушиваний).","Разрабатывала визуалы, проводила фотосессии, организовывала съемки reels и интервью.","Придумала и провела семейный квест-конкурс, который привлек к современному искусству аудиторию с детьми."],"metrics":[["15","выставок"],["30+","художников"],["1000+","прослушиваний"]],"imgs":["exh-6","exh-signs","exh-grid","exh-texts","exh-1","exh-3","exh-4","exh-7","exh-8","exh-9","exh-10"],"videos":null,"links":null},"gifts":{"title":"Корпоративные подарки и оформление","place":"«Моспродюсер» и «Новый Манеж»","year":"2022–2025","role":"Менеджер","lead":"Организовала производство и логистику более 3000 корпоративных подарков в условиях жестких сроков.","points":["Разрабатывала технические задания и находила подрядчиков в условиях сжатых сроков и ограниченного бюджета.","Вела деловую коммуникацию с подрядчиками, работала с договорами и документацией.","Разработала и реализовала концепцию новогоднего оформления двух площадок, «Моспродюсера» и креативного пространства «Новый Манеж».","Оформляла корпоративные мероприятия, разрабатывала и изготавливала стенды и декор."],"metrics":[["3000+","подарков"],["2","площадки"]],"imgs":[],"videos":null,"links":null},"favorit":{"title":"Контент, коммуникации и спецпроекты","place":"Группа компаний FAVORIT MOTORS","year":"2025 – н. в.","role":"Менеджер по контенту и коммуникациям, куратор спецпроектов","lead":"Развиваю каналы внутренних коммуникаций, создаю контент и организую мероприятия для сотрудников и клиентов холдинга.","points":["Собираю инфоповоды в подразделениях холдинга, готовлю корпоративные новости и регулярные рассылки для сотрудников.","Пишу сценарии для видеороликов в социальных сетях и интерактивных квизов, создаю видеоконтент с помощью ИИ-инструментов.","Разрабатываю концепции, тексты и сценарии для спецпроектов.","Организую презентации, корпоративные и клиентские мероприятия, среди которых запуск новой модели Foton с иммерсивным спектаклем, презентации Changan и спецпрограмма для РЕСО.","Провожу лекции по истории и тенденциям автодизайна. Разработала и реализовала курс и серию мероприятий для детей сотрудников, которые повысили лояльность и вовлеченность персонала.","С нуля разработала креативную концепцию, фирменный стиль и линейку мерча (одежда, стикерпаки, полиграфия) для летней серии автомобильных фестивалей «Кетчерская 9»."],"metrics":[["20 000+","участников"],["10+","мероприятий"],["4+","лекции"],["3+","программы для детей"]],"imgs":["fav-1","fav-2","fav-3","fav-4","favorit-lecture"],"videos":null,"links":null},"kod":{"title":"Код лошади","place":"Новый Манеж, к 15-летию содружества «Свободные художники»","year":"2026","role":"Автор текстов, лектор, экскурсовод","lead":"Выставка о многовековом союзе человека и лошади, в которой участвовали художники четырех поколений.","points":["Написала тексты выставки и обзорную статью для каталога «Укрощение стихии и формула вечности».","Провела цикл авторских экскурсий и лекций по экспозиции.","Проект освещали в сюжетах Первого канала и телеканала «Россия-Культура»."],"metrics":null,"imgs":["kod-hall","kod-stage","kod-tour","kod-tv"],"videos":null,"links":[["Первый канал, «Доброе утро»","https://www.1tv.ru/shows/dobroe-utro/pro-kulturu/kod-loshadi-loshad-kak-kulturnyy-kod-dobroe-utro-fragment-vypuska-ot-15-09-2026"],["«Россия-Культура»","https://smotrim.ru/video/6075651"]]},"vol":{"title":"Волышово. Возрождение","place":"Учебный проект, магистратура РГХПУ им. С. Г. Строганова","year":"2024–2027","role":"Автор концепции, разработчик проекта","lead":"Концепция и реализация интерактивного цифрового пространства для усадьбы Строгановых в Псковской области с применением Three.js и генеративных инструментов.","points":["Спроектировала 3D-лендинг усадьбы.","Разработала форму обратной связи «Телеграф памяти» для сбора архивных фотографий и воспоминаний жителей об этих местах.","Создала фирменный стиль села, сувенирную продукцию и тизер проекта."],"metrics":null,"imgs":["vol-hero","vol-map","volb-1","volb-9"],"videos":[["volyshovo-teaser.mp4","Тизер, 1:04"]],"links":null},"ai":{"title":"AI-видео","place":"Weavy, Nano Banana, Veo 3.1, Kling, Suno","year":"2026","role":"Автор","lead":"С начала 2026 года создаю видео с помощью нейросетей. Прошла интенсив агентства verlab и основателя студии PROЩе Production.","points":["Рекламный ролик FAVORIT MOTORS «Центр выбора автомобилей».","Видео для международной выставки дизайна ARTDOM.","Ролик в стиле фильмов 1930-х. Прошла весь путь от концепции и раскадровки до монтажа, подобрала исторические костюмы и референсы, создала модель героини."],"metrics":null,"imgs":["ai-1930","ai-3","ai-4","ai-6"],"videos":[["ai-favorit.mp4","FAVORIT MOTORS"],["ai-atdom.mp4","ARTDOM"]],"links":null},"ket":{"title":"Кетчерская 9","place":"Летняя серия автомобильных фестивалей FAVORIT MOTORS","year":"2026","role":"Автор концепции и дизайна","lead":"Визуальная концепция, айдентика и линейка мерча летней серии автомобильных фестивалей.","points":["С нуля разработала креативную концепцию, фирменный стиль и линейку мерча (одежда, стикерпаки, полиграфия) для летней серии автомобильных фестивалей «Кетчерская 9».","Концепция фестивального мерча стала визуальной основой серии летних событий компании."],"metrics":null,"imgs":["ket-merch","ket-stickers"],"videos":null,"links":null}};
+const SIZES = {"stritarteria":[1400,933],"novyi-manezh":[1400,933],"strit-a":[681,447],"strit-masterclass":[921,544],"zaryadye":[1400,934],"zar-anna":[764,1279],"zar-1":[660,437],"zar-2":[669,446],"link-depo":[1400,898],"art-drive":[1400,652],"artdrive-cars":[768,768],"artdrive-paint":[768,768],"kontury-spray.png":[632,1154],"kontury":[1400,934],"exh-6":[1280,1280],"exh-signs":[426,576],"exh-grid":[713,405],"exh-texts":[1400,897],"exh-1":[1400,898],"exh-3":[1400,897],"exh-4":[1400,929],"exh-7":[1400,934],"exh-8":[1280,803],"exh-9":[1400,961],"exh-10":[1400,919],"fav-1":[1200,800],"fav-2":[1200,800],"fav-3":[1200,800],"fav-4":[1200,800],"favorit-lecture":[1400,788],"kod-hall":[1400,934],"kod-stage":[1400,934],"kod-tour":[1400,934],"kod-tv":[1032,572],"vol-hero":[1400,788],"vol-map":[1400,788],"volb-1":[768,432],"volb-9":[768,432],"ai-1930":[1400,1480],"ai-3":[461,836],"ai-4":[717,960],"ai-6":[820,455],"ket-merch":[1116,2000],"ket-stickers":[844,1198],"ai-favorit-poster":[960,540],"ai-atdom-poster":[540,960],"volyshovo-teaser-poster":[960,540],"anna-folder.png":[900,1393],"ai-favorit.mp4":[960,540],"ai-atdom.mp4":[540,960],"volyshovo-teaser.mp4":[1280,720]};
+
+
+const IMG = (n) => `assets/img/${n.includes('.') ? n : n + '.jpg'}`;
+const VID = { 'volyshovo-teaser.mp4': 'assets/video/volyshovo-teaser.mp4', 'ai-favorit.mp4': 'assets/video/ai-favorit.mp4', 'ai-atdom.mp4': 'assets/video/ai-atdom.mp4' };
+const AR = (n) => { const s = SIZES[n]; return s ? s[0] / s[1] : 1.5; };
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ——— разметка ——— */
+document.querySelector('[data-stats]').innerHTML = STATS.map(([n, t]) => `
+  <div class="py-6 border-t border-white/10 reveal">
+    <p class="font-serif text-[clamp(44px,5vw,72px)] leading-none text-bone">${n}</p>
+    <p class="mt-2 text-[15px] text-bone/70 max-w-[32ch]">${t}</p>
+  </div>`).join('');
+
+let caseIndex = 0;
+for (const [key, items] of Object.entries(LISTS)) {
+  document.querySelector(`[data-list="${key}"]`).innerHTML = items.map(([id, title, text]) => {
+    const i = caseIndex++;
+    const tag = id ? 'button' : 'div';
+    return `<${tag} class="case w-full text-left py-6 md:py-7 block reveal ${id ? 'cursor-pointer' : ''}" ${id ? `data-open="${id}" aria-label="Подробнее о проекте"` : ''} data-i="${i}">
+      ${title ? `<p class="case-title font-serif text-[26px] md:text-[30px] leading-tight transition-colors">${title}</p>` : ''}
+      <p class="${title ? 'mt-3 text-bone/75' : 'text-bone/85'} text-[16px] leading-relaxed">${text}</p>
+      ${id ? `<span class="more inline-flex items-center gap-2 mt-4 text-[13px] text-ember">Подробнее <span aria-hidden="true">→</span></span>` : ''}
+    </${tag}>`;
+  }).join('');
+}
+
+/* ——— 3D-сцена ——— */
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 768 ? 1.25 : 1.6));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b0b0e);
+scene.fog = new THREE.FogExp2(0x0b0b0e, 0.055);
+const camera = new THREE.PerspectiveCamera(36, innerWidth / innerHeight, 0.1, 100);
+
+/* окружение для стеклянных отражений */
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envScene = new THREE.Scene();
+envScene.background = new THREE.Color(0x050506);
+[[0, 6, 0, 8, 0.4, 8, 2.2], [-6, 1, 2, 0.4, 7, 0.6, 3.0], [6, 0, -2, 0.4, 7, 0.4, 2.0], [-2, 0, 7, 0.5, 8, 0.4, 2.6], [3, 0, 7, 0.25, 8, 0.4, 1.6]].forEach(([x, y, z, w, h, d, k]) => {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshBasicMaterial({ color: new THREE.Color(k, k * 0.95, k * 0.88) }));
+  m.position.set(x, y, z); envScene.add(m);
+});
+scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+
+const canvasTex = (draw, w = 256, h = 256) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; };
+
+/* монолит */
+const mono = new THREE.Group();
+scene.add(mono);
+const monoGeo = new THREE.BoxGeometry(1.25, 4.3, 0.42);
+const glass = new THREE.MeshPhysicalMaterial({ color: 0xd8e0ec, metalness: 0.1, roughness: 0.04, transmission: 0.9, transparent: true, opacity: 0.32, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 3.2, reflectivity: 0.9, side: THREE.DoubleSide, depthWrite: false });
+mono.add(new THREE.Mesh(monoGeo, glass));
+mono.add(new THREE.LineSegments(new THREE.EdgesGeometry(monoGeo), new THREE.LineBasicMaterial({ color: 0xfff4e6, transparent: true, opacity: 0.45 })));
+/* френелевский ореол: светятся грани, как у стекла в луче */
+const shell = new THREE.Mesh(new THREE.BoxGeometry(1.27, 4.32, 0.44), new THREE.ShaderMaterial({
+  uniforms: { uColor: { value: new THREE.Color(0xffe8cc) }, uK: { value: 0.9 } },
+  vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
+  fragmentShader: 'uniform vec3 uColor; uniform float uK; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(vN, vV)), 2.2); gl_FragColor = vec4(uColor, f * uK); }',
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+}));
+shell.renderOrder = 5;
+mono.add(shell);
+const coreTex = canvasTex((g, w, h) => {
+  const gr = g.createLinearGradient(0, 0, w, 0);
+  gr.addColorStop(0, 'rgba(232,185,138,0)'); gr.addColorStop(0.5, 'rgba(255,236,214,1)'); gr.addColorStop(1, 'rgba(232,185,138,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  const v = g.createLinearGradient(0, 0, 0, h); v.addColorStop(0, 'rgba(0,0,0,1)'); v.addColorStop(0.5, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,1)');
+  g.globalCompositeOperation = 'destination-out'; g.fillStyle = v; g.fillRect(0, 0, w, h);
+});
+const core = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 4.0), new THREE.MeshBasicMaterial({ map: coreTex, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, toneMapped: false, side: THREE.DoubleSide }));
+core.renderOrder = 6;
+mono.add(core);
+const core2 = core.clone(); core2.rotation.y = Math.PI / 2; mono.add(core2);
+const inner = new THREE.PointLight(0xffd9b0, 1.2, 9, 2); mono.add(inner);
+
+/* свечение пола */
+const floorTex = canvasTex((g, w, h) => { const r = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); r.addColorStop(0, 'rgba(232,185,138,.55)'); r.addColorStop(1, 'rgba(232,185,138,0)'); g.fillStyle = r; g.fillRect(0, 0, w, h); });
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(7, 7), new THREE.MeshBasicMaterial({ map: floorTex, transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+floor.rotation.x = -Math.PI / 2; floor.position.y = -2.6; scene.add(floor);
+
+/* частицы */
+const COUNT = 3400;
+const pos = new Float32Array(COUNT * 3), col = new Float32Array(COUNT * 3), seed = new Float32Array(COUNT);
+const warm = new THREE.Color(0xe8b98a), cold = new THREE.Color(0xc9d4e6), white = new THREE.Color(0xffffff);
+for (let i = 0; i < COUNT; i++) {
+  const r = 1.4 + Math.pow(Math.random(), 0.7) * 8.5, a = Math.random() * Math.PI * 2;
+  pos[i * 3] = Math.cos(a) * r; pos[i * 3 + 1] = (Math.random() - 0.5) * 11; pos[i * 3 + 2] = Math.sin(a) * r;
+  const c = Math.random() < 0.55 ? warm : (Math.random() < 0.5 ? cold : white);
+  col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; seed[i] = Math.random() * 100;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+pGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+const dot = canvasTex((g, w, h) => { const r = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(0.35, 'rgba(255,255,255,.45)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, w, h); }, 64, 64);
+const pMat = new THREE.PointsMaterial({ size: 0.055, map: dot, vertexColors: true, transparent: true, opacity: 0.75, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true });
+const dust = new THREE.Points(pGeo, pMat);
+scene.add(dust);
+
+/* свет */
+scene.add(new THREE.AmbientLight(0xffffff, 0.08));
+const rim = new THREE.DirectionalLight(0xc9d4e6, 0.35); rim.position.set(-5, 3, -4); scene.add(rim);
+const spot = new THREE.SpotLight(0xffe2bf, 0, 22, 0.34, 0.65, 1.1);
+spot.position.set(2.8, 7.5, 3.6);
+scene.add(spot); scene.add(spot.target);
+
+/* видимый луч */
+const beamGeo = new THREE.ConeGeometry(1.7, 9, 48, 1, true);
+beamGeo.translate(0, -4.5, 0);
+const beamMat = new THREE.ShaderMaterial({
+  uniforms: { uOpacity: { value: 0 }, uColor: { value: new THREE.Color(0xffe2bf) } },
+  vertexShader: 'varying float vY; void main(){ vY = position.y; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+  fragmentShader: 'uniform float uOpacity; uniform vec3 uColor; varying float vY; void main(){ float a = pow(clamp(1.0 + vY/9.0, 0.0, 1.0), 1.6); gl_FragColor = vec4(uColor, a * uOpacity); }',
+  transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending
+});
+const beam = new THREE.Mesh(beamGeo, beamMat);
+beam.position.copy(spot.position);
+scene.add(beam);
+
+/* плоскость с изображением кейса */
+const card = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, toneMapped: false, side: THREE.DoubleSide }));
+card.position.set(2.3, 0.2, 0.6); card.rotation.y = -0.22; card.visible = false;
+scene.add(card);
+const loader = new THREE.TextureLoader();
+
+/* камера: ракурсы разделов */
+const isMobile = () => innerWidth < 1024;
+const VIEWS = {
+  hero: [[0.2, 0.35, 9.6], [-1.9, 0.2, 0]],
+  numbers: [[5.2, 1.9, 7.6], [-2.2, 0.1, 0]],
+  moscow: [[-6.2, 0.9, 5.8], [-0.4, 0.4, -2]],
+  favorit: [[6.4, -1.1, 5.6], [-1.6, 0.3, -1.4]],
+  special: [[0.8, 5.6, 6.6], [-1.8, -0.4, 0]],
+  edu: [[-4.4, -2.3, 7.2], [-1.2, 0.5, 0]],
+  hobby: [[3.4, 2.6, 8.4], [-1.9, 0, 0]],
+  contact: [[0, 0.2, 11.5], [-1.2, 0.3, 0]]
+};
+const cam = { x: 0.2, y: 0.35, z: 9.6, lx: -1.9, ly: 0.2, lz: 0 };
+let current = 'hero', drawerOpen = false;
+function view(name, dur = 2.4) {
+  current = name;
+  if (drawerOpen) return;
+  const [[x, y, z], [lx, ly, lz]] = VIEWS[name];
+  const shift = isMobile() ? 3.5 : 0;
+  gsap.to(cam, { x, y, z: z + shift, lx: isMobile() ? -0.75 : lx, ly, lz, duration: REDUCED ? 0 : dur, ease: 'power3.inOut', overwrite: true });
+}
+const parallax = { x: 0, y: 0 }, mouse = { x: 0, y: 0 };
+addEventListener('pointermove', (e) => { mouse.x = e.clientX / innerWidth - 0.5; mouse.y = e.clientY / innerHeight - 0.5; });
+
+/* луч света */
+const light = { k: 0 };
+function lightOn(strength = 1) { gsap.to(light, { k: strength, duration: REDUCED ? 0 : 1.1, ease: 'power2.out', overwrite: true }); }
+function lightOff() { if (!drawerOpen) gsap.to(light, { k: 0, duration: REDUCED ? 0 : 1.2, ease: 'power2.inOut', overwrite: true }); }
+
+/* цикл */
+const clock = new THREE.Clock();
+function frame() {
+  const t = clock.getElapsedTime();
+  parallax.x += (mouse.x - parallax.x) * 0.04; parallax.y += (mouse.y - parallax.y) * 0.04;
+  camera.position.set(cam.x + parallax.x * 0.8, cam.y - parallax.y * 0.5, cam.z);
+  camera.lookAt(cam.lx, cam.ly, cam.lz);
+  mono.rotation.y = t * 0.12 + parallax.x * 0.3;
+  mono.position.y = Math.sin(t * 0.6) * 0.12;
+  core.material.opacity = 0.42 + Math.sin(t * 1.3) * 0.08 + light.k * 0.3;
+  shell.material.uniforms.uK.value = 0.85 + light.k * 0.7;
+  inner.intensity = 1.1 + light.k * 1.5;
+  dust.rotation.y = t * 0.018;
+  dust.position.y = Math.sin(t * 0.25) * 0.15;
+  spot.intensity = light.k * 6.5;
+  beamMat.uniforms.uOpacity.value = light.k * 0.13;
+  floor.material.opacity = 0.22 + light.k * 0.3;
+  const tgt = card.visible ? card.position : mono.position;
+  spot.target.position.lerp(tgt, 0.06);
+  beam.lookAt(spot.target.position); beam.rotateX(-Math.PI / 2);
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+frame();
+addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); view(current, 0.01); });
+
+/* смена ракурса по разделам */
+const io = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) view(en.target.dataset.cam); }), { threshold: 0.35 });
+document.querySelectorAll('[data-cam]').forEach((s) => io.observe(s));
+
+/* появление текста */
+const ioText = new IntersectionObserver((es) => es.forEach((en) => {
+  if (!en.isIntersecting) return;
+  gsap.to(en.target, { opacity: 1, y: 0, duration: REDUCED ? 0 : 1.1, ease: 'power3.out', delay: (+en.target.dataset.d || 0) });
+  ioText.unobserve(en.target);
+}), { rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach((el, i) => { el.dataset.d = (i % 4) * 0.06; ioText.observe(el); });
+
+/* наведение на кейс: луч выхватывает его из темноты */
+document.querySelectorAll('.list').forEach((list) => {
+  list.addEventListener('pointerover', (e) => {
+    const c = e.target.closest('.case'); if (!c) return;
+    list.querySelectorAll('.case').forEach((x) => x.classList.toggle('lit', x === c));
+    list.classList.add('dim'); lightOn(0.75);
+  });
+  list.addEventListener('pointerleave', () => { if (drawerOpen) return; list.classList.remove('dim'); list.querySelectorAll('.case').forEach((x) => x.classList.remove('lit')); lightOff(); });
+});
+
+/* панель кейса */
+const drawer = document.getElementById('drawer'), dBody = document.getElementById('d-body');
+function rows(list, pattern) {
+  let k = 0;
+  return pattern.map((n) => { const part = list.slice(k, k + n); k += n; return `<div class="flex gap-2">${part.map((m) => `<div style="flex:${AR(m).toFixed(4)} 1 0%"><img src="${IMG(m)}" alt="" loading="lazy" class="block w-full h-auto"></div>`).join('')}</div>`; }).join('');
+}
+function patternFor(n) { if (n <= 2) return [n]; if (n === 3) return [1, 2]; if (n === 4) return [2, 2]; if (n === 5) return [2, 3]; return [2, 2, Math.min(3, n - 4)]; }
+let lastFocus = null;
+function openCase(id, sourceEl) {
+  const c = CASES[id]; if (!c) return;
+  lastFocus = sourceEl;
+  const imgs = c.imgs.slice(0, 7);
+  document.getElementById('d-eyebrow').textContent = `${c.place} · ${c.year}`;
+  dBody.innerHTML = `
+    <h3 id="d-title" class="font-serif text-[clamp(36px,4vw,60px)] leading-[.95]">${c.title}</h3>
+    <p class="mt-5 text-lg leading-relaxed text-bone/90">${c.lead}</p>
+    ${c.metrics ? `<div class="grid grid-cols-2 sm:grid-cols-${Math.min(c.metrics.length, 4)} gap-px bg-white/10 border border-white/10 mt-8">${c.metrics.map(([v, l]) => `<div class="bg-[#101014] p-4"><p class="font-serif text-3xl leading-none text-ember">${v}</p><p class="text-[13px] text-bone/60 mt-2 leading-tight">${l}</p></div>`).join('')}</div>` : ''}
+    ${c.points && c.points.length ? `<ul class="mt-8 space-y-3 text-[15.5px] leading-relaxed text-bone/85">${c.points.map((p) => `<li class="flex gap-3"><span class="text-ember mt-[2px]">·</span><span>${p}</span></li>`).join('')}</ul>` : ''}
+    <p class="mt-8 eyebrow">Роль</p><p class="mt-1 text-[15px]">${c.role}</p>
+    ${c.links ? `<div class="mt-8 grid sm:grid-cols-2 gap-3">${c.links.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener" class="border border-white/20 px-4 py-3 hover:border-ember hover:text-ember transition"><span class="eyebrow block">Сюжет</span><span class="block mt-1">${t} ↗</span></a>`).join('')}</div>` : ''}
+    ${c.videos ? `<div class="flex gap-2 mt-10">${c.videos.map(([f, cap]) => `<figure style="flex:${AR(f).toFixed(4)} 1 0%"><video class="block w-full h-auto bg-black" src="${VID[f]}" controls playsinline preload="metadata" poster="${IMG(f.replace('.mp4', '-poster'))}"></video><figcaption class="eyebrow mt-2">${cap}</figcaption></figure>`).join('')}</div>` : ''}
+    <div class="space-y-2 ${c.videos ? 'mt-2' : 'mt-10'}">${rows(imgs, patternFor(imgs.length))}</div>`;
+  drawer.hidden = false;
+  document.body.classList.add('focus');
+  requestAnimationFrame(() => drawer.classList.add('open'));
+  drawer.querySelector('.scroll').scrollTop = 0;
+  drawerOpen = true;
+  lightOn(1);
+
+  /* изображение кейса в пространстве */
+  const cover = c.imgs.find((m) => !m.endsWith('.png')) || c.imgs[0];
+  loader.load(IMG(cover), (tex) => {
+    tex.encoding = THREE.sRGBEncoding;
+    card.material.map = tex; card.material.needsUpdate = true;
+    const a = AR(cover), h = a > 1 ? 2.6 / a : 2.4; card.scale.set(h * a, h, 1);
+    card.visible = true;
+    gsap.fromTo(card.material, { opacity: 0 }, { opacity: 1, duration: REDUCED ? 0 : 1.4, delay: REDUCED ? 0 : 0.5, ease: 'power2.out' });
+  }, undefined, () => { card.visible = false; });
+
+  /* кинематографичный подлёт камеры */
+  const i = +(sourceEl && sourceEl.dataset.i || 0);
+  const ang = -0.32 + (i % 5) * 0.16;
+  const desk = !isMobile();
+  /* кадр: монолит и снимок в центре свободной левой половины экрана */
+  const R = desk ? 9.6 : 10.5, cx = 1.0;
+  gsap.to(cam, { x: cx + Math.sin(ang) * R, y: 0.7 + (i % 3) * 0.3, z: Math.cos(ang) * R,
+    lx: desk ? cx + 2.6 : cx, ly: 0.1, lz: 0, duration: REDUCED ? 0 : 2.2, ease: 'power3.inOut', overwrite: true });
+  drawer.querySelector('[data-close]').focus();
+}
+function closeCase() {
+  if (!drawerOpen) return;
+  drawer.classList.remove('open');
+  document.body.classList.remove('focus');
+  setTimeout(() => { if (!drawerOpen) drawer.hidden = true; }, 900);
+  drawerOpen = false;
+  gsap.to(card.material, { opacity: 0, duration: REDUCED ? 0 : 0.6, onComplete: () => { card.visible = false; } });
+  document.querySelectorAll('.list').forEach((l) => { l.classList.remove('dim'); l.querySelectorAll('.case').forEach((x) => x.classList.remove('lit')); });
+  lightOff();
+  view(current, 2);
+  if (lastFocus) lastFocus.focus({ preventScroll: true });
+}
+document.addEventListener('click', (e) => {
+  const o = e.target.closest('[data-open]'); if (o) { openCase(o.dataset.open, o); return; }
+  if (e.target.closest('[data-close]')) closeCase();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCase(); });
+
+view('hero', 0.01);
+</script>
+</body>
+</html>
