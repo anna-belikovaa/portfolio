@@ -66,7 +66,7 @@ tailwind.config = {
 <header id="top" class="fixed top-0 inset-x-0 z-50 bg-paper/85 backdrop-blur border-b border-ink/10">
   <div class="mx-auto max-w-[1440px] px-4 md:px-10 h-16 flex items-center justify-between">
     <a href="#top" class="flex items-baseline gap-3">
-      <span class="display text-2xl">а.т.</span>
+      <span class="display text-2xl">а.б.</span>
       <span class="hand text-cinnabar text-3xl hidden sm:inline">архитектор смыслов</span>
     </a>
     <nav class="hidden lg:flex items-center gap-7 text-sm">
@@ -100,7 +100,7 @@ tailwind.config = {
 <!-- HERO -->
 <section class="relative mx-auto max-w-[1440px] px-4 md:px-10 pt-24 md:pt-28 pb-16 md:pb-24 overflow-hidden">
   <div class="flex flex-wrap items-center justify-between gap-3 border-b rule pb-4 label text-mute">
-    <span>Портфолио · <span class="latin">portfolio</span></span>
+    <span>Портфолио</span>
     <span>Москва · 2026</span>
   </div>
   <div class="grid grid-cols-12 gap-x-6 mt-8 md:mt-12 items-end">
@@ -152,7 +152,7 @@ tailwind.config = {
         <p class="label text-redink mb-4">02 · Опыт</p>
         <h2 class="display text-[clamp(48px,6.5vw,104px)]">где я работала<br><span class="text-cinnabar">и училась</span></h2>
       </div>
-      <p class="col-span-12 md:col-span-4 text-mute">Нажмите на место работы, чтобы увидеть роль, задачи и проекты.</p>
+      <p class="col-span-12 md:col-span-4 text-mute">Выберите место работы или учёбы, чтобы увидеть подробности.</p>
     </div>
     <div class="grid grid-cols-12 gap-6">
       <div class="col-span-12 lg:col-span-5 flex flex-col border-t border-ink" role="tablist" aria-label="Места работы и учёбы" data-tabs></div>
@@ -171,7 +171,7 @@ tailwind.config = {
         <p class="label text-coral mb-4">03 · В цифрах</p>
         <h2 class="display text-[clamp(48px,6.5vw,104px)]">в цифрах</h2>
       </div>
-      <p class="hand text-coral text-5xl md:text-6xl -rotate-3">за каждой цифрой люди</p>
+      <p class="hand text-coral text-5xl md:text-6xl -rotate-3">за каждой цифрой стоят люди</p>
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 border-t border-paper/20" data-stats></div>
   </div>
@@ -349,7 +349,7 @@ document.querySelector('[data-blocks]').innerHTML = BLOCKS.map(b => {
     <div class="mx-auto max-w-[1440px] px-4 md:px-10 py-20 md:py-28">
       <div class="grid grid-cols-12 gap-6 items-end border-b ${dark ? 'border-paper/30' : 'border-ink'} pb-8 mb-14 md:mb-20">
         <div class="col-span-12 md:col-span-8">
-          <p class="label ${dark ? 'text-coral' : 'text-redink'} mb-4">04 · Проекты · ${b.n}</p>
+          ${b.n === 'I' ? `<p class="label text-redink mb-4">04 · Проекты</p>` : ''}
           <h2 class="display text-[clamp(44px,7vw,120px)]">${b.title}</h2>
         </div>
         <div class="col-span-12 md:col-span-4 md:text-right">

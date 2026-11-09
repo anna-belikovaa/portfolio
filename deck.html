@@ -146,7 +146,7 @@ slides.push(S(`
 /* 4. в цифрах */
 slides.push(S(`
   <div style="position:absolute;left:64px;top:96px;right:64px">
-    <div style="display:flex;justify-content:space-between;align-items:flex-end"><h1 class="display" style="font-size:100px">в цифрах</h1><p class="hand" style="font-size:76px;transform:rotate(-4deg)">за каждой цифрой люди</p></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end"><h1 class="display" style="font-size:100px">в цифрах</h1><p class="hand" style="font-size:76px;transform:rotate(-4deg)">за каждой цифрой стоят люди</p></div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);margin-top:30px;border-top:1px solid rgba(255,255,255,.2)">
       ${STATS.map(([n, t, p], i) => `<div style="padding:22px 22px 22px ${i % 4 ? '22px' : '0'};border-bottom:1px solid rgba(255,255,255,.2);${i % 4 ? 'border-left:1px solid rgba(255,255,255,.2)' : ''}"><p class="latin" style="font-weight:900;font-size:58px;line-height:1;white-space:nowrap">${n}</p><p style="font-size:15px;opacity:.85;margin-top:10px">${t}</p><p class="label" style="color:var(--coral);margin-top:6px;font-size:11px">${p}</p></div>`).join('')}
     </div>
@@ -175,7 +175,7 @@ slides.push(S(half(by.artdrive, 64, justify(['artdrive-cars', 'artdrive-paint'],
 const ex = by.exh, sf = by.simfo, gf = by.gifts;
 slides.push(caseSlide(ex, { points: ex.points.slice(0, 4), fs: 14.5, imgs: ['exh-6', 'exh-signs', 'exh-grid', 'exh-texts'], rows: [2, 2],
   after: `<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
-    <div><p class="label"><span style="color:var(--redink)">project ${WORDS[NUM(sf)]}</span> · ${sf.year}</p><p style="font-size:18px;font-weight:600;margin-top:6px">${sf.title}</p><p style="font-size:13.5px;line-height:1.35;margin-top:4px">${sf.lead} Open call, отбор с экспертным жюри, полиграфия и концерт.</p></div>
+    <div><p class="label"><span style="color:var(--redink)">project ${WORDS[NUM(sf)]}</span> · ${sf.year}</p><p style="font-size:18px;font-weight:600;margin-top:6px">${sf.title}</p><p style="font-size:13.5px;line-height:1.35;margin-top:4px">${sf.lead} Open call, отбор с экспертным жюри, полиграфия.</p></div>
     <div><p class="label"><span style="color:var(--redink)">project ${WORDS[NUM(gf)]}</span> · ${gf.year}</p><p style="font-size:18px;font-weight:600;margin-top:6px">${gf.title}</p><p style="font-size:13.5px;line-height:1.35;margin-top:4px">${gf.lead} Концепция новогоднего оформления двух площадок.</p></div>
   </div>` }));
 
