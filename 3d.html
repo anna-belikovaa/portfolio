@@ -2,19 +2,25 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Анна Беликова. The Light Void</title>
-<meta name="description" content="Анна Беликова. Менеджер проектов, креатор, арт-куратор. Интерактивное портфолио.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Анна Беликова. Анфилада</title>
+<meta name="description" content="Анна Беликова. Менеджер проектов, креатор, арт-куратор. Интерактивное 3D-портфолио.">
+<meta name="theme-color" content="#ECE8E2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script>
 tailwind.config = {
   theme: {
     extend: {
-      colors: { void: '#0b0b0e', ash: '#16161b', bone: '#ECE7DF', smoke: '#9A958E', ember: '#E8B98A', rose: '#DE5454' },
-      fontFamily: { serif: ['"Cormorant Garamond"', 'Georgia', 'serif'], sans: ['"Golos Text"', 'system-ui', 'sans-serif'] }
+      colors: { ink: '#151413', stone: '#7A736A', air: '#ECE8E2', red: '#DE5454' },
+      fontFamily: {
+        display: ['"Soyuz Grotesk"', '"Golos Text"', 'sans-serif'],
+        hand: ['Denistina', 'cursive'],
+        latin: ['Aileron', '"Golos Text"', 'sans-serif'],
+        sans: ['"Golos Text"', 'system-ui', 'sans-serif']
+      }
     }
   }
 }
@@ -22,198 +28,476 @@ tailwind.config = {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <style>
-  html { scroll-behavior: smooth; }
-  body { background: #0b0b0e; color: #ECE7DF; -webkit-font-smoothing: antialiased; }
-  ::selection { background: #E8B98A; color: #0b0b0e; }
-  #scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
-  .veil { position: fixed; inset: 0; z-index: 1; pointer-events: none;
-    background: linear-gradient(90deg, rgba(11,11,14,.92) 0%, rgba(11,11,14,.72) 38%, rgba(11,11,14,0) 66%); }
-  @media (max-width: 1023px) { .veil { background: linear-gradient(90deg, rgba(11,11,14,.86) 0%, rgba(11,11,14,.7) 70%, rgba(11,11,14,.45) 100%); } }
-  .font-serif { font-variant-numeric: lining-nums; font-feature-settings: 'lnum' 1; }
-  .eyebrow { font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #9A958E; }
-  .rule { height: 1px; background: linear-gradient(90deg, rgba(236,231,223,.28), rgba(236,231,223,0)); }
+  /* шрифты Анны из папки assets/fonts */
+  @font-face { font-family: 'Soyuz Grotesk'; src: url('assets/fonts/soyuz-grotesk-bold.woff') format('woff'); font-weight: 400 900; font-display: block; }
+  @font-face { font-family: 'Denistina'; src: url('assets/fonts/denistina.ttf') format('truetype'); font-weight: 400; font-display: block; }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-light.otf') format('opentype'); font-weight: 300; font-display: swap; }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-regular.otf') format('opentype'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-bold.otf') format('opentype'); font-weight: 700; font-display: swap; }
+  @font-face { font-family: 'Aileron'; src: url('assets/fonts/aileron-black.otf') format('opentype'); font-weight: 900; font-display: swap; }
 
-  /* кейсы и луч света */
-  .case { position: relative; border-top: 1px solid rgba(236,231,223,.12); transition: opacity .5s ease, color .5s ease; }
-  .case::before { content: ''; position: absolute; inset: -1px -24px 0 -24px; pointer-events: none; opacity: 0; transition: opacity .6s ease;
-    background: radial-gradient(120% 90% at 30% -10%, rgba(232,185,138,.22), rgba(232,185,138,.06) 45%, rgba(232,185,138,0) 70%); }
-  .list.dim .case { opacity: .32; }
-  .list.dim .case.lit { opacity: 1; }
-  .case.lit::before { opacity: 1; }
-  .case.lit .case-title { color: #fff; }
-  .case .more { opacity: .55; transition: opacity .4s ease, transform .4s ease; }
-  .case.lit .more { opacity: 1; transform: translateX(4px); }
+  :root { --ink: #151413; --stone: #7A736A; --red: #DE5454; --air: #ECE8E2; --gut: clamp(16px, 4.4vw, 72px); --ease: cubic-bezier(.2, .75, .1, 1); --pb: 28px; --dock-h: 56px; --dock-w: 330px; }
+  html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: rgba(21, 20, 19, .28) transparent; }
+  html.lock { overflow: hidden; }
+  body { background: var(--air); color: var(--ink); font-family: 'Golos Text', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  ::selection { background: var(--red); color: #fff; }
+  a, button { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
 
-  /* панель кейса */
-  #drawer { transform: translateX(100%); transition: transform .9s cubic-bezier(.2,.7,.1,1); }
-  main, .veil, header { transition: opacity 1s ease; }
-  body.focus main, body.focus .veil { opacity: 0; pointer-events: none; }
-  body.focus header { opacity: .3; }
+  /* сцена и атмосфера */
+  #scene { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; height: 100lvh; z-index: 0; display: block; }
+  .vignette { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(125% 95% at 58% 40%, rgba(40, 28, 20, 0) 56%, rgba(40, 28, 20, .16) 100%); }
+  .grain { position: fixed; inset: -80px; z-index: 2; pointer-events: none; opacity: .05; mix-blend-mode: multiply; animation: grain 1s steps(6) infinite; }
+  @keyframes grain { 0% { transform: translate(0, 0) } 17% { transform: translate(-24px, 14px) } 33% { transform: translate(18px, -22px) } 50% { transform: translate(-12px, -10px) } 67% { transform: translate(26px, 18px) } 83% { transform: translate(-20px, 24px) } 100% { transform: translate(0, 0) } }
+  /* наплыв при дальнем переходе между залами */
+  #veil { position: fixed; inset: 0; z-index: 3; pointer-events: none; background: var(--air); opacity: 0; transition: opacity .34s ease; }
+  #veil.on { opacity: 1; }
+
+  /* типографика */
+  .display { font-family: 'Soyuz Grotesk', 'Golos Text', sans-serif; font-weight: 700; letter-spacing: -.012em; line-height: .95; }
+  .hand { font-family: 'Denistina', cursive; font-weight: 400; font-synthesis: none; color: var(--red); line-height: 1; letter-spacing: 0; }
+  .latin { font-family: 'Aileron', 'Golos Text', sans-serif; }
+  .label { font-size: 11px; line-height: 1.35; letter-spacing: .2em; text-transform: uppercase; color: var(--stone); font-weight: 500; }
+  .txt { font-size: 15.5px; line-height: 1.58; color: rgba(21, 20, 19, .88); }
+  .h1 { font-size: clamp(44px, 5.6vw, 92px); line-height: .9; }
+  .h2 { font-size: clamp(30px, 3.1vw, 50px); }
+  .h3 { font-size: clamp(20px, 1.55vw, 25px); line-height: 1.06; }
+  .role { font-size: clamp(26px, 2.4vw, 38px); line-height: 1; }
+  .proj { position: relative; display: flex; align-items: flex-end; height: 50px; white-space: nowrap; }
+  .proj .display { font-size: 23px; line-height: 1; }
+  .proj .hand { font-size: 60px; margin-left: -.08em; transform: translateY(.2em); }
+  .fallback-title { display: none; }
+  .rule { height: 1px; background: linear-gradient(90deg, rgba(21, 20, 19, .22), rgba(21, 20, 19, 0)); }
+
+  /* текст живет в нижней части экрана и сменяется на месте, зал и работы остаются открытыми */
+  main { position: relative; z-index: 10; }
+  #track { position: relative; width: 1px; pointer-events: none; }
+  .glass { background: rgba(247, 245, 241, .64); -webkit-backdrop-filter: blur(22px) saturate(1.25); backdrop-filter: blur(22px) saturate(1.25); border: 1px solid rgba(255, 255, 255, .72); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .65), 0 42px 90px -50px rgba(46, 32, 22, .5); }
+  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) { .glass { background: rgba(247, 245, 241, .93); } }
+  body.dark .glass { background: rgba(247, 245, 241, .84); }
+  .panel { position: fixed; z-index: 10; left: var(--gut); bottom: var(--pb); padding: clamp(20px, 2vw, 32px); opacity: 0; visibility: hidden; pointer-events: none; transform: translate3d(0, 26px, 0); transition: opacity .42s ease, transform .7s var(--ease), visibility 0s linear .42s; }
+  .panel.on { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition: opacity .7s ease .1s, transform 1s var(--ease) .1s, visibility 0s linear 0s; }
+  body.measure .panel { transform: none !important; transition: none !important; }
+  .panel--card { width: min(590px, calc(100vw - 2 * var(--gut))); }
+  .panel--title { width: auto; padding-right: clamp(28px, 3vw, 52px); }
+  .panel--intro { width: min(600px, 46vw); }
+  .panel--long { width: min(540px, 44vw); }
+  .panel--label { width: min(760px, calc(100vw - 2 * var(--gut) - var(--dock-w) - 28px)); display: grid; grid-template-columns: minmax(200px, .78fr) 1.25fr; column-gap: clamp(20px, 2.2vw, 38px); align-items: start; }
+  .panel--note, .panel--num { width: min(520px, calc(100vw - 2 * var(--gut) - var(--dock-w) - 28px)); }
+  .lab-a .h3 { margin-top: 14px; }
+  .lab-b { padding-top: 6px; }
+  .proj .hand { clip-path: inset(-60% 100% -60% -10%); transition: clip-path 1.4s cubic-bezier(.65, .05, .25, 1) .3s; }
+  .panel.on .proj .hand, #drawer .proj .hand { clip-path: inset(-60% -30% -60% -10%); }
+
+  /* шапка: имя и план анфилады */
+  #hdr { position: fixed; top: 0; left: 0; right: 0; z-index: 40; background: linear-gradient(180deg, rgba(236, 232, 226, .9), rgba(236, 232, 226, .55) 62%, rgba(236, 232, 226, 0)); transition: background 1s ease, color 1s ease, opacity 1.2s ease; }
+  .hdr-in { height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 var(--gut); }
+  .brand { font-size: 19px; }
+  .plan { position: relative; }
+  .plan ol { display: flex; gap: clamp(8px, 1.15vw, 22px); }
+  .plan a { position: relative; display: flex; align-items: baseline; gap: 7px; padding: 6px 0 11px; font-size: 13px; white-space: nowrap; color: rgba(21, 20, 19, .6); transition: color .35s; }
+  .plan a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; opacity: .42; transition: opacity .35s, height .35s; }
+  .plan .pn { font-weight: 300; font-size: 10.5px; letter-spacing: .08em; opacity: .8; }
+  .plan a:hover, .plan a.on { color: var(--ink); }
+  .plan a.on { font-weight: 500; }
+  .plan a.on::after { opacity: 1; height: 2px; }
+  .plan .you { position: absolute; left: 0; bottom: -3px; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 3px rgba(222, 84, 84, .22); pointer-events: none; }
+  .menu-btn { display: none; align-items: center; height: 38px; padding: 0 18px; border-radius: 999px; border: 1px solid rgba(21, 20, 19, .22); font-size: 13px; background: rgba(247, 245, 241, .62); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  body.dark #hdr { background: linear-gradient(180deg, rgba(20, 19, 18, .72), rgba(20, 19, 18, .34) 62%, rgba(20, 19, 18, 0)); color: #F4F1EC; }
+  body.dark .plan a { color: rgba(244, 241, 236, .62); }
+  body.dark .plan a:hover, body.dark .plan a.on { color: #fff; }
+  body.dark .menu-btn { color: var(--ink); }
+  #menu { position: fixed; inset: 0; z-index: 35; display: flex; flex-direction: column; padding: 86px 16px 28px; overflow-y: auto; background: rgba(238, 234, 228, .93); -webkit-backdrop-filter: blur(26px); backdrop-filter: blur(26px); color: var(--ink); }
+  #menu[hidden] { display: none; }
+  #menu .m { display: flex; align-items: baseline; gap: 14px; font-family: 'Soyuz Grotesk', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; padding: 13px 0; border-top: 1px solid rgba(21, 20, 19, .12); }
+  #menu .m .pn { font-family: 'Aileron', sans-serif; font-weight: 300; font-size: 12px; letter-spacing: .1em; color: var(--stone); min-width: 20px; }
+  #menu .m.on { color: var(--red); }
+
+  /* панель переходов: назад, где я, дальше */
+  #dock { position: fixed; z-index: 30; right: var(--gut); bottom: var(--pb); height: var(--dock-h); display: flex; align-items: stretch; color: var(--ink); }
+  .dk-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-width: var(--dock-h); font-size: 13px; font-weight: 500; letter-spacing: .02em; transition: background .3s, color .3s, opacity .3s; }
+  .dk-prev { border-right: 1px solid rgba(21, 20, 19, .12); }
+  .dk-prev:hover { background: rgba(21, 20, 19, .08); }
+  .dk-next { background: var(--ink); color: #fff; padding: 0 20px 0 24px; text-align: left; }
+  .dk-next:hover { background: var(--red); }
+  .dk-next small { display: block; font-size: 9.5px; line-height: 1.2; letter-spacing: .17em; text-transform: uppercase; font-weight: 400; opacity: .66; margin-bottom: 3px; }
+  .dk-next b { display: block; font-weight: 500; white-space: nowrap; }
+  .dk-next small[hidden] { display: none; }
+  .dk-btn[disabled] { opacity: .3; pointer-events: none; }
+  .dk-btn svg { flex-shrink: 0; transition: transform .45s var(--ease); }
+  .dk-next:hover svg { transform: translateX(4px); }
+  .dk-prev:hover svg { transform: translateX(-3px); }
+  .dk-mid { display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 0 20px; min-width: 0; }
+  .dk-hall { display: flex; align-items: baseline; gap: 10px; font-size: 13px; white-space: nowrap; }
+  .dk-count { font-weight: 300; letter-spacing: .08em; color: var(--stone); font-size: 12px; }
+  .dk-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
+  .dk-hall .flip { animation: dkflip .6s var(--ease); }
+  @keyframes dkflip { from { opacity: 0; transform: translateY(9px); } }
+  .dk-hall span { display: inline-block; }
+  #dock.end .dk-mid { display: none; }
+  .dk-ticks { display: flex; gap: 3px; }
+  .dk-ticks i { flex: 0 1 12px; min-width: 4px; height: 2px; background: rgba(21, 20, 19, .2); transition: background .4s; }
+  .dk-ticks i.was { background: rgba(21, 20, 19, .6); }
+  .dk-ticks i.on { background: var(--red); }
+  /* у входа кнопка «дальше» зовет в анфиладу */
+  .dk-next.cue::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--red); transform-origin: left; animation: cue 2.4s var(--ease) infinite; }
+  @keyframes cue { 0% { transform: scaleX(0); } 60% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
+
+  .ui, main { transition: opacity 1.2s ease; }
+  body.focus main, body.focus #dock { opacity: 0; pointer-events: none; transition-duration: .6s; }
+  body.focus main .panel { pointer-events: none; }
+  body.focus #hdr { opacity: .35; }
+  body.intro .ui, body.intro main { opacity: 0; pointer-events: none; }
+
+  /* титр и загрузка */
+  #loader { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; background: #0c0b0a; }
+  #loader .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red); box-shadow: 0 0 22px 2px rgba(222, 84, 84, .65); animation: breathe 1.8s ease-in-out infinite; }
+  @keyframes breathe { 50% { transform: scale(1.35); box-shadow: 0 0 34px 6px rgba(222, 84, 84, .5); } }
+  #loader .count { position: absolute; left: var(--gut); bottom: 26px; color: rgba(236, 232, 226, .45); font-size: 11px; letter-spacing: .32em; }
+  #skip { position: fixed; right: var(--gut); bottom: 20px; z-index: 75; padding: 10px 0; color: rgba(236, 232, 226, .6); transition: color .6s, opacity .6s; }
+  #skip:hover { color: #fff; }
+  #skip.dark { color: rgba(21, 20, 19, .55); }
+  #skip.dark:hover { color: var(--ink); }
+  #skip.gone { opacity: 0; pointer-events: none; }
+
+  /* содержимое панелей */
+  .numhead { display: flex; justify-content: space-between; gap: 16px; }
+  .numhead .cnt { letter-spacing: .14em; color: var(--ink); }
+  .panel--num .n { margin-top: 14px; font-family: 'Aileron', sans-serif; font-weight: 900; font-size: clamp(30px, 2.7vw, 44px); line-height: 1; letter-spacing: -.01em; }
+  .panel--num .c { margin-top: 8px; font-size: clamp(16px, 1.22vw, 19px); line-height: 1.36; color: rgba(21, 20, 19, .88); }
+  .ticks { display: flex; gap: 4px; margin-top: 18px; }
+  .ticks i { flex: 1 1 0; height: 2px; background: rgba(21, 20, 19, .18); }
+  .ticks i.was { background: rgba(21, 20, 19, .6); }
+  .ticks i.on { background: var(--red); }
+  .meta { display: grid; grid-template-columns: 112px 1fr; gap: 10px 16px; font-size: 15px; line-height: 1.5; }
+  .meta dt { padding-top: 4px; }
+  .tasks > li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; padding: 13px 0 14px; border-top: 1px solid rgba(21, 20, 19, .12); }
+  .idx { font-family: 'Aileron', sans-serif; font-weight: 300; font-size: 12px; letter-spacing: .14em; color: var(--stone); padding-top: 5px; }
+  .more { display: inline-flex; align-items: center; gap: 12px; margin-top: 16px; font-size: 13px; font-weight: 500; letter-spacing: .03em; color: var(--ink); transition: color .3s; }
+  .more .ln { width: 30px; height: 1px; background: currentColor; transition: width .45s var(--ease); }
+  .more:hover { color: var(--red); }
+  .more:hover .ln { width: 52px; }
+  .next-up { display: flex; align-items: center; gap: 12px; }
+  .next-up::after { content: ''; flex: 0 0 44px; height: 1px; background: rgba(21, 20, 19, .3); }
+  .contacts { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; font-size: 15px; }
+  .contacts a { border-bottom: 1px solid rgba(21, 20, 19, .24); transition: color .3s, border-color .3s; }
+  .contacts a:hover { color: var(--red); border-color: var(--red); }
+  .contacts .sep { color: rgba(21, 20, 19, .3); }
+  .final-name { font-size: clamp(46px, 6vw, 96px); line-height: .9; }
+  #portrait { position: fixed; left: 0; top: 0; z-index: 5; pointer-events: none; opacity: 0; filter: drop-shadow(0 26px 34px rgba(70, 24, 14, .28)); }
+
+  /* панель проекта */
+  #drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 50; width: min(46vw, 760px); display: flex; flex-direction: column; background: rgba(246, 243, 238, .9); -webkit-backdrop-filter: blur(30px) saturate(1.2); backdrop-filter: blur(30px) saturate(1.2); border-left: 1px solid rgba(255, 255, 255, .8); box-shadow: -50px 0 100px -60px rgba(40, 28, 20, .55); transform: translateX(104%); transition: transform 1.05s var(--ease); color: var(--ink); }
   #drawer.open { transform: none; }
-  #drawer .scroll { scrollbar-width: thin; scrollbar-color: rgba(236,231,223,.2) transparent; }
-  .reveal { opacity: 0; transform: translateY(24px); }
-  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1 !important; transform: none !important; } #drawer { transition: none; } }
+  #drawer .bar { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; padding: 0 clamp(20px, 3vw, 44px); border-bottom: 1px solid rgba(21, 20, 19, .1); }
+  #drawer .x { flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(21, 20, 19, .22); display: grid; place-items: center; transition: background .3s, color .3s, border-color .3s; }
+  #drawer .x:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+  #drawer .scroll { overflow-y: auto; overscroll-behavior: contain; padding: 26px clamp(20px, 3vw, 44px) 64px; scrollbar-width: thin; scrollbar-color: rgba(21, 20, 19, .2) transparent; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); border-top: 1px solid rgba(21, 20, 19, .14); border-left: 1px solid rgba(21, 20, 19, .14); }
+  .metrics > div { padding: 14px 16px 16px; border-right: 1px solid rgba(21, 20, 19, .14); border-bottom: 1px solid rgba(21, 20, 19, .14); }
+  .metrics .v { font-family: 'Aileron', sans-serif; font-weight: 900; font-size: 30px; line-height: 1; color: var(--red); }
+  .metrics .l { margin-top: 7px; font-size: 12.5px; line-height: 1.3; color: rgba(21, 20, 19, .6); }
+  .points li { display: grid; grid-template-columns: 14px 1fr; gap: 8px; font-size: 15.5px; line-height: 1.6; color: rgba(21, 20, 19, .86); }
+  .points li + li { margin-top: 10px; }
+  .points li::before { content: ''; width: 6px; height: 6px; margin-top: 10px; border-radius: 50%; background: var(--red); }
+  .gal { display: flex; flex-direction: column; gap: 8px; }
+  .gal .row { display: flex; gap: 8px; }
+  .gal img, .gal video { display: block; width: 100%; height: auto; background: rgba(21, 20, 19, .06); }
+  .cut { position: relative; height: clamp(300px, 46vh, 470px); display: flex; justify-content: center; align-items: flex-end; overflow: hidden; border-bottom: 1px solid rgba(21, 20, 19, .16); }
+  .cut::before { content: ''; position: absolute; left: 50%; top: 50%; width: min(78%, 370px); aspect-ratio: 1; border-radius: 50%; background: var(--red); transform: translate(-50%, -50%); }
+  .cut img { position: relative; height: 100%; width: auto; max-width: none; }
+  .link { display: block; padding: 12px 16px; border: 1px solid rgba(21, 20, 19, .2); transition: border-color .3s, color .3s; }
+  .link:hover { border-color: var(--red); color: var(--red); }
+  .sound { display: inline-flex; align-items: center; gap: 10px; margin-top: 28px; height: 44px; padding: 0 20px; border: 1px solid rgba(21, 20, 19, .26); font-size: 13px; font-weight: 500; transition: background .3s, color .3s, border-color .3s; }
+  .sound:hover, .sound[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .sound i { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+
+  /* невысокие экраны ноутбуков: тексты компактнее, чтобы зал оставался открытым */
+  @media (min-width: 1024px) and (max-height: 820px) {
+    :root { --pb: 20px; }
+    .panel { padding: 20px 24px; }
+    .panel--card .role { font-size: 26px; }
+    .panel--card .rule { margin: 14px 0; }
+    .txt { font-size: 14.5px; line-height: 1.52; }
+    .meta { font-size: 14px; gap: 8px 14px; }
+    .contacts { font-size: 14px; }
+    .h2 { font-size: clamp(26px, 2.7vw, 40px); }
+    .tasks > li { padding: 10px 0 11px; }
+    .proj { height: 44px; }
+    .proj .hand { font-size: 52px; }
+  }
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .dk-name { display: none; }
+    .dk-mid { padding: 0 16px; }
+    .panel--label { grid-template-columns: minmax(170px, .68fr) 1.3fr; column-gap: 20px; }
+    .plan .pn { display: none; }
+    .plan a { font-size: 12.5px; }
+    .brand { font-size: 17px; }
+  }
+  @media (max-width: 1023px) {
+    :root { --dock-h: 54px; }
+    .plan { display: none; }
+    .menu-btn { display: inline-flex; }
+    .hdr-in { height: 62px; }
+    .panel, .panel--card, .panel--title, .panel--intro, .panel--long, .panel--label, .panel--note, .panel--num { left: 10px; right: 10px; width: auto; bottom: calc(var(--dock-h) + 16px + env(safe-area-inset-bottom, 0px)); max-height: 60vh; max-height: min(60svh, calc(100svh - 330px)); overflow-y: auto; display: block; padding: 18px 18px 20px; }
+    .glass { background: rgba(247, 245, 241, .84); }
+    .txt { font-size: 15px; line-height: 1.52; }
+    .lab-b { padding-top: 10px; }
+    .lab-a .h3 { margin-top: 10px; }
+    .proj { height: 42px; }
+    .proj .display { font-size: 20px; }
+    .proj .hand { font-size: 50px; }
+    #dock { left: 10px; right: 10px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+    .dk-mid, #dock.end .dk-mid { display: flex; flex: 1 1 auto; padding: 0 14px; }
+    .dk-next { padding: 0 16px 0 18px; }
+    #drawer { width: 100vw; background: rgba(246, 243, 238, .97); }
+  }
+  @media (min-width: 700px) and (max-width: 1023px) {
+    .panel--label { display: grid; grid-template-columns: minmax(200px, .8fr) 1.3fr; column-gap: 28px; }
+    .panel, .panel--card, .panel--title, .panel--intro, .panel--long, .panel--label, .panel--note, .panel--num { left: 24px; right: 24px; padding: 24px 26px; }
+    #dock { left: 24px; right: 24px; }
+    .panel--card, .panel--intro, .panel--long, .panel--note, .panel--num, .panel--title { right: auto; width: min(620px, calc(100vw - 48px)); }
+  }
+  /* телефон лежа: текст слева, сцена справа */
+  @media (max-width: 1023px) and (orientation: landscape) and (max-height: 560px) {
+    .hdr-in { height: 52px; }
+    .panel, .panel--card, .panel--title, .panel--intro, .panel--long, .panel--label, .panel--note, .panel--num { left: 10px; right: auto; width: min(46vw, 440px); max-height: calc(100vh - 136px); max-height: calc(100svh - 136px); display: block; padding: 12px 14px 14px; }
+    #dock { left: auto; right: 10px; }
+    .dk-mid { flex: 0 1 auto; }
+    .txt { font-size: 13.5px; line-height: 1.45; }
+    .h2 { font-size: 22px; }
+    .h1 { font-size: 36px; }
+    .role { font-size: 20px; }
+    .final-name { font-size: 34px; }
+    .proj { height: 34px; }
+    .proj .display { font-size: 17px; }
+    .proj .hand { font-size: 40px; }
+  }
+  @media (max-width: 520px) {
+    .meta { grid-template-columns: 1fr; gap: 2px; font-size: 14.5px; }
+    .meta dd { margin-bottom: 8px; }
+    .h2 { font-size: 27px; }
+    .role { font-size: 24px; }
+    .panel--card .rule { margin: 14px 0; }
+  }
+  @media (max-width: 1023px) and (max-height: 700px) {
+    .txt { font-size: 14px; line-height: 1.48; }
+    .h2 { font-size: 24px; }
+    .role { font-size: 21px; }
+    .panel, .panel--card, .panel--title, .panel--intro, .panel--long, .panel--label, .panel--note, .panel--num { padding: 14px 16px 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .grain, #loader .dot, .dk-next.cue::after, .dk-hall .flip { animation: none; }
+    .panel, .panel.on { transform: none; transition: opacity .2s linear, visibility 0s; }
+    .proj .hand { clip-path: none !important; transition: none; }
+    #drawer, #veil { transition: none; }
+  }
+  /* без WebGL сайт остается обычной страницей с теми же текстами */
+  .no-webgl body { background: linear-gradient(180deg, #F1EDE7, #E2DBD2); }
+  .no-webgl #scene, .no-webgl #skip, .no-webgl #loader, .no-webgl #dock, .no-webgl #track, .no-webgl #veil, .no-webgl .plan .you { display: none; }
+  .no-webgl main { padding: 96px var(--gut) 60px; display: flex; flex-direction: column; gap: 22px; }
+  .no-webgl .panel { position: static; opacity: 1; visibility: visible; pointer-events: auto; transform: none; max-height: none; width: min(100%, 760px); scroll-margin-top: 88px; }
+  .no-webgl .proj .hand { clip-path: none; }
+  .no-webgl section { display: contents; }
+  .no-webgl section > div:not(.panel) { display: contents; }
+  .no-webgl .fallback-title { display: block; font-size: clamp(48px, 7vw, 96px); line-height: .9; margin-bottom: 24px; }
 </style>
 </head>
-<body class="font-sans overflow-x-hidden">
+<body class="intro">
 
 <canvas id="scene" aria-hidden="true"></canvas>
-<div class="veil"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div id="veil" aria-hidden="true"></div>
 
-<header class="fixed top-0 inset-x-0 z-30 bg-gradient-to-b from-[#0b0b0e] via-[#0b0b0e]/80 to-transparent">
-  <div class="mx-auto max-w-[1440px] px-4 md:px-10 h-16 flex items-center justify-between">
-    <a href="#hero" class="font-serif text-2xl tracking-wide">А. Беликова</a>
-    <nav class="hidden md:flex items-center gap-7 text-[13px] text-smoke">
-      <a href="#numbers" class="hover:text-bone transition">В цифрах</a>
-      <a href="#moscow" class="hover:text-bone transition">Моспродюсер</a>
-      <a href="#favorit" class="hover:text-bone transition">FAVORIT MOTORS</a>
-      <a href="#special" class="hover:text-bone transition">Спецпроекты</a>
-      <a href="#edu" class="hover:text-bone transition">Образование</a>
-      <a href="#contact" class="hover:text-bone transition">Контакты</a>
-    </nav>
+<div id="loader" aria-hidden="true"><span class="dot"></span><span class="count latin" id="count">000</span></div>
+<button id="skip" class="label" type="button">Пропустить</button>
+
+<header id="hdr" class="ui">
+  <div class="hdr-in">
+    <a href="#hero" class="brand display" data-go>Анна Беликова</a>
+    <nav class="plan" aria-label="План анфилады"><ol></ol><span class="you" aria-hidden="true"></span></nav>
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu">Меню</button>
   </div>
 </header>
 
-<main class="relative z-10">
+<div id="menu" hidden>
+  <div id="menu-list"></div>
+  <p class="contacts mt-auto pt-8">
+    <a href="tel:+79637198668">+7 (963) 719-86-68</a><span class="sep">|</span>
+    <a href="mailto:taraburinaanna@gmail.com">taraburinaanna@gmail.com</a><span class="sep">|</span>
+    <a href="https://t.me/anna_reek" target="_blank" rel="noopener">t.me/anna_reek</a><span class="sep">|</span>
+    <span>Москва</span>
+  </p>
+</div>
 
-<!-- 1. ГЛАВНЫЙ ЭКРАН -->
-<section id="hero" data-cam="hero" class="min-h-screen flex items-center">
-  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 pt-24 pb-16">
-    <div class="max-w-[680px]">
-      <p class="eyebrow reveal">The Light Void · портфолио</p>
-      <h1 class="font-serif font-medium leading-[.9] mt-6 text-[clamp(64px,10vw,152px)] reveal">Анна<br><em class="font-normal text-ember">Беликова</em></h1>
-      <p class="mt-8 text-lg md:text-xl text-bone/90 reveal">Менеджер проектов, креатор, арт-куратор</p>
-      <div class="rule my-8 reveal"></div>
-      <p class="text-[17px] md:text-lg leading-relaxed text-bone/85 reveal">Более четырех лет реализую проекты на стыке культуры, бизнеса и технологий. Мой опыт объединяет управление масштабными событиями в государственном секторе, разработку корпоративных программ и коммуникаций в автомобильном холдинге, а также создание визуальных концепций, брендинга и цифровых продуктов. Выстраиваю диалог между междисциплинарными командами, пишу емкие тексты и перевожу сложные идеи в работающие форматы.</p>
-      <div class="mt-10 reveal">
-        <p class="eyebrow mb-3">Контакты</p>
-        <p class="flex flex-wrap gap-x-4 gap-y-2 text-[15px]">
-          <a href="tel:+79637198668" class="hover:text-ember transition">+7 (963) 719-86-68</a><span class="text-smoke">|</span>
-          <a href="mailto:taraburinaanna@gmail.com" class="hover:text-ember transition">taraburinaanna@gmail.com</a><span class="text-smoke">|</span>
-          <a href="https://t.me/anna_reek" target="_blank" rel="noopener" class="hover:text-ember transition">t.me/anna_reek</a><span class="text-smoke">|</span>
-          <span>Москва</span>
-        </p>
-      </div>
-      <a href="#numbers" class="inline-flex items-center gap-3 mt-12 text-sm text-smoke hover:text-bone transition reveal"><span class="w-10 h-px bg-current"></span>Войти в пространство</a>
-    </div>
+<main id="content">
+
+<!-- 1. ВХОД -->
+<section id="hero" aria-label="Анна Беликова">
+  <div class="panel glass panel--card" data-stop="hero">
+    <h1 class="sr-only">Анна Беликова</h1>
+    <p class="fallback-title display" aria-hidden="true">Анна Беликова</p>
+    <p class="display role">Менеджер проектов, креатор, арт-куратор</p>
+    <div class="rule my-5"></div>
+    <p class="label">Контакты</p>
+    <p class="contacts mt-2">
+      <a href="tel:+79637198668">+7 (963) 719-86-68</a><span class="sep">|</span>
+      <a href="mailto:taraburinaanna@gmail.com">taraburinaanna@gmail.com</a><span class="sep">|</span>
+      <a href="https://t.me/anna_reek" target="_blank" rel="noopener">t.me/anna_reek</a><span class="sep">|</span>
+      <span>Москва</span>
+    </p>
+  </div>
+  <div class="panel glass panel--card" data-stop="about">
+    <p class="label">Обо мне</p>
+    <p class="txt mt-3">Более четырех лет реализую проекты на стыке культуры, бизнеса и технологий. Мой опыт объединяет управление масштабными событиями в государственном секторе, разработку корпоративных программ и коммуникаций в автомобильном холдинге, а также создание визуальных концепций, брендинга и цифровых продуктов. Выстраиваю диалог между междисциплинарными командами, пишу емкие тексты и перевожу сложные идеи в работающие форматы.</p>
   </div>
 </section>
 
 <!-- 2. В ЦИФРАХ -->
-<section id="numbers" data-cam="numbers" class="min-h-screen flex items-center">
-  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-24">
-    <p class="eyebrow reveal">В цифрах</p>
-    <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-none mt-4 reveal">Масштаб <em class="text-ember">в цифрах</em></h2>
-    <div class="grid sm:grid-cols-2 gap-x-10 max-w-[760px] mt-12" data-stats></div>
+<section id="numbers" aria-labelledby="h-numbers">
+  <div class="panel glass panel--title" data-stop="hall:1">
+    <h2 id="h-numbers" class="display h1">В цифрах</h2>
   </div>
+  <div id="numbers-cards"></div>
 </section>
 
 <!-- 3. БЛОК 1 -->
-<section id="moscow" data-cam="moscow" class="min-h-screen">
-  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-28">
-    <div class="max-w-[720px]">
-      <p class="eyebrow reveal">Блок 1</p>
-      <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-[.95] mt-4 reveal">Масштабные городские события <em class="text-ember">(Моспродюсер)</em></h2>
-      <dl class="mt-10 grid sm:grid-cols-[120px_1fr] gap-x-6 gap-y-3 text-[15px] reveal">
-        <dt class="eyebrow pt-1">Компания</dt><dd>Московский продюсерский центр (Департамент культуры г. Москвы), 2022–2025</dd>
-        <dt class="eyebrow pt-1">Роль</dt><dd>Менеджер арт-проектов отдела по поддержке современного искусства</dd>
-      </dl>
-      <p class="eyebrow mt-14 mb-2 reveal">Проекты</p>
-      <div class="list" data-list="moscow"></div>
-    </div>
+<section id="moscow" aria-labelledby="h-moscow">
+  <div class="panel glass panel--intro" data-stop="hall:2">
+    <p class="label">Блок 1</p>
+    <h2 id="h-moscow" class="display h2 mt-4">Масштабные городские события (Моспродюсер)</h2>
+    <dl class="meta mt-6">
+      <dt class="label">Компания</dt><dd>Московский продюсерский центр (Департамент культуры г. Москвы), 2022–2025</dd>
+      <dt class="label">Роль</dt><dd>Менеджер арт-проектов отдела по поддержке современного искусства</dd>
+    </dl>
+    <p class="label next-up mt-6">Проекты</p>
   </div>
+  <div id="moscow-cards"></div>
 </section>
 
 <!-- 4. БЛОК 2 -->
-<section id="favorit" data-cam="favorit" class="min-h-screen">
-  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-28">
-    <div class="max-w-[720px]">
-      <p class="eyebrow reveal">Блок 2</p>
-      <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-[.95] mt-4 reveal">Автомобильный бизнес и <em class="text-ember">внутренние коммуникации</em></h2>
-      <dl class="mt-10 grid sm:grid-cols-[120px_1fr] gap-x-6 gap-y-3 text-[15px] reveal">
-        <dt class="eyebrow pt-1">Компания</dt><dd>Группа компаний FAVORIT MOTORS, сентябрь 2025 – настоящее время</dd>
-        <dt class="eyebrow pt-1">Роль</dt><dd>Менеджер по контенту и коммуникациям, куратор спецпроектов</dd>
-      </dl>
-      <p class="eyebrow mt-14 mb-2 reveal">Задачи и кейсы</p>
-      <div class="list" data-list="favorit"></div>
-    </div>
+<section id="favorit" aria-labelledby="h-favorit">
+  <div class="panel glass panel--intro" data-stop="hall:3">
+    <p class="label">Блок 2</p>
+    <h2 id="h-favorit" class="display h2 mt-4">Автомобильный бизнес и внутренние коммуникации</h2>
+    <dl class="meta mt-6">
+      <dt class="label">Компания</dt><dd>Группа компаний FAVORIT MOTORS, сентябрь 2025 – настоящее время</dd>
+      <dt class="label">Роль</dt><dd>Менеджер по контенту и коммуникациям, куратор спецпроектов</dd>
+    </dl>
+    <p class="label next-up mt-6">Задачи и кейсы</p>
   </div>
+  <div class="panel glass panel--long" data-stop="art:fav-video" data-art="fav-video">
+    <p class="label">Задачи и кейсы</p>
+    <ol class="tasks mt-3" id="favorit-tasks"></ol>
+  </div>
+  <div id="favorit-cards"></div>
 </section>
 
 <!-- 5. БЛОК 3 -->
-<section id="special" data-cam="special" class="min-h-screen">
-  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-28">
-    <div class="max-w-[720px]">
-      <p class="eyebrow reveal">Блок 3</p>
-      <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-[.95] mt-4 reveal">Спецпроекты, исследования <em class="text-ember">и мультимедиа</em></h2>
-      <div class="list mt-12" data-list="special"></div>
-    </div>
+<section id="special" aria-labelledby="h-special">
+  <div class="panel glass panel--intro" data-stop="hall:4">
+    <p class="label">Блок 3</p>
+    <h2 id="h-special" class="display h2 mt-4">Спецпроекты, исследования и мультимедиа</h2>
   </div>
+  <div id="special-cards"></div>
 </section>
 
 <!-- 6. ОБРАЗОВАНИЕ И НАВЫКИ -->
-<section id="edu" data-cam="edu" class="min-h-screen flex items-center">
-  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-28">
-    <div class="max-w-[720px]">
-      <p class="eyebrow reveal">Образование и навыки</p>
-      <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-[.95] mt-4 reveal">Образование <em class="text-ember">и навыки</em></h2>
-      <div class="mt-12 space-y-7 text-[16px] leading-relaxed">
-        <div class="reveal"><p class="font-serif text-2xl">РГХПУ им. С. Г. Строганова <span class="text-smoke text-lg">(2024–2027)</span></p><p class="text-bone/80 mt-1">Магистратура кафедры промышленного дизайна, «Дизайн-кураторство. Креативные технологии и экспертиза».</p></div>
-        <div class="reveal"><p class="font-serif text-2xl">РГУ им. А. Н. Косыгина <span class="text-smoke text-lg">(2018–2022)</span></p><p class="text-bone/80 mt-1">«Теория и история искусств», искусствовед.</p></div>
-        <div class="rule reveal"></div>
-        <dl class="grid sm:grid-cols-[120px_1fr] gap-x-6 gap-y-5 reveal">
-          <dt class="eyebrow pt-1">Курсы</dt><dd class="text-bone/85">«AI в креативных индустриях» (verlab и PROЩе Production, 2026), «Современные художественные практики» (Школа Родченко, 2023), «Управление проектами в сфере культуры» (РГУ им. Косыгина, 2022).</dd>
-          <dt class="eyebrow pt-1">Инструменты</dt><dd class="text-bone/85">Figma, Adobe Creative Cloud, Tilda, Notion, Jira, Kaiten, Three.js, Weavy, Veo, Kling.</dd>
-          <dt class="eyebrow pt-1">Языки</dt><dd class="text-bone/85">Английский B2, польский A2, итальянский A1.</dd>
-        </dl>
+<section id="edu" aria-labelledby="h-edu">
+  <div class="panel glass panel--long" data-stop="edu">
+    <h2 id="h-edu" class="display h2">Образование и навыки</h2>
+    <div class="mt-7 space-y-5">
+      <div>
+        <p class="display text-[22px] leading-tight">РГХПУ им. С. Г. Строганова <span class="latin font-light text-[15px] text-stone tracking-[.04em]">(2024–2027)</span></p>
+        <p class="txt mt-2">Магистратура кафедры промышленного дизайна, «Дизайн-кураторство. Креативные технологии и экспертиза».</p>
+      </div>
+      <div>
+        <p class="display text-[22px] leading-tight">РГУ им. А. Н. Косыгина <span class="latin font-light text-[15px] text-stone tracking-[.04em]">(2018–2022)</span></p>
+        <p class="txt mt-2">«Теория и история искусств», искусствовед.</p>
       </div>
     </div>
+  </div>
+  <div class="panel glass panel--long" data-stop="skills">
+    <p class="label">Образование и навыки</p>
+    <dl class="meta mt-5">
+      <dt class="label">Курсы</dt><dd>«AI в креативных индустриях» (verlab и PROЩе Production, 2026), «Современные художественные практики» (Школа Родченко, 2023), «Управление проектами в сфере культуры» (РГУ им. Косыгина, 2022).</dd>
+      <dt class="label">Инструменты</dt><dd>Figma, Adobe Creative Cloud, Tilda, Notion, Jira, Kaiten, Three.js, Weavy, Veo, Kling.</dd>
+      <dt class="label">Языки</dt><dd>Английский B2, польский A2, итальянский A1.</dd>
+    </dl>
   </div>
 </section>
 
 <!-- 7. УВЛЕЧЕНИЯ -->
-<section id="hobby" data-cam="hobby" class="min-h-[80vh] flex items-center">
-  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 py-28">
-    <div class="max-w-[720px]">
-      <p class="eyebrow reveal">Увлечения</p>
-      <h2 class="font-serif text-[clamp(44px,6vw,88px)] leading-[.95] mt-4 reveal">Увлечения</h2>
-      <dl class="mt-12 grid sm:grid-cols-[180px_1fr] gap-x-6 gap-y-7 text-[16px] leading-relaxed">
-        <dt class="font-serif text-2xl reveal">Музыка</dt><dd class="text-bone/85 reveal">Пишу треки под псевдонимом Анна Реек, создаю саунд-дизайн для выставок. Трек «Себя» победил в конкурсе «Музыка в парках» и вошел в плейлист платформы «Звук».</dd>
-        <dt class="font-serif text-2xl reveal">Фотография</dt><dd class="text-bone/85 reveal">Призер международного фотопроекта FOTORUAT (2021), третье место в конкурсе журнала SEASONS (2022).</dd>
-        <dt class="font-serif text-2xl reveal">Кондитерское искусство</dt><dd class="text-bone/85 reveal">С 2017 года.</dd>
-      </dl>
-    </div>
+<section id="hobby" aria-labelledby="h-hobby">
+  <div class="panel glass panel--note" data-stop="art:music" data-art="music">
+    <h2 id="h-hobby" class="display h2">Увлечения</h2>
+    <h3 class="display h3 mt-6">Музыка</h3>
+    <p class="txt mt-3">Пишу треки под псевдонимом Анна Реек, создаю саунд-дизайн для выставок. Трек «Себя» победил в конкурсе «Музыка в парках» и вошел в плейлист платформы «Звук».</p>
+  </div>
+  <div class="panel glass panel--note" data-stop="photo">
+    <p class="label">Увлечения</p>
+    <h3 class="display h3 mt-4">Фотография</h3>
+    <p class="txt mt-3">Призер международного фотопроекта FOTORUAT (2021), третье место в конкурсе журнала SEASONS (2022).</p>
+  </div>
+  <div class="panel glass panel--note" data-stop="art:sweets" data-art="sweets">
+    <p class="label">Увлечения</p>
+    <h3 class="display h3 mt-4">Кондитерское искусство</h3>
+    <p class="txt mt-3">С 2017 года.</p>
   </div>
 </section>
 
-<!-- КОНТАКТЫ -->
-<section id="contact" data-cam="contact" class="min-h-[80vh] flex items-end">
-  <div class="mx-auto w-full max-w-[1440px] px-4 md:px-10 pb-16 pt-28">
-    <h2 class="font-serif text-[clamp(56px,9vw,140px)] leading-[.9] reveal">Анна <em class="text-ember">Беликова</em></h2>
-    <p class="mt-6 text-lg text-bone/85 reveal">Менеджер проектов, креатор, арт-куратор</p>
-    <p class="flex flex-wrap gap-x-4 gap-y-2 mt-8 text-[17px] reveal">
-      <a href="tel:+79637198668" class="hover:text-ember transition">+7 (963) 719-86-68</a><span class="text-smoke">|</span>
-      <a href="mailto:taraburinaanna@gmail.com" class="hover:text-ember transition">taraburinaanna@gmail.com</a><span class="text-smoke">|</span>
-      <a href="https://t.me/anna_reek" target="_blank" rel="noopener" class="hover:text-ember transition">t.me/anna_reek</a><span class="text-smoke">|</span>
+<!-- 8. КОНТАКТЫ -->
+<section id="contact" aria-labelledby="h-contact">
+  <div class="panel glass panel--card" data-stop="finale" id="final-card">
+    <p class="label">Контакты</p>
+    <h2 id="h-contact" class="display final-name mt-5">Анна Беликова</h2>
+    <p class="txt mt-5">Менеджер проектов, креатор, арт-куратор</p>
+    <p class="contacts mt-6 !text-[17px]">
+      <a href="tel:+79637198668">+7 (963) 719-86-68</a><span class="sep">|</span>
+      <a href="mailto:taraburinaanna@gmail.com">taraburinaanna@gmail.com</a><span class="sep">|</span>
+      <a href="https://t.me/anna_reek" target="_blank" rel="noopener">t.me/anna_reek</a><span class="sep">|</span>
       <span>Москва</span>
     </p>
-    <div class="rule mt-14 mb-5"></div>
-    <p class="eyebrow">Анна Беликова · 2026</p>
+    <div class="rule mt-8 mb-4"></div>
+    <p class="label">Анна Беликова · 2026</p>
   </div>
 </section>
 </main>
 
-<!-- ПАНЕЛЬ КЕЙСА -->
-<aside id="drawer" class="fixed top-0 right-0 bottom-0 z-40 w-full lg:w-[52vw] max-w-[860px] bg-[#101014]/95 backdrop-blur-md border-l border-white/10 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="d-title" hidden>
-  <div class="flex items-center justify-between px-6 md:px-10 h-16 border-b border-white/10 shrink-0">
-    <p class="eyebrow" id="d-eyebrow"></p>
-    <button class="w-10 h-10 rounded-full border border-white/20 grid place-items-center hover:bg-bone hover:text-void transition" data-close aria-label="Закрыть">✕</button>
+<!-- высота прокрутки: у каждой остановки камеры свой отрезок -->
+<div id="track" aria-hidden="true"></div>
+
+<!-- ПЕРЕХОДЫ -->
+<nav id="dock" class="ui glass" aria-label="Переходы по залам">
+  <button class="dk-btn dk-prev" id="dkPrev" type="button" aria-label="Назад" title="Назад">
+    <svg width="18" height="12" viewBox="0 0 18 12" aria-hidden="true"><path d="M17 6H2M6.5 1.5L2 6l4.5 4.5" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+  </button>
+  <div class="dk-mid">
+    <p class="dk-hall"><span class="dk-count latin" id="dkCount">01 / 08</span><span class="dk-name" id="dkName">Вход</span></p>
+    <div class="dk-ticks" id="dkTicks" aria-hidden="true"></div>
   </div>
-  <div class="scroll overflow-y-auto px-6 md:px-10 py-8" id="d-body"></div>
+  <button class="dk-btn dk-next" id="dkNext" type="button">
+    <span><small id="dkNextHint" hidden>Следующий зал</small><b id="dkNextLabel">Дальше</b></span>
+    <svg width="18" height="12" viewBox="0 0 18 12" aria-hidden="true"><path d="M1 6h15M11.5 1.5L16 6l-4.5 4.5" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+  </button>
+</nav>
+
+<img id="portrait" alt="" aria-hidden="true">
+
+<!-- ПАНЕЛЬ ПРОЕКТА -->
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="d-title" hidden>
+  <div class="bar">
+    <p class="label truncate" id="d-eyebrow"></p>
+    <button class="x" type="button" data-close aria-label="Закрыть">
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+    </button>
+  </div>
+  <div class="scroll" id="d-body"></div>
 </aside>
 
 <script>
-/* ——— тексты блоков: дословно ——— */
+/* ——— тексты Анны: дословно ——— */
 const STATS = [
   ['500 000+', 'посетителей площадок фестиваля Моспродюсер.LINK'],
   ['50 000+', 'зрителей digital-выставки в парке «Зарядье»'],
@@ -227,310 +511,1648 @@ const STATS = [
   ['1 000+', 'прослушиваний авторского саунд-гида']
 ];
 
+/* [проект, заголовок, текст, экспонат на стене] */
 const LISTS = {
   moscow: [
-    ['strit', 'Фестиваль «СТРИТАРТЕРИЯ.FEST» в креативном пространстве «Новый Манеж»', 'Руководила застройкой площадки более 1000 кв. м, нашла опытного подрядчика по цене ниже рыночной в пик сезона, реализовала 4 масштабных арт-объекта и координировала работу более 40 художников.'],
-    ['zar', 'Digital-выставка в парке «Зарядье»', 'Провела открытый конкурс со сбором 100 заявок, создала лендинг, написала тексты, сформировала сценарий показа на медиаэкране 250 кв. м и координировала восьмидневную экспозицию с охватом свыше 50 000 зрителей.'],
-    ['link', 'Фестиваль «Моспродюсер.LINK» в фудмоллах «Депо»', 'Разработала стратегию и фирменный стиль, организовала конкурсный отбор, монтаж 36 арт-принтов и трансляцию 24 цифровых работ на площадках с проходимостью более 500 000 человек.'],
-    ['artdrive', 'Всероссийский проект «Арт-Драйв»', 'Подготовила концепцию, вела коммуникацию с партнерами и документацию, поставила задачи дизайнерам и PR-службам, объединив 10 арт-автомобилей с охватом выставки свыше 36 000 человек.'],
-    ['kontury', 'Проект «Контуры культуры»', 'Координировала создание муралов на 20+ площадках, разработала чат-бот для художников и привлекла партнеров для производства мерча.'],
-    ['exh', 'Локальная выставочная программа', 'Курировала 15 экспозиций с участием более 30 авторов, создавала экспликации, интерактивные чат-боты, саунд-дизайн и семейные квесты.'],
-    ['gifts', 'Корпоративное производство', 'Организовала выпуск и логистику более 3000 подарков, разработала новогоднее оформление двух культурных площадок столицы.']
+    ['strit', 'Фестиваль «СТРИТАРТЕРИЯ.FEST» в креативном пространстве «Новый Манеж»', 'Руководила застройкой площадки более 1000 кв. м, нашла опытного подрядчика по цене ниже рыночной в пик сезона, реализовала 4 масштабных арт-объекта и координировала работу более 40 художников.', 'strit'],
+    ['zar', 'Digital-выставка в парке «Зарядье»', 'Провела открытый конкурс со сбором 100 заявок, создала лендинг, написала тексты, сформировала сценарий показа на медиаэкране 250 кв. м и координировала восьмидневную экспозицию с охватом свыше 50 000 зрителей.', 'zar'],
+    ['link', 'Фестиваль «Моспродюсер.LINK» в фудмоллах «Депо»', 'Разработала стратегию и фирменный стиль, организовала конкурсный отбор, монтаж 36 арт-принтов и трансляцию 24 цифровых работ на площадках с проходимостью более 500 000 человек.', 'link'],
+    ['artdrive', 'Всероссийский проект «Арт-Драйв»', 'Подготовила концепцию, вела коммуникацию с партнерами и документацию, поставила задачи дизайнерам и PR-службам, объединив 10 арт-автомобилей с охватом выставки свыше 36 000 человек.', 'artdrive'],
+    ['kontury', 'Проект «Контуры культуры»', 'Координировала создание муралов на 20+ площадках, разработала чат-бот для художников и привлекла партнеров для производства мерча.', 'kontury'],
+    ['exh', 'Локальная выставочная программа', 'Курировала 15 экспозиций с участием более 30 авторов, создавала экспликации, интерактивные чат-боты, саунд-дизайн и семейные квесты.', 'exh'],
+    ['gifts', 'Корпоративное производство', 'Организовала выпуск и логистику более 3000 подарков, разработала новогоднее оформление двух культурных площадок столицы.', null]
   ],
   favorit: [
-    [null, null, 'Развиваю внутренние коммуникации холдинга, организую сбор инфоповодов в подразделениях и готовлю регулярные новостные рассылки для сотрудников.'],
-    ['ai', null, 'Пишу сценарии для видеороликов в социальных сетях, интерактивных квизов, а также создаю видеоконтент с применением генеративных нейросетей.'],
-    [null, null, 'Разрабатываю концепции, тексты и сценарии для специальных проектов холдинга.'],
-    ['favorit', null, 'Организую и провожу презентации новых моделей, корпоративные и клиентские события (включая запуск новой модели Foton с иммерсивным спектаклем, презентации Changan и спецпрограмму для РЕСО с совокупной аудиторией свыше 20 000 участников).'],
-    ['favorit', null, 'Читаю лекции по истории автодизайна, провожу образовательные программы для детей и семей сотрудников.'],
-    ['ket', null, 'С нуля создала визуальную концепцию, айдентику и линейку мерча для летней серии автомобильных фестивалей «Кетчерская 9».']
+    [null, null, 'Развиваю внутренние коммуникации холдинга, организую сбор инфоповодов в подразделениях и готовлю регулярные новостные рассылки для сотрудников.', null],
+    ['ai', null, 'Пишу сценарии для видеороликов в социальных сетях, интерактивных квизов, а также создаю видеоконтент с применением генеративных нейросетей.', null],
+    [null, null, 'Разрабатываю концепции, тексты и сценарии для специальных проектов холдинга.', null],
+    ['favorit', null, 'Организую и провожу презентации новых моделей, корпоративные и клиентские события (включая запуск новой модели Foton с иммерсивным спектаклем, презентации Changan и спецпрограмму для РЕСО с совокупной аудиторией свыше 20 000 участников).', 'fav-events'],
+    ['favorit', null, 'Читаю лекции по истории автодизайна, провожу образовательные программы для детей и семей сотрудников.', 'fav-lecture'],
+    ['ket', null, 'С нуля создала визуальную концепцию, айдентику и линейку мерча для летней серии автомобильных фестивалей «Кетчерская 9».', 'ket']
   ],
   special: [
-    ['kod', 'Выставка «Код лошади» в Новом Манеже (2026)', 'Подготовила исследовательскую статью для каталога юбилейной выставки и провела цикл кураторских лекций, получивших освещение на Первом канале и телеканале «Россия-Культура».'],
-    ['vol', 'Цифровой проект «Волышово. Возрождение» (магистратура Строгановки)', 'Разработала концепцию интерактивного цифрового пространства усадьбы Строгановых в Псковской области, спроектировала трехмерный лендинг и модуль сбора архивов «Телеграф памяти».'],
-    ['ai', 'AI-видео и генеративные медиа', 'Создаю видео с помощью нейросетей (Weavy, Nano Banana, Veo 3.1, Kling, Suno), включая рекламный ролик для FAVORIT MOTORS, видео для международной выставки дизайна ARTDOM и исторические стилизации.']
+    ['kod', 'Выставка «Код лошади» в Новом Манеже (2026)', 'Подготовила исследовательскую статью для каталога юбилейной выставки и провела цикл кураторских лекций, получивших освещение на Первом канале и телеканале «Россия-Культура».', 'kod'],
+    ['vol', 'Цифровой проект «Волышово. Возрождение» (магистратура Строгановки)', 'Разработала концепцию интерактивного цифрового пространства усадьбы Строгановых в Псковской области, спроектировала трехмерный лендинг и модуль сбора архивов «Телеграф памяти».', 'vol'],
+    ['ai', 'AI-видео и генеративные медиа', 'Создаю видео с помощью нейросетей (Weavy, Nano Banana, Veo 3.1, Kling, Suno), включая рекламный ролик для FAVORIT MOTORS, видео для международной выставки дизайна ARTDOM и исторические стилизации.', 'ai']
   ]
 };
 
-/* ——— подробные описания проектов (со старого сайта) ——— */
+/* сквозная нумерация проектов, как в презентации Анны */
+const NO = { strit: 'One', zar: 'Two', link: 'Three', artdrive: 'Four', kontury: 'Five', exh: 'Six', gifts: 'Seven', favorit: 'Eight', ket: 'Nine', kod: 'Ten', vol: 'Eleven', ai: 'Twelve' };
+
+/* подробные описания проектов и размеры фото */
+/*@DATA-START*/
 const CASES = {"strit":{"title":"СТРИТАРТЕРИЯ.FEST","place":"Креативное пространство «Новый Манеж»","year":"2023","role":"Менеджер, руководитель застройки фестиваля","lead":"Трехдневный фестиваль уличного искусства с участием более 40 художников.","points":["Провела анализ рынка и в разгар сезона, в условиях сжатых сроков и ограниченного бюджета, привлекла опытного застройщика по цене ниже рыночной.","Составила сметы, технические задания и план застройки.","Руководила застройкой, контролировала монтажные работы и готовила отчетность.","Участвовала в разработке экспозиции и реализации арт-объектов, вела коммуникацию с художниками.","Отвечала за event-менеджмент на площадке фестиваля."],"metrics":[["1000+","м²"],["4","арт-объекта"],["40+","художников"],["3","дня"]],"imgs":["stritarteria","novyi-manezh","strit-a","strit-masterclass"],"videos":null,"links":null},"zar":{"title":"Когда город становится искусством","place":"Digital-выставка в парке «Зарядье»","year":"2024","role":"Курирующий менеджер","lead":"Показ digital-искусства на крупнейшем столичном медиаэкране площадью более 250 м².","points":["Организовала open call, разработала лендинг и написала тексты.","Исследовала сообщество digital-художников, собрала около 100 заявок и сопровождала авторов на всех этапах проекта.","Создала сценарий показа digital-работ, распределила задачи между исполнителями и контролировала сборку.","В течение 8 дней координировала выставку на площадке."],"metrics":[["100+","заявок"],["8","дней"],["50 000+","зрителей"]],"imgs":["zaryadye","zar-anna","zar-1","zar-2"],"videos":null,"links":null},"link":{"title":"Моспродюсер.LINK","place":"Фудмоллы «Депо.Москва» и «Три вокзала. Депо»","year":"2023","role":"Менеджер","lead":"Фестиваль на двух площадках столичных фудмоллов «Депо» с проходимостью более 500 000 человек.","points":["Участвовала в разработке стратегии и управлении проектом.","Создала фирменный стиль проекта.","Организовала open call арт-направления на 100+ заявок и отбор 36 победителей.","Организовала печать и монтаж 36 арт-принтов в интерьерах «Депо», а также показ 24 digital-работ на экранах."],"metrics":[["100+","заявок"],["36","арт-принтов"],["24","digital-работы"]],"imgs":["link-depo"],"videos":null,"links":null},"artdrive":{"title":"Арт-Драйв","place":"Всероссийский арт-проект","year":"2024","role":"Курирующий менеджер","lead":"Проект, в рамках которого работы художников перенесли на автомобили. Выставку и перформанс в «Депо» увидели более 36 000 человек.","points":["Разработала концепцию проекта и написала тексты.","Вела коммуникацию с партнерами, готовила презентационные материалы, договоры и документацию проекта.","Ставила задачи дизайнеру, отделу маркетинга и PR, контролировала разработку лендинга и фирменного стиля.","Организовала open call и итоговый отбор работ.","Участвовала в организации выставки автомобилей с работами победителей в «Депо»."],"metrics":[["80+","заявок"],["10","автомобилей"],["3","месяца"],["36 000+","зрителей"]],"imgs":["art-drive","artdrive-cars","artdrive-paint"],"videos":null,"links":null},"kontury":{"title":"Контуры культуры","place":"Всероссийский арт-проект","year":"2023–2025","role":"Менеджер","lead":"Муралы и стрит-арт площадью от 65 до 150 м² на 20+ площадках столицы. Среди художников проекта Степан Краснов (310) и Евгений Чес.","points":["Координировала подготовку площадок и создание муралов.","Создала телеграм-бот с полезными материалами для привлечения художников и коммуникации с ними.","На протяжении двух лет участвовала в организации итоговых отборов, готовила электронные материалы и отчетность.","Контролировала закупку материалов для художников.","Привлекла партнера для производства мерча проекта, сумок и шоперов из тайвека."],"metrics":[["65–150","м², площадь муралов"],["20+","площадок"],["2","года отборов"]],"imgs":["kontury-spray.png","kontury"],"videos":null,"links":null},"exh":{"title":"Локальная выставочная программа","place":"Московский продюсерский центр","year":"2022–2025","role":"Курирующий менеджер, фотограф","lead":"Серия выставок живописи, графики и саунд-арта.","points":["Курировала организацию 15 выставок, привлекала художников и работала с договорами.","Писала концепции и сопроводительные тексты, создавала и верстала экспликации и этикетаж, отвечала за монтаж и демонтаж работ.","Для вовлечения аудитории разработала саунд-дизайн и телеграм-бот к нескольким выставкам (1000+ прослушиваний).","Разрабатывала визуалы, проводила фотосессии, организовывала съемки reels и интервью.","Придумала и провела семейный квест-конкурс, который привлек к современному искусству аудиторию с детьми."],"metrics":[["15","выставок"],["30+","художников"],["1000+","прослушиваний"]],"imgs":["exh-6","exh-signs","exh-grid","exh-texts","exh-1","exh-3","exh-4","exh-7","exh-8","exh-9","exh-10"],"videos":null,"links":null},"gifts":{"title":"Корпоративные подарки и оформление","place":"«Моспродюсер» и «Новый Манеж»","year":"2022–2025","role":"Менеджер","lead":"Организовала производство и логистику более 3000 корпоративных подарков в условиях жестких сроков.","points":["Разрабатывала технические задания и находила подрядчиков в условиях сжатых сроков и ограниченного бюджета.","Вела деловую коммуникацию с подрядчиками, работала с договорами и документацией.","Разработала и реализовала концепцию новогоднего оформления двух площадок, «Моспродюсера» и креативного пространства «Новый Манеж».","Оформляла корпоративные мероприятия, разрабатывала и изготавливала стенды и декор."],"metrics":[["3000+","подарков"],["2","площадки"]],"imgs":[],"videos":null,"links":null},"favorit":{"title":"Контент, коммуникации и спецпроекты","place":"Группа компаний FAVORIT MOTORS","year":"2025 – н. в.","role":"Менеджер по контенту и коммуникациям, куратор спецпроектов","lead":"Развиваю каналы внутренних коммуникаций, создаю контент и организую мероприятия для сотрудников и клиентов холдинга.","points":["Собираю инфоповоды в подразделениях холдинга, готовлю корпоративные новости и регулярные рассылки для сотрудников.","Пишу сценарии для видеороликов в социальных сетях и интерактивных квизов, создаю видеоконтент с помощью ИИ-инструментов.","Разрабатываю концепции, тексты и сценарии для спецпроектов.","Организую презентации, корпоративные и клиентские мероприятия, среди которых запуск новой модели Foton с иммерсивным спектаклем, презентации Changan и спецпрограмма для РЕСО.","Провожу лекции по истории и тенденциям автодизайна. Разработала и реализовала курс и серию мероприятий для детей сотрудников, которые повысили лояльность и вовлеченность персонала.","С нуля разработала креативную концепцию, фирменный стиль и линейку мерча (одежда, стикерпаки, полиграфия) для летней серии автомобильных фестивалей «Кетчерская 9»."],"metrics":[["20 000+","участников"],["10+","мероприятий"],["4+","лекции"],["3+","программы для детей"]],"imgs":["fav-1","fav-2","fav-3","fav-4","favorit-lecture"],"videos":null,"links":null},"kod":{"title":"Код лошади","place":"Новый Манеж, к 15-летию содружества «Свободные художники»","year":"2026","role":"Автор текстов, лектор, экскурсовод","lead":"Выставка о многовековом союзе человека и лошади, в которой участвовали художники четырех поколений.","points":["Написала тексты выставки и обзорную статью для каталога «Укрощение стихии и формула вечности».","Провела цикл авторских экскурсий и лекций по экспозиции.","Проект освещали в сюжетах Первого канала и телеканала «Россия-Культура»."],"metrics":null,"imgs":["kod-hall","kod-stage","kod-tour","kod-tv"],"videos":null,"links":[["Первый канал, «Доброе утро»","https://www.1tv.ru/shows/dobroe-utro/pro-kulturu/kod-loshadi-loshad-kak-kulturnyy-kod-dobroe-utro-fragment-vypuska-ot-15-09-2026"],["«Россия-Культура»","https://smotrim.ru/video/6075651"]]},"vol":{"title":"Волышово. Возрождение","place":"Учебный проект, магистратура РГХПУ им. С. Г. Строганова","year":"2024–2027","role":"Автор концепции, разработчик проекта","lead":"Концепция и реализация интерактивного цифрового пространства для усадьбы Строгановых в Псковской области с применением Three.js и генеративных инструментов.","points":["Спроектировала 3D-лендинг усадьбы.","Разработала форму обратной связи «Телеграф памяти» для сбора архивных фотографий и воспоминаний жителей об этих местах.","Создала фирменный стиль села, сувенирную продукцию и тизер проекта."],"metrics":null,"imgs":["vol-hero","vol-map","volb-1","volb-9"],"videos":[["volyshovo-teaser.mp4","Тизер, 1:04"]],"links":null},"ai":{"title":"AI-видео","place":"Weavy, Nano Banana, Veo 3.1, Kling, Suno","year":"2026","role":"Автор","lead":"С начала 2026 года создаю видео с помощью нейросетей. Прошла интенсив агентства verlab и основателя студии PROЩе Production.","points":["Рекламный ролик FAVORIT MOTORS «Центр выбора автомобилей».","Видео для международной выставки дизайна ARTDOM.","Ролик в стиле фильмов 1930-х. Прошла весь путь от концепции и раскадровки до монтажа, подобрала исторические костюмы и референсы, создала модель героини."],"metrics":null,"imgs":["ai-1930","ai-3","ai-4","ai-6"],"videos":[["ai-favorit.mp4","FAVORIT MOTORS"],["ai-atdom.mp4","ARTDOM"]],"links":null},"ket":{"title":"Кетчерская 9","place":"Летняя серия автомобильных фестивалей FAVORIT MOTORS","year":"2026","role":"Автор концепции и дизайна","lead":"Визуальная концепция, айдентика и линейка мерча летней серии автомобильных фестивалей.","points":["С нуля разработала креативную концепцию, фирменный стиль и линейку мерча (одежда, стикерпаки, полиграфия) для летней серии автомобильных фестивалей «Кетчерская 9».","Концепция фестивального мерча стала визуальной основой серии летних событий компании."],"metrics":null,"imgs":["ket-merch","ket-stickers"],"videos":null,"links":null}};
-const SIZES = {"stritarteria":[1400,933],"novyi-manezh":[1400,933],"strit-a":[681,447],"strit-masterclass":[921,544],"zaryadye":[1400,934],"zar-anna":[764,1279],"zar-1":[660,437],"zar-2":[669,446],"link-depo":[1400,898],"art-drive":[1400,652],"artdrive-cars":[768,768],"artdrive-paint":[768,768],"kontury-spray.png":[632,1154],"kontury":[1400,934],"exh-6":[1280,1280],"exh-signs":[426,576],"exh-grid":[713,405],"exh-texts":[1400,897],"exh-1":[1400,898],"exh-3":[1400,897],"exh-4":[1400,929],"exh-7":[1400,934],"exh-8":[1280,803],"exh-9":[1400,961],"exh-10":[1400,919],"fav-1":[1200,800],"fav-2":[1200,800],"fav-3":[1200,800],"fav-4":[1200,800],"favorit-lecture":[1400,788],"kod-hall":[1400,934],"kod-stage":[1400,934],"kod-tour":[1400,934],"kod-tv":[1032,572],"vol-hero":[1400,788],"vol-map":[1400,788],"volb-1":[768,432],"volb-9":[768,432],"ai-1930":[1400,1480],"ai-3":[461,836],"ai-4":[717,960],"ai-6":[820,455],"ket-merch":[1116,2000],"ket-stickers":[844,1198],"ai-favorit-poster":[960,540],"ai-atdom-poster":[540,960],"volyshovo-teaser-poster":[960,540],"anna-folder.png":[900,1393],"ai-favorit.mp4":[960,540],"ai-atdom.mp4":[540,960],"volyshovo-teaser.mp4":[1280,720]};
+const SIZES = {"ai-1930":[1400,1480],"ai-2.png":[600,800],"ai-3":[461,836],"ai-4":[717,960],"ai-5":[551,308],"ai-6":[820,455],"ai-7":[1400,781],"ai-atdom-poster":[540,960],"ai-favorit-poster":[960,540],"anna-city":[1400,934],"anna-collage":[1400,898],"anna-folder.png":[900,1393],"anna-portrait":[1400,2100],"anna-reek":[1400,1400],"anna-smile":[1280,854],"art-drive":[1400,652],"artdrive-cars":[768,768],"artdrive-paint":[768,768],"exh-1":[1400,898],"exh-10":[1400,919],"exh-2":[1400,897],"exh-3":[1400,897],"exh-4":[1400,929],"exh-5":[1400,929],"exh-6":[1280,1280],"exh-7":[1400,934],"exh-8":[1280,803],"exh-9":[1400,961],"exh-grid":[713,405],"exh-signs":[426,576],"exh-texts":[1400,897],"fav-1":[1200,800],"fav-2":[1200,800],"fav-3":[1200,800],"fav-4":[1200,800],"favorit-lecture":[1400,788],"ket-merch":[1116,2000],"ket-stickers":[844,1198],"kod-cover":[996,566],"kod-genius":[996,566],"kod-hall":[1400,934],"kod-poem":[996,566],"kod-stage":[1400,934],"kod-tour":[1400,934],"kod-tv":[1032,572],"kodp-15":[1400,788],"kodp-cover":[1400,788],"kodp-generations":[1400,788],"kodp-poem":[1400,788],"kodp-route":[1400,788],"kodp-tabun":[1400,788],"kontury-spray.png":[632,1154],"kontury-team":[576,768],"kontury":[1400,934],"link-depo":[1400,898],"music-poster":[432,432],"music-sen":[432,432],"novyi-manezh":[1400,933],"simfosintez":[1400,934],"strit-a":[681,447],"strit-masterclass":[921,544],"strit-team":[1169,656],"stritarteria-2":[1400,929],"stritarteria":[1400,933],"sweets-1":[429,738],"sweets-2":[438,736],"taste-1":[418,743],"taste-2":[417,712],"taste-3":[430,732],"taste-4":[418,712],"vol-alley":[1080,858],"vol-belvedere":[1400,788],"vol-cover":[1400,788],"vol-hero":[1400,788],"vol-map":[1400,788],"vol-road":[1400,788],"vol-tabun":[1400,892],"volb-1":[768,432],"volb-10":[768,432],"volb-11":[576,324],"volb-2":[642,724],"volb-3":[474,1084],"volb-4":[1031,544],"volb-5":[576,324],"volb-6":[768,432],"volb-7":[768,432],"volb-8":[768,432],"volb-9":[768,432],"volyshovo-teaser-poster":[960,540],"zar-1":[660,437],"zar-2":[669,446],"zar-anna":[764,1279],"zaryadye":[1400,934],"ai-atdom.mp4":[540,960],"ai-favorit.mp4":[960,540],"volyshovo-loop.mp4":[960,540],"volyshovo-teaser.mp4":[1280,720]};
+/*@DATA-END*/
 
-
-const IMG = (n) => `assets/img/${n.includes('.') ? n : n + '.jpg'}`;
-const VID = { 'volyshovo-teaser.mp4': 'assets/video/volyshovo-teaser.mp4', 'ai-favorit.mp4': 'assets/video/ai-favorit.mp4', 'ai-atdom.mp4': 'assets/video/ai-atdom.mp4' };
+/*@IMG*/const IMG = (n) => `assets/img/${n.includes('.') ? n : n + '.jpg'}`;
+/*@VID*/const VID = { 'volyshovo-teaser.mp4': 'assets/video/volyshovo-teaser.mp4', 'ai-favorit.mp4': 'assets/video/ai-favorit.mp4', 'ai-atdom.mp4': 'assets/video/ai-atdom.mp4' };
 const AR = (n) => { const s = SIZES[n]; return s ? s[0] / s[1] : 1.5; };
+</script>
+
+<script>
+/* буквы Soyuz Grotesk и цифры Aileron для объемного текста (собирает glyphs3d.py) */
+/*@GLYPHS-START*/
+const FONT_SOYUZ = {"glyphs":{" ":{"ha":240,"x_min":0,"x_max":0,"o":""},"A":{"ha":515,"x_min":15,"x_max":490,"o":"m 170 360 l 30 360 b 265 535 38 493 145 535 b 490 355 390 535 490 490 l 490 0 l 350 0 l 350 100 l 345 100 b 180 -15 345 100 313 -15 b 15 125 85 -15 15 29 b 181 288 15 222 95 266 b 350 375 268 310 350 317 b 265 440 350 416 320 440 b 170 360 205 440 172 416 m 350 262 b 240 220 327 241 280 230 b 157 140 195 209 157 186 b 230 75 157 100 185 75 b 350 262 325 75 350 185"},"F":{"ha":455,"x_min":15,"x_max":440,"o":"m 295 520 l 440 520 l 440 410 l 295 410 l 295 0 l 155 0 l 155 410 l 15 410 l 15 520 l 155 520 l 155 535 b 340 715 155 655 215 715 b 440 700 405 715 440 700 l 440 590 b 360 600 440 590 400 600 b 295 535 315 600 295 580 l 295 520"},"I":{"ha":190,"x_min":15,"x_max":175,"o":"m 165 520 l 165 0 l 25 0 l 25 520 l 165 520 m 15 635 b 95 715 15 679 51 715 b 175 635 139 715 175 679 b 95 555 175 591 139 555 b 15 635 51 555 15 591"},"M":{"ha":800,"x_min":25,"x_max":775,"o":"m 330 0 l 330 290 b 257 420 330 380 312 420 b 165 270 197 420 165 375 l 165 0 l 25 0 l 25 520 l 160 520 l 160 435 l 165 435 b 305 535 165 435 200 535 b 454 434 389 535 434 495 l 455 435 l 460 435 b 610 535 460 435 505 535 b 775 320 740 535 775 440 l 775 0 l 635 0 l 635 290 b 562 420 635 380 617 420 b 470 270 502 420 470 375 l 470 0 l 330 0"},"O":{"ha":570,"x_min":20,"x_max":550,"o":"m 160 260 b 285 90 160 166 196 90 b 410 260 374 90 410 166 b 285 430 410 354 374 430 b 160 260 196 430 160 354 m 20 260 b 285 535 20 412 114 535 b 550 260 456 535 550 412 b 285 -15 550 108 456 -15 b 20 260 114 -15 20 108"},"R":{"ha":470,"x_min":25,"x_max":455,"o":"m 25 0 l 25 520 l 165 520 l 165 410 l 235 410 b 315 475 295 410 315 410 l 315 520 l 455 520 l 455 460 b 270 310 455 345 415 310 l 165 310 l 165 0 l 25 0"},"S":{"ha":520,"x_min":20,"x_max":500,"o":"m 20 170 l 155 170 b 265 80 155 170 155 80 b 360 145 340 80 360 115 b 30 370 360 255 30 170 b 255 535 30 460 115 535 b 485 370 455 535 485 420 l 350 370 b 255 440 350 370 350 440 b 170 380 200 440 170 412 b 500 160 170 290 500 355 b 265 -15 500 60 415 -15 b 20 170 60 -15 20 110"},"T":{"ha":500,"x_min":15,"x_max":485,"o":"m 15 520 l 485 520 l 485 410 l 315 410 l 315 165 b 375 105 315 120 330 105 b 420 110 405 105 420 110 l 420 5 b 335 -5 420 5 395 -5 b 175 140 240 -5 175 20 l 175 410 l 15 410 l 15 520"},"V":{"ha":552,"x_min":10,"x_max":542,"o":"m 542 520 l 365 0 l 187 0 l 10 520 l 160 520 l 280 125 l 400 520 l 542 520"},"А":{"ha":515,"x_min":15,"x_max":490,"o":"m 170 360 l 30 360 b 265 535 38 493 145 535 b 490 355 390 535 490 490 l 490 0 l 350 0 l 350 100 l 345 100 b 180 -15 345 100 313 -15 b 15 125 85 -15 15 29 b 181 288 15 222 95 266 b 350 375 268 310 350 317 b 265 440 350 416 320 440 b 170 360 205 440 172 416 m 350 262 b 240 220 327 241 280 230 b 157 140 195 209 157 186 b 230 75 157 100 185 75 b 350 262 325 75 350 185"},"Б":{"ha":575,"x_min":20,"x_max":555,"o":"m 165 245 b 290 90 165 161 201 90 b 415 245 379 90 415 161 b 290 400 415 329 379 400 b 165 245 201 400 165 329 m 290 -15 b 20 315 150 -15 20 65 b 324 700 20 650 179 700 l 515 700 l 515 585 l 312 585 b 140 425 199 585 157 535 l 145 425 b 310 505 145 425 190 505 b 555 245 465 505 555 390 b 290 -15 555 105 465 -15"},"В":{"ha":510,"x_min":25,"x_max":495,"o":"m 25 0 l 25 520 l 275 520 b 480 380 410 520 480 475 b 400 275 480 295 400 275 l 400 270 b 495 150 400 270 495 250 b 290 0 495 50 430 0 l 25 0 m 275 220 l 165 220 l 165 100 l 285 100 b 355 160 330 100 355 120 b 275 220 355 200 325 220 m 165 310 l 265 310 b 340 365 315 310 340 330 b 275 420 340 400 320 420 l 165 420 l 165 310"},"Д":{"ha":570,"x_min":20,"x_max":545,"o":"m 545 520 l 545 60 b 285 -195 545 -90 465 -195 b 40 -15 45 -195 40 -15 l 180 -15 b 285 -90 180 -15 185 -90 b 405 50 374 -90 405 -40 l 405 75 l 400 75 b 245 5 400 75 355 5 b 20 270 95 5 20 135 b 245 535 20 405 95 535 b 405 450 360 535 405 450 l 410 450 l 410 520 l 545 520 m 410 270 b 285 430 410 354 370 430 b 160 270 200 430 160 354 b 285 110 160 186 200 110 b 410 270 370 110 410 186"},"Е":{"ha":550,"x_min":20,"x_max":530,"o":"m 20 260 b 280 535 20 412 109 535 b 530 260 451 535 530 412 b 529 230 530 248 529 230 l 161 230 b 285 90 167 150 201 90 b 385 170 370 90 385 170 l 525 170 b 280 -15 525 170 495 -15 b 20 260 105 -15 20 108 m 280 430 b 165 320 211 430 177 384 l 386 320 b 280 430 377 384 349 430"},"З":{"ha":535,"x_min":10,"x_max":525,"o":"m 25 410 l 25 520 l 505 520 l 505 410 l 335 250 b 525 35 335 250 525 245 b 275 -195 525 -80 445 -195 b 10 40 80 -195 10 -80 l 150 40 b 275 -90 150 -30 185 -90 b 385 30 344 -90 385 -40 b 210 160 385 105 350 160 l 170 160 l 170 240 l 345 410 l 25 410"},"И":{"ha":535,"x_min":25,"x_max":510,"o":"m 510 520 l 510 0 l 375 0 l 375 85 l 370 85 b 210 -15 370 85 325 -15 b 25 200 65 -15 25 80 l 25 520 l 165 520 l 165 230 b 255 100 165 140 190 100 b 370 250 330 100 370 145 l 370 520 l 510 520"},"К":{"ha":540,"x_min":25,"x_max":525,"o":"m 25 0 l 25 520 l 165 520 l 165 310 l 350 520 l 515 520 l 319 317 l 525 0 l 354 0 l 222 217 l 165 158 l 165 0 l 25 0"},"Л":{"ha":552,"x_min":10,"x_max":542,"o":"m 10 0 l 197 520 l 355 520 l 542 0 l 392 0 l 272 369 l 152 0 l 10 0"},"М":{"ha":680,"x_min":25,"x_max":655,"o":"m 655 520 l 655 0 l 525 0 l 525 365 l 520 365 l 405 0 l 275 0 l 160 365 l 155 365 l 155 0 l 25 0 l 25 520 l 235 520 l 340 160 l 445 520 l 655 520"},"Н":{"ha":525,"x_min":25,"x_max":500,"o":"m 360 0 l 360 205 l 165 205 l 165 0 l 25 0 l 25 520 l 165 520 l 165 315 l 360 315 l 360 520 l 500 520 l 500 0 l 360 0"},"О":{"ha":570,"x_min":20,"x_max":550,"o":"m 160 260 b 285 90 160 166 196 90 b 410 260 374 90 410 166 b 285 430 410 354 374 430 b 160 260 196 430 160 354 m 20 260 b 285 535 20 412 114 535 b 550 260 456 535 550 412 b 285 -15 550 108 456 -15 b 20 260 114 -15 20 108"},"П":{"ha":535,"x_min":25,"x_max":510,"o":"m 25 0 l 25 520 l 160 520 l 160 435 l 165 435 b 325 535 165 435 210 535 b 510 320 470 535 510 440 l 510 0 l 370 0 l 370 290 b 280 420 370 380 345 420 b 165 270 205 420 165 375 l 165 0 l 25 0"},"Р":{"ha":570,"x_min":25,"x_max":550,"o":"m 25 -180 l 25 520 l 160 520 l 160 450 l 165 450 b 325 535 165 450 210 535 b 550 260 475 535 550 405 b 325 -15 550 115 475 -15 b 170 55 215 -15 170 55 l 165 55 l 165 -180 l 25 -180 m 160 260 b 285 90 160 166 200 90 b 410 260 370 90 410 166 b 285 430 410 354 370 430 b 160 260 200 430 160 354"},"С":{"ha":545,"x_min":20,"x_max":525,"o":"m 20 260 b 280 535 20 412 110 535 b 525 330 510 535 525 330 l 385 330 b 280 430 385 330 380 430 b 160 260 191 430 160 354 b 280 90 160 166 191 90 b 385 190 380 90 385 190 l 525 190 b 280 -15 525 190 510 -15 b 20 260 110 -15 20 108"},"Т":{"ha":800,"x_min":25,"x_max":775,"o":"m 330 0 l 330 290 b 257 420 330 380 312 420 b 165 270 197 420 165 375 l 165 0 l 25 0 l 25 520 l 160 520 l 160 435 l 165 435 b 305 535 165 435 200 535 b 454 434 389 535 434 495 l 455 435 l 460 435 b 610 535 460 435 505 535 b 775 320 740 535 775 440 l 775 0 l 635 0 l 635 290 b 562 420 635 380 617 420 b 470 270 502 420 470 375 l 470 0 l 330 0"},"У":{"ha":550,"x_min":10,"x_max":540,"o":"m 540 520 l 355 -15 b 155 -195 314 -134 260 -195 b 65 -180 105 -195 65 -180 l 65 -65 b 130 -75 65 -65 95 -75 b 220 0 180 -75 200 -48 l 10 520 l 160 520 l 287 177 l 390 520 l 540 520"},"Ф":{"ha":720,"x_min":20,"x_max":700,"o":"m 430 -5 l 430 -180 l 290 -180 l 290 -5 b 20 260 119 -5 20 105 b 290 525 20 415 119 525 l 290 700 l 430 700 l 430 525 b 700 260 601 525 700 415 b 430 -5 700 105 601 -5 m 290 95 l 290 425 b 160 260 201 425 160 355 b 290 95 160 165 201 95 m 560 260 b 430 425 560 355 519 425 l 430 95 b 560 260 519 95 560 165"},"Х":{"ha":570,"x_min":10,"x_max":560,"o":"m 190 520 l 285 370 l 380 520 l 545 520 l 365 270 l 560 0 l 395 0 l 285 170 l 175 0 l 10 0 l 205 270 l 25 520 l 190 520"},"Ц":{"ha":590,"x_min":25,"x_max":580,"o":"m 580 180 l 580 -130 l 540 -130 l 540 180 l 580 180 m 510 520 l 510 0 l 375 0 l 375 85 l 370 85 b 210 -15 370 85 325 -15 b 25 200 65 -15 25 80 l 25 520 l 165 520 l 165 230 b 255 100 165 140 190 100 b 370 250 330 100 370 145 l 370 520 l 510 520"},"Ч":{"ha":505,"x_min":20,"x_max":480,"o":"m 480 520 l 480 0 l 340 0 l 340 200 l 205 200 b 20 350 60 200 20 235 l 20 520 l 160 520 l 160 365 b 240 300 160 300 180 300 l 340 300 l 340 520 l 480 520"},"Ы":{"ha":655,"x_min":25,"x_max":630,"o":"m 25 0 l 25 520 l 165 520 l 165 330 l 225 330 b 450 165 370 330 450 265 b 225 0 450 65 370 0 l 25 0 m 205 230 l 165 230 l 165 100 l 205 100 b 310 165 280 100 310 120 b 205 230 310 210 280 230 m 630 520 l 630 0 l 490 0 l 490 520 l 630 520"},"Ю":{"ha":760,"x_min":25,"x_max":740,"o":"m 165 520 l 165 315 l 234 315 b 485 535 252 440 335 535 b 740 260 656 535 740 412 b 485 -15 740 108 656 -15 b 234 205 335 -15 252 79 l 165 205 l 165 0 l 25 0 l 25 520 l 165 520 m 370 260 b 485 90 370 166 396 90 b 600 260 574 90 600 166 b 485 430 600 354 574 430 b 370 260 396 430 370 354"},"Я":{"ha":515,"x_min":10,"x_max":490,"o":"m 490 520 l 490 0 l 350 0 l 350 190 l 250 190 l 167 0 l 10 0 l 116 215 b 25 355 56 243 25 292 b 250 520 25 455 105 520 l 490 520 m 270 290 l 350 290 l 350 420 l 270 420 b 165 355 195 420 165 400 b 270 290 165 310 195 290"}},"familyName":"Soyuz Grotesk","ascender":714,"descender":-182,"underlinePosition":-90,"underlineThickness":40,"boundingBox":{"xMin":-103,"yMin":-345,"xMax":1330,"yMax":865},"resolution":1000,"original_font_information":{"format":0,"fontFamily":"Soyuz Grotesk"}};
+const FONT_AILERON = {"glyphs":{" ":{"ha":176,"x_min":0,"x_max":0,"o":""},"+":{"ha":662,"x_min":106,"x_max":556,"o":"m 556 273 l 381 273 l 381 76 l 281 76 l 281 273 l 106 273 l 106 361 l 281 361 l 281 558 l 381 558 l 381 361 l 556 361 l 556 273"},"0":{"ha":662,"x_min":46,"x_max":616,"o":"m 331 704 b 616 345 531 704 616 576 b 331 -14 616 115 531 -14 b 46 345 131 -14 46 115 b 331 704 46 576 131 704 m 331 118 b 428 345 394 118 428 175 b 331 572 428 516 394 572 b 234 345 268 572 234 516 b 331 118 234 175 268 118"},"1":{"ha":662,"x_min":118,"x_max":508,"o":"m 508 690 l 508 0 l 328 0 l 328 502 l 118 392 l 118 553 l 289 651 b 430 690 333 676 379 690 l 508 690"},"2":{"ha":662,"x_min":58,"x_max":601,"o":"m 339 140 l 593 140 l 593 0 l 58 0 l 58 78 l 275 282 b 413 493 378 379 413 427 b 335 574 413 545 384 574 b 250 469 283 574 257 541 l 249 459 l 69 459 l 70 469 b 350 706 85 621 181 706 b 601 500 511 706 601 629 b 431 229 601 419 564 357 l 339 140"},"3":{"ha":662,"x_min":33,"x_max":607,"o":"m 460 363 b 607 205 558 344 607 294 b 325 -14 607 73 499 -14 b 34 209 150 -14 48 71 l 33 219 l 213 219 l 215 209 b 318 118 225 161 259 118 b 419 200 380 118 419 153 b 304 292 419 259 376 289 l 277 293 l 277 409 l 304 411 b 403 499 370 416 403 452 b 326 572 403 544 376 572 b 247 484 273 572 251 529 l 246 474 l 66 474 l 67 484 b 344 704 79 600 165 704 b 591 520 513 704 591 618 b 460 363 591 439 550 385"},"4":{"ha":662,"x_min":38,"x_max":626,"o":"m 626 154 l 542 154 l 542 0 l 362 0 l 362 154 l 38 154 l 38 253 l 346 690 l 542 690 l 542 294 l 626 294 l 626 154 m 362 294 l 362 500 b 325 439 348 475 336 454 l 223 294 l 362 294"},"5":{"ha":662,"x_min":57,"x_max":607,"o":"m 379 470 b 607 233 517 470 607 384 b 332 -14 607 71 474 -14 b 58 194 166 -14 73 47 l 57 204 l 237 204 l 238 194 b 320 118 243 147 271 118 b 419 228 387 118 419 166 b 323 338 419 291 385 338 b 235 276 277 338 251 318 l 69 276 l 120 690 l 580 690 l 580 550 l 268 550 l 246 399 l 272 445 b 379 470 304 463 341 470"},"6":{"ha":662,"x_min":54,"x_max":613,"o":"m 388 462 b 613 243 545 462 613 361 b 336 -14 613 73 480 -14 b 54 332 148 -14 54 93 b 353 704 54 570 173 704 b 605 504 507 704 589 627 l 606 494 l 426 494 l 424 504 b 343 572 410 552 385 572 b 235 364 276 572 240 508 l 267 426 b 388 462 304 455 340 462 m 334 118 b 425 221 395 118 425 167 b 332 330 425 288 391 330 b 242 225 283 330 242 292 b 334 118 242 160 277 118"},"7":{"ha":662,"x_min":57,"x_max":618,"o":"m 618 690 l 618 590 l 298 0 l 101 0 l 405 550 l 57 550 l 57 690 l 618 690"},"8":{"ha":662,"x_min":51,"x_max":611,"o":"m 480 366 b 611 196 548 343 611 290 b 329 -15 611 46 490 -15 b 51 196 158 -15 51 46 b 183 366 51 289 115 342 b 85 509 128 385 85 426 b 341 704 85 623 176 704 b 595 509 506 704 595 623 b 480 366 595 425 540 385 m 338 572 b 268 501 299 572 268 547 b 337 426 268 451 296 426 b 412 501 379 426 412 451 b 338 572 412 547 382 572 m 331 117 b 425 203 397 117 425 150 b 330 297 425 261 390 297 b 237 206 279 297 237 264 b 331 117 237 149 272 117"},"9":{"ha":662,"x_min":49,"x_max":608,"o":"m 326 704 b 608 358 514 704 608 597 b 309 -14 608 120 493 -14 b 57 186 151 -14 69 63 l 56 196 l 236 196 l 238 186 b 319 118 248 138 273 118 b 427 326 386 118 422 182 l 395 264 b 274 228 358 235 322 228 b 49 447 117 228 49 329 b 326 704 49 617 182 704 m 330 360 b 420 465 379 360 420 398 b 328 572 420 530 385 572 b 237 469 267 572 237 523 b 330 360 237 402 271 360"}},"familyName":"Aileron","ascender":970,"descender":-230,"underlinePosition":-75,"underlineThickness":50,"boundingBox":{"xMin":-100,"yMin":-223,"xMax":1105,"yMax":932},"resolution":1000,"original_font_information":{"format":0,"fontFamily":"Aileron"}};
+/*@GLYPHS-END*/
+</script>
+
+<script>
+(() => {
+'use strict';
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const M = () => innerWidth < 1024;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const two = (n) => String(n).padStart(2, '0');
+const QS = new URLSearchParams(location.search);
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
-/* ——— разметка ——— */
-document.querySelector('[data-stats]').innerHTML = STATS.map(([n, t]) => `
-  <div class="py-6 border-t border-white/10 reveal">
-    <p class="font-serif text-[clamp(44px,5vw,72px)] leading-none text-bone">${n}</p>
-    <p class="mt-2 text-[15px] text-bone/70 max-w-[32ch]">${t}</p>
-  </div>`).join('');
+/* ——— план анфилады ——— */
+const SECTIONS = ['hero', 'numbers', 'moscow', 'favorit', 'special', 'edu', 'hobby', 'contact'];
+const HALL_NAMES = ['Вход', 'В цифрах', 'Моспродюсер', 'FAVORIT MOTORS', 'Спецпроекты', 'Образование', 'Увлечения', 'Контакты'];
+const HALL_LEN = [0, 40, 49.5, 30, 24, 18, 22, 14];
+const DARK_HALL = 3;                    /* графитовый шоурум FAVORIT MOTORS */
 
-let caseIndex = 0;
-for (const [key, items] of Object.entries(LISTS)) {
-  document.querySelector(`[data-list="${key}"]`).innerHTML = items.map(([id, title, text]) => {
-    const i = caseIndex++;
-    const tag = id ? 'button' : 'div';
-    return `<${tag} class="case w-full text-left py-6 md:py-7 block reveal ${id ? 'cursor-pointer' : ''}" ${id ? `data-open="${id}" aria-label="Подробнее о проекте"` : ''} data-i="${i}">
-      ${title ? `<p class="case-title font-serif text-[26px] md:text-[30px] leading-tight transition-colors">${title}</p>` : ''}
-      <p class="${title ? 'mt-3 text-bone/75' : 'text-bone/85'} text-[16px] leading-relaxed">${text}</p>
-      ${id ? `<span class="more inline-flex items-center gap-2 mt-4 text-[13px] text-ember">Подробнее <span aria-hidden="true">→</span></span>` : ''}
-    </${tag}>`;
-  }).join('');
-}
+/* экспонаты на левой стене: зал, расстояние от входа в зал в метрах, снимок, проект.
+   Шаг между работами 6 м, поэтому в кадре у работы соседние снимки не попадают под текст */
+const ARTS = [
+  { id: 'strit', hall: 2, d: 6, img: 'stritarteria', caseId: 'strit' },
+  { id: 'zar', hall: 2, d: 12, img: 'zaryadye', caseId: 'zar' },
+  { id: 'link', hall: 2, d: 18, img: 'link-depo', caseId: 'link' },
+  { id: 'artdrive', hall: 2, d: 24, img: 'art-drive', caseId: 'artdrive' },
+  { id: 'kontury', hall: 2, d: 30, img: 'kontury', caseId: 'kontury' },
+  { id: 'exh', hall: 2, d: 36, img: 'exh-6', caseId: 'exh' },
+  { id: 'fav-video', hall: 3, d: 6.5, img: 'ai-favorit-poster', video: 'ai-favorit.mp4', caseId: 'ai', w: 3.7 },
+  { id: 'fav-events', hall: 3, d: 13, img: 'fav-1', caseId: 'favorit' },
+  { id: 'fav-lecture', hall: 3, d: 19, img: 'favorit-lecture', caseId: 'favorit' },
+  { id: 'ket', hall: 3, d: 25, img: 'ket-merch', caseId: 'ket' },
+  { id: 'kod', hall: 4, d: 6, img: 'kod-hall', caseId: 'kod' },
+  { id: 'vol', hall: 4, d: 12, img: 'vol-hero', caseId: 'vol' },
+  { id: 'ai', hall: 4, d: 18, img: 'ai-1930', caseId: 'ai' },
+  { id: 'music', hall: 6, d: 5.5, img: 'anna-reek' },
+  { id: 'sweets', hall: 6, d: 16.5, img: 'sweets-1' }
+];
+const ART = Object.fromEntries(ARTS.map((a) => [a.id, a]));
+
+/* ——— разметка этикеток ——— */
+const more = (id, art) => `<button class="more" type="button" data-open="${id}"${art ? ` data-art="${art}"` : ''}><span>Подробнее</span><span class="ln" aria-hidden="true"></span></button>`;
+const projHead = (id) => `<p class="proj" aria-hidden="true"><span class="display">project</span><span class="hand">${NO[id]}</span></p>`;
+const label = ([id, title, text, art], fallbackStop) => `<article class="panel glass panel--label" data-stop="${art ? `art:${art}` : fallbackStop}"${art ? ` data-art="${art}"` : ''}><div class="lab-a">${projHead(id)}<h3 class="display h3">${title}</h3></div><div class="lab-b"><p class="txt">${text}</p>${more(id, art)}</div></article>`;
+
+$('#numbers-cards').innerHTML = STATS.map(([n, t], i) => `<article class="panel glass panel--num" data-stop="num:${i}"><p class="label numhead"><span>В цифрах</span><span class="latin cnt">${two(i + 1)} / ${STATS.length}</span></p><p class="n">${n}</p><p class="c">${t}</p><div class="ticks" aria-hidden="true">${STATS.map((_, j) => `<i${j === i ? ' class="on"' : j < i ? ' class="was"' : ''}></i>`).join('')}</div></article>`).join('');
+$('#moscow-cards').innerHTML = LISTS.moscow.map((it) => label(it, 'portal:3')).join('');
+$('#special-cards').innerHTML = LISTS.special.map((it) => label(it, null)).join('');
+/* пункт про видеоролики ведет к AI-ролику, который идет на стене зала FAVORIT */
+$('#favorit-tasks').innerHTML = LISTS.favorit.slice(0, 3).map(([id, , text], i) => `<li><span class="idx">0${i + 1}</span><div><p class="txt">${text}</p>${id ? more(id, 'fav-video') : ''}</div></li>`).join('');
+$('#favorit-cards').innerHTML = LISTS.favorit.slice(3).map(([id, , text, art], i) => `<article class="panel glass panel--note" data-stop="art:${art}" data-art="${art}"><p class="idx">0${i + 4}</p><p class="txt mt-2">${text}</p>${more(id, art)}</article>`).join('');
+$('.plan ol').innerHTML = HALL_NAMES.map((n, i) => `<li><a href="#${SECTIONS[i]}" data-go data-hall="${i}"><span class="pn latin">${two(i + 1)}</span><span>${n}</span></a></li>`).join('');
+$('#menu-list').innerHTML = HALL_NAMES.map((n, i) => `<a class="m" href="#${SECTIONS[i]}" data-go data-hall="${i}"><span class="pn">${two(i + 1)}</span><span>${n}</span></a>`).join('');
 
 /* ——— 3D-сцена ——— */
-const canvas = document.getElementById('scene');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 768 ? 1.25 : 1.6));
-renderer.setSize(innerWidth, innerHeight);
-renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+function createScene(canvas) {
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' }); } catch (e) { return null; }
+  if (!renderer || !renderer.getContext()) return null;
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0b0b0e);
-scene.fog = new THREE.FogExp2(0x0b0b0e, 0.055);
-const camera = new THREE.PerspectiveCamera(36, innerWidth / innerHeight, 0.1, 100);
+  /* качество: на телефоне без отражений, расфокуса и видео на стене; при падении частоты кадров эффекты отключаются сами */
+  const PHONE = Math.min(screen.width, screen.height) < 600 || Math.min(innerWidth, innerHeight) < 600;
+  const GL2 = renderer.capabilities.isWebGL2;
+  const qp = QS.get('q');
+  const Q = { refl: GL2 && !PHONE, dof: GL2 && !PHONE, video: !PHONE, pr: Math.min(window.devicePixelRatio || 1, PHONE ? 1.4 : 1.75), auto: !qp };
+  if (qp === 'lo') { Q.refl = Q.dof = Q.video = false; }
+  if (qp === 'hi') { Q.refl = Q.dof = GL2; Q.video = true; }
+  renderer.setPixelRatio(Q.pr);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.12;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
+  const ANISO = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  const BIG = renderer.capabilities.maxTextureSize >= 4096 && !PHONE;
 
-/* окружение для стеклянных отражений */
-const pmrem = new THREE.PMREMGenerator(renderer);
-const envScene = new THREE.Scene();
-envScene.background = new THREE.Color(0x050506);
-[[0, 6, 0, 8, 0.4, 8, 2.2], [-6, 1, 2, 0.4, 7, 0.6, 3.0], [6, 0, -2, 0.4, 7, 0.4, 2.0], [-2, 0, 7, 0.5, 8, 0.4, 2.6], [3, 0, 7, 0.25, 8, 0.4, 1.6]].forEach(([x, y, z, w, h, d, k]) => {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshBasicMaterial({ color: new THREE.Color(k, k * 0.95, k * 0.88) }));
-  m.position.set(x, y, z); envScene.add(m);
-});
-scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+  const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
+  const lin = (hex) => new THREE.Color(hex).convertSRGBToLinear();
+  const rad = THREE.MathUtils.degToRad;
+  const UP = v3(0, 1, 0);
 
-const canvasTex = (draw, w = 256, h = 256) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; };
+  const scene = new THREE.Scene();
+  const VOID = new THREE.Color('#0c0b0a');
+  const DARK = new THREE.Color('#8E867C');
+  scene.background = VOID.clone();
+  scene.fog = new THREE.Fog(VOID.clone(), 16, 150);
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 520);
+  const tcam = new THREE.PerspectiveCamera(42, 1, 0.1, 520);      /* примерочная камера для расчета кадров */
+  const vcam = new THREE.PerspectiveCamera(42, 1, 0.1, 520);      /* зеркальная камера для отражений в полу */
 
-/* монолит */
-const mono = new THREE.Group();
-scene.add(mono);
-const monoGeo = new THREE.BoxGeometry(1.25, 4.3, 0.42);
-const glass = new THREE.MeshPhysicalMaterial({ color: 0xd8e0ec, metalness: 0.1, roughness: 0.04, transmission: 0.9, transparent: true, opacity: 0.32, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 3.2, reflectivity: 0.9, side: THREE.DoubleSide, depthWrite: false });
-mono.add(new THREE.Mesh(monoGeo, glass));
-mono.add(new THREE.LineSegments(new THREE.EdgesGeometry(monoGeo), new THREE.LineBasicMaterial({ color: 0xfff4e6, transparent: true, opacity: 0.45 })));
-/* френелевский ореол: светятся грани, как у стекла в луче */
-const shell = new THREE.Mesh(new THREE.BoxGeometry(1.27, 4.32, 0.44), new THREE.ShaderMaterial({
-  uniforms: { uColor: { value: new THREE.Color(0xffe8cc) }, uK: { value: 0.9 } },
-  vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
-  fragmentShader: 'uniform vec3 uColor; uniform float uK; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(vN, vV)), 2.2); gl_FragColor = vec4(uColor, f * uK); }',
-  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
-}));
-shell.renderOrder = 5;
-mono.add(shell);
-const coreTex = canvasTex((g, w, h) => {
-  const gr = g.createLinearGradient(0, 0, w, 0);
-  gr.addColorStop(0, 'rgba(232,185,138,0)'); gr.addColorStop(0.5, 'rgba(255,236,214,1)'); gr.addColorStop(1, 'rgba(232,185,138,0)');
-  g.fillStyle = gr; g.fillRect(0, 0, w, h);
-  const v = g.createLinearGradient(0, 0, 0, h); v.addColorStop(0, 'rgba(0,0,0,1)'); v.addColorStop(0.5, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,1)');
-  g.globalCompositeOperation = 'destination-out'; g.fillStyle = v; g.fillRect(0, 0, w, h);
-});
-const core = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 4.0), new THREE.MeshBasicMaterial({ map: coreTex, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, toneMapped: false, side: THREE.DoubleSide }));
-core.renderOrder = 6;
-mono.add(core);
-const core2 = core.clone(); core2.rotation.y = Math.PI / 2; mono.add(core2);
-const inner = new THREE.PointLight(0xffd9b0, 1.2, 9, 2); mono.add(inner);
+  /* размеры: полуширина зала, высота, толщина стен, проем, фасад */
+  const HW = 5.5, HH = 7.2, TK = 1.0, PX = 1.6, PH = 5.6, WT = 0.7, FW = 22, FH = 12.5, EYE = 1.6;
+  const H = HALL_NAMES.map((name, i) => ({ name, len: HALL_LEN[i] }));
+  let zf = 0;
+  for (let k = 1; k < H.length; k++) { const h = H[k]; h.front = zf; h.z0 = zf - TK; h.z1 = h.z0 - h.len; zf = h.z1; }
+  const END = zf;                       /* передняя грань торцевой стены с красным кругом */
+  const AP = { y: 3.0, r: 1.6 };
+  const DK = [H[DARK_HALL].front, H[DARK_HALL].z0, H[DARK_HALL + 1].front, H[DARK_HALL + 1].z0];
+  const darkAt = (z) => (1 - smooth(DK[1], DK[0], z)) * smooth(DK[3], DK[2], z);
 
-/* свечение пола */
-const floorTex = canvasTex((g, w, h) => { const r = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); r.addColorStop(0, 'rgba(232,185,138,.55)'); r.addColorStop(1, 'rgba(232,185,138,0)'); g.fillStyle = r; g.fillRect(0, 0, w, h); });
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(7, 7), new THREE.MeshBasicMaterial({ map: floorTex, transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
-floor.rotation.x = -Math.PI / 2; floor.position.y = -2.6; scene.add(floor);
+  /* общие униформы: проявление светом, мягкие тени в углах, темный зал, отражения в полу, красная нить */
+  const U = {
+    uWave: { value: REDUCED ? 1e4 : END - 40 },
+    uVoid: { value: VOID.clone() },
+    uPartZ: { value: [] },
+    uArch: { value: new THREE.Vector4(HW, HH, TK / 2, END) },
+    uPortal: { value: new THREE.Vector2(PX, PH) },
+    uDarkZ: { value: new THREE.Vector4(DK[0], DK[1], DK[2], DK[3]) },
+    uTubeK: { value: 1.25 },
+    uLampZ: { value: new THREE.Vector2(H[2].z1, H[2].z0) },
+    uRefl: { value: null },
+    uReflMat: { value: new THREE.Matrix4() },
+    uReflK: { value: 0 },
+    uReflPx: { value: new THREE.Vector2(0.001, 0.001) },
+    uThread: { value: lin('#E2403C') }
+  };
+  for (let k = 1; k < H.length; k++) U.uPartZ.value.push(H[k].front - TK / 2);
+  U.uPartZ.value.push(END - TK / 2);
 
-/* частицы */
-const COUNT = 3400;
-const pos = new Float32Array(COUNT * 3), col = new Float32Array(COUNT * 3), seed = new Float32Array(COUNT);
-const warm = new THREE.Color(0xe8b98a), cold = new THREE.Color(0xc9d4e6), white = new THREE.Color(0xffffff);
-for (let i = 0; i < COUNT; i++) {
-  const r = 1.4 + Math.pow(Math.random(), 0.7) * 8.5, a = Math.random() * Math.PI * 2;
-  pos[i * 3] = Math.cos(a) * r; pos[i * 3 + 1] = (Math.random() - 0.5) * 11; pos[i * 3 + 2] = Math.sin(a) * r;
-  const c = Math.random() < 0.55 ? warm : (Math.random() < 0.5 ? cold : white);
-  col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; seed[i] = Math.random() * 100;
+  const GLSL_REVEAL = `
+varying vec3 vWPos;
+uniform float uWave;
+uniform vec3 uVoid;
+float revealAt(vec3 p) { return 1.0 - smoothstep(uWave - 9.0, uWave + 9.0, p.z); }
+`;
+  const GLSL_AO = `
+varying vec3 vWNrm;
+uniform float uPartZ[8];
+uniform vec4 uArch;
+uniform vec2 uPortal;
+uniform float uGrain;
+uniform float uBump;
+uniform float uFloorAO;
+uniform vec4 uDarkZ;
+uniform vec3 uDarkCol;
+uniform float uTubeK;
+uniform vec2 uLampZ;
+float h31(vec3 p) { p = fract(p * 0.1031); p += dot(p, p.yzx + 33.33); return fract((p.x + p.y) * p.z); }
+float vnoise(vec3 p) {
+  vec3 i = floor(p); vec3 f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  float a = mix(mix(h31(i), h31(i + vec3(1.0, 0.0, 0.0)), f.x), mix(h31(i + vec3(0.0, 1.0, 0.0)), h31(i + vec3(1.0, 1.0, 0.0)), f.x), f.y);
+  float b = mix(mix(h31(i + vec3(0.0, 0.0, 1.0)), h31(i + vec3(1.0, 0.0, 1.0)), f.x), mix(h31(i + vec3(0.0, 1.0, 1.0)), h31(i + vec3(1.0, 1.0, 1.0)), f.x), f.y);
+  return mix(a, b, f.z);
 }
-const pGeo = new THREE.BufferGeometry();
-pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-pGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-const dot = canvasTex((g, w, h) => { const r = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(0.35, 'rgba(255,255,255,.45)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, w, h); }, 64, 64);
-const pMat = new THREE.PointsMaterial({ size: 0.055, map: dot, vertexColors: true, transparent: true, opacity: 0.75, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true });
-const dust = new THREE.Points(pGeo, pMat);
-scene.add(dust);
-
-/* свет */
-scene.add(new THREE.AmbientLight(0xffffff, 0.08));
-const rim = new THREE.DirectionalLight(0xc9d4e6, 0.35); rim.position.set(-5, 3, -4); scene.add(rim);
-const spot = new THREE.SpotLight(0xffe2bf, 0, 22, 0.34, 0.65, 1.1);
-spot.position.set(2.8, 7.5, 3.6);
-scene.add(spot); scene.add(spot.target);
-
-/* видимый луч */
-const beamGeo = new THREE.ConeGeometry(1.7, 9, 48, 1, true);
-beamGeo.translate(0, -4.5, 0);
-const beamMat = new THREE.ShaderMaterial({
-  uniforms: { uOpacity: { value: 0 }, uColor: { value: new THREE.Color(0xffe2bf) } },
-  vertexShader: 'varying float vY; void main(){ vY = position.y; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-  fragmentShader: 'uniform float uOpacity; uniform vec3 uColor; varying float vY; void main(){ float a = pow(clamp(1.0 + vY/9.0, 0.0, 1.0), 1.6); gl_FragColor = vec4(uColor, a * uOpacity); }',
-  transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending
-});
-const beam = new THREE.Mesh(beamGeo, beamMat);
-beam.position.copy(spot.position);
-scene.add(beam);
-
-/* плоскость с изображением кейса */
-const card = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, toneMapped: false, side: THREE.DoubleSide }));
-card.position.set(2.3, 0.2, 0.6); card.rotation.y = -0.22; card.visible = false;
-scene.add(card);
-const loader = new THREE.TextureLoader();
-
-/* камера: ракурсы разделов */
-const isMobile = () => innerWidth < 1024;
-const VIEWS = {
-  hero: [[0.2, 0.35, 9.6], [-1.9, 0.2, 0]],
-  numbers: [[5.2, 1.9, 7.6], [-2.2, 0.1, 0]],
-  moscow: [[-6.2, 0.9, 5.8], [-0.4, 0.4, -2]],
-  favorit: [[6.4, -1.1, 5.6], [-1.6, 0.3, -1.4]],
-  special: [[0.8, 5.6, 6.6], [-1.8, -0.4, 0]],
-  edu: [[-4.4, -2.3, 7.2], [-1.2, 0.5, 0]],
-  hobby: [[3.4, 2.6, 8.4], [-1.9, 0, 0]],
-  contact: [[0, 0.2, 11.5], [-1.2, 0.3, 0]]
-};
-const cam = { x: 0.2, y: 0.35, z: 9.6, lx: -1.9, ly: 0.2, lz: 0 };
-let current = 'hero', drawerOpen = false;
-function view(name, dur = 2.4) {
-  current = name;
-  if (drawerOpen) return;
-  const [[x, y, z], [lx, ly, lz]] = VIEWS[name];
-  const shift = isMobile() ? 3.5 : 0;
-  gsap.to(cam, { x, y, z: z + shift, lx: isMobile() ? -0.75 : lx, ly, lz, duration: REDUCED ? 0 : dur, ease: 'power3.inOut', overwrite: true });
+float darkAt(float z) { return (1.0 - smoothstep(uDarkZ.y, uDarkZ.x, z)) * smoothstep(uDarkZ.w, uDarkZ.z, z); }
+float archAO(vec3 p, vec3 n) {
+  vec3 an = abs(n);
+  float inside = step(p.z, -2.0 * uArch.z + 0.05) * step(uArch.w - 0.05, p.z);
+  float ao = 1.0;
+  ao *= 1.0 - uFloorAO * exp(-max(p.y, 0.0) * 1.5) * (1.0 - an.y);
+  ao *= 1.0 - 0.30 * exp(-max(uArch.y - p.y, 0.0) * 1.25) * (1.0 - an.y) * inside;
+  float dS = max(uArch.x - abs(p.x), 0.0);
+  ao *= 1.0 - 0.36 * exp(-dS * 1.25) * (1.0 - an.x) * inside;
+  float dz = 100.0;
+  for (int i = 0; i < 8; i++) { dz = min(dz, abs(abs(p.z - uPartZ[i]) - uArch.z)); }
+  float door = step(abs(p.x), uPortal.x) * step(p.y, uPortal.y);
+  ao *= 1.0 - 0.34 * exp(-dz * 1.25) * (1.0 - an.z) * (1.0 - door);
+  return clamp(ao, 0.0, 1.0);
 }
-const parallax = { x: 0, y: 0 }, mouse = { x: 0, y: 0 };
-addEventListener('pointermove', (e) => { mouse.x = e.clientX / innerWidth - 0.5; mouse.y = e.clientY / innerHeight - 0.5; });
-
-/* луч света */
-const light = { k: 0 };
-function lightOn(strength = 1) { gsap.to(light, { k: strength, duration: REDUCED ? 0 : 1.1, ease: 'power2.out', overwrite: true }); }
-function lightOff() { if (!drawerOpen) gsap.to(light, { k: 0, duration: REDUCED ? 0 : 1.2, ease: 'power2.inOut', overwrite: true }); }
-
-/* цикл */
-const clock = new THREE.Clock();
-function frame() {
-  const t = clock.getElapsedTime();
-  parallax.x += (mouse.x - parallax.x) * 0.04; parallax.y += (mouse.y - parallax.y) * 0.04;
-  camera.position.set(cam.x + parallax.x * 0.8, cam.y - parallax.y * 0.5, cam.z);
-  camera.lookAt(cam.lx, cam.ly, cam.lz);
-  mono.rotation.y = t * 0.12 + parallax.x * 0.3;
-  mono.position.y = Math.sin(t * 0.6) * 0.12;
-  core.material.opacity = 0.42 + Math.sin(t * 1.3) * 0.08 + light.k * 0.3;
-  shell.material.uniforms.uK.value = 0.85 + light.k * 0.7;
-  inner.intensity = 1.1 + light.k * 1.5;
-  dust.rotation.y = t * 0.018;
-  dust.position.y = Math.sin(t * 0.25) * 0.15;
-  spot.intensity = light.k * 6.5;
-  beamMat.uniforms.uOpacity.value = light.k * 0.13;
-  floor.material.opacity = 0.22 + light.k * 0.3;
-  const tgt = card.visible ? card.position : mono.position;
-  spot.target.position.lerp(tgt, 0.06);
-  beam.lookAt(spot.target.position); beam.rotateX(-Math.PI / 2);
-  renderer.render(scene, camera);
-  requestAnimationFrame(frame);
+`;
+  const GLSL_FLOOR = `
+uniform sampler2D uRefl;
+uniform mat4 uReflMat;
+uniform float uReflK;
+uniform vec2 uReflPx;
+uniform vec3 uThread;
+`;
+  /* красная нить: тонкая линия по оси анфилады, со сглаживанием по площади пикселя */
+  const FLOOR_PRE = `
+{
+  float fw = max(fwidth(vWPos.x), 0.0001);
+  float cov = clamp((min(vWPos.x + 0.5 * fw, 0.013) - max(vWPos.x - 0.5 * fw, -0.013)) / fw, 0.0, 1.0);
+  cov *= step(uArch.w, vWPos.z) * step(vWPos.z, 13.0) * step(0.5, vWNrm.y);
+  gl_FragColor.rgb = mix(gl_FragColor.rgb, uThread, cov * 0.9);
 }
-frame();
-addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); view(current, 0.01); });
+`;
+  /* полированный бетон: зеркальное изображение зала подмешивается по Френелю */
+  const FLOOR_POST = `
+if (uReflK > 0.001 && vWNrm.y > 0.5) {
+  vec4 rc = uReflMat * vec4(vWPos, 1.0);
+  vec2 ruv = rc.xy / rc.w;
+  vec3 vd = normalize(cameraPosition - vWPos);
+  float fres = pow(1.0 - clamp(vd.y, 0.0, 1.0), 3.0);
+  float polish = 0.72 + 0.28 * vnoise(vWPos * 0.42);
+  vec2 ro = uReflPx * (2.2 + 2.6 * (1.0 - fres));
+  vec3 rcol = texture2D(uRefl, ruv, 1.0).rgb * 0.28 + (texture2D(uRefl, ruv + ro * vec2(1.0, 0.45), 1.4).rgb + texture2D(uRefl, ruv + ro * vec2(-0.45, 1.0), 1.4).rgb + texture2D(uRefl, ruv + ro * vec2(-1.0, -0.45), 1.4).rgb + texture2D(uRefl, ruv + ro * vec2(0.45, -1.0), 1.4).rgb) * 0.18;
+  float kr = uReflK * mix(0.07, 0.62, fres) * polish * (1.0 + 0.9 * dk);
+  gl_FragColor.rgb = mix(gl_FragColor.rgb, rcol, clamp(kr, 0.0, 0.86));
+}
+`;
+  function patch(mat, o) {
+    const { ao = false, grain = 0, floor = false, dark = '#000000', clipY = false, floorAO = 0.46, bump = 0 } = o || {};
+    mat.onBeforeCompile = (sh) => {
+      Object.assign(sh.uniforms, U, { uGrain: { value: grain }, uDarkCol: { value: lin(dark) }, uFloorAO: { value: floorAO }, uBump: { value: bump } });
+      sh.vertexShader = sh.vertexShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vWPos;' + (ao ? '\nvarying vec3 vWNrm;' : ''))
+        .replace('#include <project_vertex>', '#include <project_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;' + (ao ? '\nvWNrm = normalize(mat3(modelMatrix) * objectNormal);' : ''));
+      let f = sh.fragmentShader
+        .replace('#include <common>', '#include <common>\n' + GLSL_REVEAL + (ao ? GLSL_AO : '') + (floor ? GLSL_FLOOR : ''))
+        .replace('#include <fog_fragment>', '#include <fog_fragment>\ngl_FragColor.rgb = mix(uVoid, gl_FragColor.rgb, revealAt(vWPos));');
+      if (clipY) f = f.replace('#include <clipping_planes_fragment>', 'if (vWPos.y < 0.0) discard;\n#include <clipping_planes_fragment>');
+      if (ao) {
+        f = f.replace('#include <color_fragment>', '#include <color_fragment>\nfloat dk = darkAt(vWPos.z);\ndiffuseColor.rgb = mix(diffuseColor.rgb, uDarkCol, dk);\ndiffuseColor.rgb *= 1.0 + (vnoise(vWPos * 1.6) - 0.5) * uGrain + (vnoise(vWPos * 9.0) - 0.5) * uGrain * 0.5 + (vnoise(vWPos * 0.33) - 0.5) * uGrain * 1.1;')
+          .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nif (uBump > 0.0) {\n  float bf = uBump * (1.0 - smoothstep(4.0, 15.0, length(vViewPosition)));\n  if (bf > 0.002) { vec3 pp = vWPos * 7.0; normal = normalize(normal + bf * vec3(vnoise(pp) - 0.5, vnoise(pp + 17.1) - 0.5, vnoise(pp.zxy + 31.7) - 0.5)); }\n}')
+          .replace('#include <aomap_fragment>', `#include <aomap_fragment>
+float aoA = archAO(vWPos, normalize(vWNrm));
+float ceilK = step(vWNrm.y, -0.5);
+reflectedLight.indirectDiffuse *= aoA * (1.0 + 0.6 * ceilK);
+reflectedLight.indirectSpecular *= aoA;
+reflectedLight.directDiffuse *= mix(1.0, aoA, 0.3);
+/* темный зал: линии света на потолке дают мягкие полосы на полу и стенах */
+reflectedLight.indirectDiffuse += diffuseColor.rgb * dk * uTubeK * (0.62 * exp(-pow((abs(vWPos.x) - 2.3) / 1.3, 2.0)) + 0.2) * (1.0 - ceilK);
+/* галерея со световым фонарем: мягкий верхний свет */
+float lampK = step(uLampZ.x, vWPos.z) * step(vWPos.z, uLampZ.y) * (1.0 - ceilK);
+reflectedLight.indirectDiffuse += diffuseColor.rgb * lampK * 0.1 * exp(-pow(vWPos.x / 3.4, 2.0)) * (0.35 + 0.65 * smoothstep(0.0, 7.0, vWPos.y) + step(0.5, vWNrm.y) * 0.5);`);
+      }
+      if (floor) f = f.replace('#include <tonemapping_fragment>', FLOOR_PRE + '#include <tonemapping_fragment>').replace('#include <encodings_fragment>', '#include <encodings_fragment>\n' + FLOOR_POST);
+      sh.fragmentShader = f;
+    };
+    mat.customProgramCacheKey = () => 'anf-' + [ao, floor, clipY, mat.type].join('-');
+    return mat;
+  }
 
-/* смена ракурса по разделам */
-const io = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) view(en.target.dataset.cam); }), { threshold: 0.35 });
-document.querySelectorAll('[data-cam]').forEach((s) => io.observe(s));
+  /* ——— архитектура: стены собираются в одну геометрию ——— */
+  const parts = [];
+  const boxInto = (list, x0, x1, y0, y1, z0, z1) => {
+    const g = new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0);
+    g.translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+    list.push(g.toNonIndexed()); g.dispose();
+  };
+  const box = (x0, x1, y0, y1, z0, z1) => boxInto(parts, x0, x1, y0, y1, z0, z1);
+  function merge(list) {
+    let n = 0; list.forEach((g) => { n += g.attributes.position.count; });
+    const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3), uv = new Float32Array(n * 2);
+    let o = 0;
+    list.forEach((g) => {
+      pos.set(g.attributes.position.array, o * 3);
+      nor.set(g.attributes.normal.array, o * 3);
+      if (g.attributes.uv) uv.set(g.attributes.uv.array, o * 2);
+      o += g.attributes.position.count; g.dispose();
+    });
+    const m = new THREE.BufferGeometry();
+    m.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    m.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    m.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    return m;
+  }
+  /* фасад с проемом */
+  box(-FW, -PX, 0, FH, -TK, 0); box(PX, FW, 0, FH, -TK, 0); box(-PX, PX, PH, FH, -TK, 0);
+  /* перегородки анфилады с выровненными проемами */
+  for (let k = 2; k < H.length; k++) {
+    const z1 = H[k].front, z0 = z1 - TK;
+    box(-HW, -PX, 0, HH, z0, z1); box(PX, HW, 0, HH, z0, z1); box(-PX, PX, PH, HH, z0, z1);
+  }
+  /* торцевая стена с круглым окном */
+  const endShape = new THREE.Shape();
+  endShape.moveTo(-HW - WT, 0); endShape.lineTo(HW + WT, 0); endShape.lineTo(HW + WT, HH + 0.6); endShape.lineTo(-HW - WT, HH + 0.6); endShape.lineTo(-HW - WT, 0);
+  const hole = new THREE.Path(); hole.absarc(0, AP.y, AP.r, 0, Math.PI * 2, true); endShape.holes.push(hole);
+  const endGeo = new THREE.ExtrudeGeometry(endShape, { depth: TK, bevelEnabled: false, curveSegments: 72 });
+  endGeo.translate(0, 0, END - TK);
+  parts.push(endGeo.index ? endGeo.toNonIndexed() : endGeo);
+  /* правая стена с вертикальными щелями, через них входит солнце */
+  const SW = 0.46, slits = [];
+  for (let k = 1; k < H.length; k++) {
+    const h = H[k], c = Math.max(2, Math.round(h.len / 3.6));
+    for (let i = 0; i < c; i++) { const z = h.z0 - (i + 0.5) * h.len / c; slits.push([z + SW / 2, z - SW / 2]); }
+  }
+  let zc = -TK / 2;
+  slits.forEach(([a, b]) => { if (zc > a) box(HW, HW + WT, 0, HH, a, zc); zc = b; });
+  box(HW, HW + WT, 0, HH, END - TK / 2, zc);
+  /* левая стена для экспонатов */
+  box(-HW - WT, -HW, 0, HH, END - TK / 2, -TK / 2);
+  /* потолок: в галерее Моспродюсера световой фонарь по всей длине, в зале образования световые колодцы */
+  const CY0 = HH, CY1 = HH + 0.6;
+  const wells = [];
+  [-2.4, 2.4].forEach((x) => [0.22, 0.5, 0.78].forEach((t) => { const z = H[5].z0 - t * H[5].len; wells.push([x - 0.8, x + 0.8, z - 0.8, z + 0.8]); }));
+  const LAMP = [-0.9, 0.9, H[2].z1 + 3.4, H[2].z0 - 3.4];
+  const holes = { 2: [LAMP], 5: wells };
+  const uniq = (arr) => [...new Set(arr.map((v) => +v.toFixed(4)))].sort((a, b) => a - b);
+  for (let k = 1; k < H.length; k++) {
+    const zA = k === 1 ? -TK / 2 : H[k].front, zB = k === H.length - 1 ? END - TK / 2 : H[k].z1;
+    const hs = holes[k];
+    if (!hs) { box(-HW - WT, HW + WT, CY0, CY1, zB, zA); continue; }
+    const xs = uniq([-HW - WT, HW + WT, ...hs.flatMap((w) => [w[0], w[1]])]);
+    const zs = uniq([zB, zA, ...hs.flatMap((w) => [w[2], w[3]])]);
+    for (let i = 0; i < xs.length - 1; i++) for (let j = 0; j < zs.length - 1; j++) {
+      const cx = (xs[i] + xs[i + 1]) / 2, cz = (zs[j] + zs[j + 1]) / 2;
+      if (hs.some((w) => cx > w[0] && cx < w[1] && cz > w[2] && cz < w[3])) continue;
+      box(xs[i], xs[i + 1], CY0, CY1, zs[j], zs[j + 1]);
+    }
+  }
 
-/* появление текста */
-const ioText = new IntersectionObserver((es) => es.forEach((en) => {
-  if (!en.isIntersecting) return;
-  gsap.to(en.target, { opacity: 1, y: 0, duration: REDUCED ? 0 : 1.1, ease: 'power3.out', delay: (+en.target.dataset.d || 0) });
-  ioText.unobserve(en.target);
-}), { rootMargin: '0px 0px -8% 0px' });
-document.querySelectorAll('.reveal').forEach((el, i) => { el.dataset.d = (i % 4) * 0.06; ioText.observe(el); });
+  const wallMat = patch(new THREE.MeshStandardMaterial({ color: lin('#ECE7E0'), roughness: 0.94, metalness: 0 }), { ao: true, grain: 0.045, dark: '#3D3A37', bump: PHONE ? 0 : 0.16 });
+  const floorMat = patch(new THREE.MeshStandardMaterial({ color: lin('#C8C1B6'), roughness: 0.56, metalness: 0 }), { ao: true, grain: 0.08, dark: '#1B1A19', floor: true });
+  const backMat = patch(new THREE.MeshStandardMaterial({ color: lin('#F7F4EF'), roughness: 0.8, metalness: 0 }));
+  const screenMat = patch(new THREE.MeshStandardMaterial({ color: lin('#0E0E0D'), roughness: 0.5, metalness: 0 }));
+  const inkMat = patch(new THREE.MeshStandardMaterial({ color: lin('#1D1C1B'), roughness: 0.62, metalness: 0 }));
+  const paleMat = patch(new THREE.MeshStandardMaterial({ color: lin('#F1EDE7'), roughness: 0.7, metalness: 0 }));
+  const fixMat = patch(new THREE.MeshStandardMaterial({ color: lin('#2B2A28'), roughness: 0.5, metalness: 0 }));
+  const woodMat = patch(new THREE.MeshStandardMaterial({ color: lin('#B48A5E'), roughness: 0.6, metalness: 0 }), { ao: true, grain: 0.12, dark: '#B48A5E' });
+  /* цифры в фирменном красном Анны, как скульптура в белом зале; ниже пола не рисуются */
+  const numMat = patch(new THREE.MeshStandardMaterial({ color: lin('#DE5454'), roughness: 0.46, metalness: 0 }), { ao: true, grain: 0, dark: '#DE5454', clipY: true, floorAO: 0.14 });
+  /* светящиеся поверхности: фонарь галереи и линии света в темном зале */
+  const lampMat = patch(new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 0.985, 0.95), toneMapped: false, fog: false }));
 
-/* наведение на кейс: луч выхватывает его из темноты */
-document.querySelectorAll('.list').forEach((list) => {
-  list.addEventListener('pointerover', (e) => {
-    const c = e.target.closest('.case'); if (!c) return;
-    list.querySelectorAll('.case').forEach((x) => x.classList.toggle('lit', x === c));
-    list.classList.add('dim'); lightOn(0.75);
+  const arch = new THREE.Mesh(merge(parts), wallMat);
+  arch.castShadow = arch.receiveShadow = true;
+  scene.add(arch);
+  const floorGeo = new THREE.BoxGeometry(92, 0.6, 70 - (END - 30));
+  floorGeo.translate(0, -0.3, (70 + END - 30) / 2);
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  /* фонарь галереи: светящаяся плоскость в глубине проема, солнце через нее не проходит */
+  const lampGeo = new THREE.PlaneGeometry(LAMP[1] - LAMP[0], LAMP[3] - LAMP[2]);
+  lampGeo.rotateX(Math.PI / 2);
+  const lamp = new THREE.Mesh(lampGeo, lampMat);
+  lamp.position.set(0, CY1 - 0.04, (LAMP[2] + LAMP[3]) / 2);
+  lamp.castShadow = true;
+  scene.add(lamp);
+  /* линии света на потолке темного зала */
+  const tubes = [];
+  [-2.3, 2.3].forEach((x) => { const h = H[DARK_HALL]; boxInto(tubes, x - 0.045, x + 0.045, HH - 0.07, HH - 0.02, h.z1 + 2.2, h.z0 - 2.2); });
+  const tubeMesh = new THREE.Mesh(merge(tubes), lampMat);
+  scene.add(tubeMesh);
+
+  /* ——— свет ——— */
+  const hemi = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
+  scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xffffff, 2.5);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(BIG ? 4096 : 2048, BIG ? 1024 : 512);
+  sun.shadow.bias = -0.0005;
+  sun.shadow.normalBias = 0.045;
+  scene.add(sun, sun.target);
+  const redL = new THREE.PointLight(lin('#FF5440'), 0, 30, 2);
+  redL.position.set(0, AP.y, END + 3);
+  scene.add(redL);
+  const spot = new THREE.SpotLight(lin('#FFF0DE'), 0, 18, 0.5, 0.7, 1.4);
+  scene.add(spot, spot.target);
+
+  /* тень солнца охватывает все здание, пересчитывается только при движении солнца */
+  const BB = [v3(-12, 0, END - TK - 0.5), v3(12, FH, 0.5)];
+  const corner = v3(0, 0, 0);
+  function fitShadow(L) {
+    const c = v3(0, FH / 2, (END - TK) / 2);
+    sun.target.position.copy(c);
+    sun.position.copy(c).addScaledVector(L, 150);
+    const cam = sun.shadow.camera;
+    cam.position.copy(sun.position); cam.lookAt(c); cam.updateMatrixWorld(true);
+    const inv = cam.matrixWorldInverse;
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+    for (let i = 0; i < 8; i++) {
+      corner.set(i & 1 ? BB[1].x : BB[0].x, i & 2 ? BB[1].y : BB[0].y, i & 4 ? BB[1].z : BB[0].z).applyMatrix4(inv);
+      x0 = Math.min(x0, corner.x); x1 = Math.max(x1, corner.x); y0 = Math.min(y0, corner.y); y1 = Math.max(y1, corner.y); z0 = Math.min(z0, corner.z); z1 = Math.max(z1, corner.z);
+    }
+    cam.left = x0; cam.right = x1; cam.bottom = y0; cam.top = y1; cam.near = Math.max(0.5, -z1 - 2); cam.far = -z0 + 2;
+    cam.updateProjectionMatrix();
+    renderer.shadowMap.needsUpdate = true;
+  }
+
+  /* время суток: утро у входа, закат у красного круга */
+  const SUNK = [
+    [0.00, 30, 13, '#FFF0DF', 2.5, '#EEF1F4', '#BDB4A8', 0.86, '#EAE8E4'],
+    [0.16, 40, 24, '#FFF1E2', 2.5, '#EEF1F3', '#BAB1A5', 0.84, '#ECEAE6'],
+    [0.42, 37, 34, '#FFE8D2', 2.5, '#F1EFEC', '#B9AEA2', 0.82, '#EEE9E2'],
+    [0.66, 28, 30, '#FFD9BC', 2.4, '#F4ECE4', '#B6A99D', 0.8, '#F0E6DC'],
+    [0.86, 18, 20, '#FFC09C', 2.3, '#F5E2D9', '#B4A198', 0.78, '#EFDDD3'],
+    [1.00, 12, 14, '#FFA285', 2.1, '#F3D8CF', '#AF988F', 0.76, '#EDD4CA']
+  ].map(([p, el, az, sc, si, hs, hg, hi, air]) => ({ p, el, az, sc: lin(sc), si, hs: lin(hs), hg: lin(hg), hi, air: new THREE.Color(air) }));
+  const SUN = { el: 30, az: 11, sc: new THREE.Color(), si: 2.6, hs: new THREE.Color(), hg: new THREE.Color(), hi: 0.6, air: new THREE.Color() };
+  function sunAt(p) {
+    let i = 0;
+    while (i < SUNK.length - 2 && p > SUNK[i + 1].p) i++;
+    const a = SUNK[i], b = SUNK[i + 1], t = smooth(a.p, b.p, p);
+    SUN.el = a.el + (b.el - a.el) * t; SUN.az = a.az + (b.az - a.az) * t;
+    SUN.si = a.si + (b.si - a.si) * t; SUN.hi = a.hi + (b.hi - a.hi) * t;
+    SUN.sc.copy(a.sc).lerp(b.sc, t); SUN.hs.copy(a.hs).lerp(b.hs, t); SUN.hg.copy(a.hg).lerp(b.hg, t); SUN.air.copy(a.air).lerp(b.air, t);
+  }
+  const sunDir = (el, az, out) => { const e = rad(el), a = rad(az); return out.set(Math.cos(e) * Math.cos(a), Math.sin(e), Math.cos(e) * Math.sin(a)); };
+
+  /* ——— видимые лучи: от щелей к полу и из колодцев потолка ——— */
+  const rays = [];
+  slits.forEach(([a, b]) => rays.push({ type: 'slit', z0: b, z1: a }));
+  wells.forEach((w) => rays.push({ type: 'well', w }));
+  const RAY_V = rays.reduce((n, r) => n + (r.type === 'slit' ? 6 : 24), 0);
+  const rayPos = new Float32Array(RAY_V * 3), rayT = new Float32Array(RAY_V * 2);
+  const rayGeo = new THREE.BufferGeometry();
+  rayGeo.setAttribute('position', new THREE.BufferAttribute(rayPos, 3));
+  rayGeo.setAttribute('ray', new THREE.BufferAttribute(rayT, 2));
+  const rayMat = new THREE.ShaderMaterial({
+    uniforms: { uK: { value: 0 }, uColor: { value: new THREE.Color('#FFF1DE') } },
+    vertexShader: 'attribute vec2 ray; varying vec2 vR; void main(){ vR = ray; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'uniform float uK; uniform vec3 uColor; varying vec2 vR; void main(){ float a = pow(1.0 - vR.x, 1.6) * smoothstep(0.0, 0.3, vR.y) * smoothstep(1.0, 0.7, vR.y); gl_FragColor = vec4(uColor * a * uK, 1.0); }',
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide
   });
-  list.addEventListener('pointerleave', () => { if (drawerOpen) return; list.classList.remove('dim'); list.querySelectorAll('.case').forEach((x) => x.classList.remove('lit')); lightOff(); });
+  const rayMesh = new THREE.Mesh(rayGeo, rayMat);
+  rayMesh.frustumCulled = false;
+  scene.add(rayMesh);
+  function buildRays(L) {
+    const k = HH / Math.max(0.15, L.y), dx = -L.x * k, dz = -L.z * k;
+    let i = 0;
+    const put = (x, y, z, t, e) => { rayPos[i * 3] = x; rayPos[i * 3 + 1] = y; rayPos[i * 3 + 2] = z; rayT[i * 2] = t; rayT[i * 2 + 1] = e; i++; };
+    const quad = (p, q, r, u, tp, tq, tr, tu) => { put(...p, tp, 0); put(...q, tq, 1); put(...r, tr, 1); put(...p, tp, 0); put(...r, tr, 1); put(...u, tu, 0); };
+    rays.forEach((r) => {
+      if (r.type === 'slit') {
+        /* наклонная полоса света от верхней кромки щели до пола */
+        quad([HW, HH, r.z0], [HW, HH, r.z1], [HW + dx, 0, r.z1 + dz], [HW + dx, 0, r.z0 + dz], 0, 0, 1, 1);
+      } else {
+        const [x0, x1, z0, z1] = r.w;
+        const c = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]];
+        for (let j = 0; j < 4; j++) {
+          const a = c[j], b = c[(j + 1) % 4];
+          quad([a[0], HH, a[1]], [b[0], HH, b[1]], [b[0] + dx, 0, b[1] + dz], [a[0] + dx, 0, a[1] + dz], 0, 0, 1, 1);
+        }
+      }
+    });
+    rayGeo.attributes.position.needsUpdate = true;
+    rayGeo.attributes.ray.needsUpdate = true;
+  }
+
+  /* ——— пыль в лучах: редкие медленные искры в полосах солнца ——— */
+  const DUST_N = PHONE ? 70 : 190;
+  const dA = new Float32Array(DUST_N * 3), dB = new Float32Array(DUST_N * 3);
+  for (let i = 0; i < DUST_N; i++) {
+    const well = i % 5 === 0, w = wells[i % wells.length], sl = slits[(i * 7) % slits.length];
+    dA[i * 3] = well ? w[0] + Math.random() * 1.6 : HW;                           /* точка входа света */
+    dA[i * 3 + 1] = well ? HH : 0.6 + Math.random() * (HH - 0.9);
+    dA[i * 3 + 2] = well ? w[2] + Math.random() * 1.6 : sl[1] + Math.random() * SW;
+    dB[i * 3] = 0.04 + Math.random() * 0.9;                                       /* доля пути вдоль луча */
+    dB[i * 3 + 1] = Math.random() * 6.283;                                        /* фаза */
+    dB[i * 3 + 2] = 0.6 + Math.random() * 0.9;                                    /* размер */
+  }
+  const dustGeo = new THREE.BufferGeometry();
+  dustGeo.setAttribute('position', new THREE.BufferAttribute(dA, 3));
+  dustGeo.setAttribute('seed', new THREE.BufferAttribute(dB, 3));
+  const dustMat = new THREE.ShaderMaterial({
+    uniforms: { uL: { value: v3(0.6, 0.6, 0.3) }, uT: { value: 0 }, uK: { value: 0 }, uPx: { value: 1 } },
+    vertexShader: `attribute vec3 seed; uniform vec3 uL; uniform float uT; uniform float uPx; varying float vA;
+void main(){ float s = seed.x * position.y / max(uL.y, 0.15); vec3 p = position - uL * s;
+  p += vec3(sin(uT * 0.11 + seed.y) * 0.16, sin(uT * 0.07 + seed.y * 1.7) * 0.12, cos(uT * 0.09 + seed.y * 2.3) * 0.16);
+  vec4 mv = modelViewMatrix * vec4(p, 1.0); gl_Position = projectionMatrix * mv;
+  gl_PointSize = uPx * seed.z * 34.0 / max(-mv.z, 0.5);
+  vA = (0.55 + 0.45 * sin(uT * 0.5 + seed.y * 5.0)) * smoothstep(1.2, 3.5, -mv.z) * (1.0 - smoothstep(26.0, 44.0, -mv.z)); }`,
+    fragmentShader: 'uniform float uK; varying float vA; void main(){ vec2 c = gl_PointCoord - 0.5; float a = smoothstep(0.5, 0.0, length(c)); gl_FragColor = vec4(vec3(1.0, 0.95, 0.86) * a * a * vA * uK, 1.0); }',
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+  });
+  const dust = new THREE.Points(dustGeo, dustMat);
+  dust.frustumCulled = false;
+  scene.add(dust);
+
+  /* ——— холсты для текстур ——— */
+  const canvasTex = (w, h, draw, srgb = true) => {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    draw(c.getContext('2d'), w, h);
+    const t = new THREE.CanvasTexture(c);
+    if (srgb) t.encoding = THREE.sRGBEncoding;
+    t.anisotropy = ANISO;
+    return t;
+  };
+
+  /* ——— красный круг в конце анфилады ——— */
+  const discTex = canvasTex(512, 512, (g, w, h) => {
+    const r = g.createRadialGradient(w * 0.5, h * 0.44, 0, w * 0.5, h * 0.5, w * 0.5);
+    r.addColorStop(0, '#EE7D70'); r.addColorStop(0.5, '#E25E57'); r.addColorStop(1, '#DE5454');
+    g.fillStyle = r; g.fillRect(0, 0, w, h);
+  });
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(AP.r + 0.35, 96), new THREE.MeshBasicMaterial({ map: discTex, toneMapped: false, fog: false, transparent: true, opacity: REDUCED ? 1 : 0 }));
+  disc.position.set(0, AP.y, END - TK - 0.06);
+  scene.add(disc);
+  const glowTex = canvasTex(512, 512, (g, w, h) => {
+    const r = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+    r.addColorStop(0, 'rgba(255,110,92,0.85)'); r.addColorStop(0.24, 'rgba(255,92,80,0.5)'); r.addColorStop(0.5, 'rgba(255,82,70,0.14)'); r.addColorStop(1, 'rgba(255,82,70,0)');
+    g.fillStyle = r; g.fillRect(0, 0, w, h);
+  }, false);
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(AP.r * 4.4, AP.r * 4.4), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, opacity: REDUCED ? 1 : 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, fog: false }));
+  glow.position.set(0, AP.y, END + 0.03);
+  scene.add(glow);
+
+  /* ——— объемный текст: Soyuz Grotesk на фасаде и над проемами, Aileron Black в зале цифр ——— */
+  const fontS = new THREE.Font(FONT_SOYUZ), fontA = new THREE.Font(FONT_AILERON);
+  const emOf = (data, str) => [...str].reduce((s, ch) => s + ((data.glyphs[ch] || data.glyphs[' ']).ha / 1000), 0);
+  const textGeo = (font, str, size, depth, bevel) => {
+    const g = new THREE.TextGeometry(str, { font, size, height: depth, curveSegments: 8, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel * 0.8, bevelSegments: 2 });
+    g.computeBoundingBox();
+    const b = g.boundingBox; g.translate(-(b.min.x + b.max.x) / 2, 0, 0);
+    return g;
+  };
+  const insc = { wide: new THREE.Group(), tall: new THREE.Group() };
+  const letters = (str, y, grp) => { const m = new THREE.Mesh(textGeo(fontS, str, 1.75, 0.2, 0.014), wallMat); m.position.set(0, y, 0); m.castShadow = m.receiveShadow = true; grp.add(m); };
+  letters('АННА БЕЛИКОВА', 6.75, insc.wide);
+  letters('АННА', 8.75, insc.tall); letters('БЕЛИКОВА', 6.7, insc.tall);
+  scene.add(insc.wide, insc.tall);
+  /* название следующего зала над каждым проемом */
+  const signs = new THREE.Group();
+  for (let k = 2; k < H.length; k++) {
+    const str = HALL_NAMES[k].toUpperCase();
+    const size = Math.min(0.78, 5.3 / emOf(FONT_SOYUZ, str));
+    const m = new THREE.Mesh(textGeo(fontS, str, size, 0.06, 0), k - 1 === DARK_HALL ? paleMat : inkMat);
+    m.position.set(0, (PH + HH) / 2 - size * 0.36, H[k].front + 0.004);
+    signs.add(m);
+  }
+  scene.add(signs);
+
+  /* ——— красная неоновая подпись Denistina ——— */
+  const neonTex = canvasTex(2048, 512, (g, w, h) => {
+    const text = 'Архитектор смыслов';
+    let fs = 230; g.font = `${fs}px Denistina`;
+    let tw = g.measureText(text).width;
+    fs = Math.min(fs, fs * (w * 0.9) / tw); g.font = `${fs}px Denistina`; tw = g.measureText(text).width;
+    const x = (w - tw) / 2, y = h * 0.62;
+    g.shadowColor = 'rgba(255,40,40,1)'; g.shadowBlur = 44; g.fillStyle = 'rgba(255,72,62,1)'; g.fillText(text, x, y);
+    g.shadowBlur = 16; g.fillText(text, x, y);
+    g.shadowColor = 'rgba(255,120,108,1)'; g.shadowBlur = 5; g.fillStyle = '#FFE1DA'; g.fillText(text, x, y);
+    g.shadowBlur = 0; g.fillStyle = '#FFF5F1'; g.fillText(text, x, y);
+  }, false);
+  const neonMat = new THREE.ShaderMaterial({
+    uniforms: { map: { value: neonTex }, uReveal: { value: REDUCED ? 1.05 : 0 }, uOn: { value: 1 } },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'uniform sampler2D map; uniform float uReveal; uniform float uOn; varying vec2 vUv; void main(){ vec4 c = texture2D(map, vUv); float m = 1.0 - smoothstep(uReveal - 0.035, uReveal, vUv.x); gl_FragColor = vec4(c.rgb * uOn, c.a * m * min(uOn, 1.0)); }',
+    transparent: true, depthWrite: false
+  });
+  const neon = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), neonMat);
+  scene.add(neon);
+
+  /* ——— экспонаты: снимок, паспарту, тень, пятно света от софита, табличка ——— */
+  const shadowTex = canvasTex(256, 256, (g, w, h) => {
+    g.shadowColor = 'rgba(0,0,0,1)'; g.shadowBlur = 34; g.shadowOffsetX = 1000;
+    g.fillStyle = '#000'; g.fillRect(52 - 1000, 52, w - 104, h - 104);
+  }, false);
+  const decalMat = new THREE.MeshBasicMaterial({ map: shadowTex, color: 0x000000, transparent: true, opacity: 0.42, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+  const poolTex = canvasTex(256, 256, (g, w, h) => {
+    const r = g.createRadialGradient(w / 2, h * 0.34, 0, w / 2, h * 0.46, w * 0.5);
+    r.addColorStop(0, 'rgba(255,246,230,1)'); r.addColorStop(0.42, 'rgba(255,244,226,0.46)'); r.addColorStop(1, 'rgba(255,244,226,0)');
+    g.fillStyle = r; g.fillRect(0, 0, w, h);
+  }, false);
+  const poolMat = (k) => patch(new THREE.MeshBasicMaterial({ map: poolTex, transparent: true, opacity: k, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, fog: false, polygonOffset: true, polygonOffsetFactor: -1 }));
+  const poolLight = poolMat(0.15), poolDark = poolMat(0.22);
+  const labelMat = (no) => patch(new THREE.MeshBasicMaterial({ toneMapped: false, map: canvasTex(640, 220, (g, w, h) => {
+    g.fillStyle = '#F7F4EF'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#151413'; g.font = '700 70px "Soyuz Grotesk"'; g.fillText('project', 36, 128);
+    const pw = g.measureText('project').width;
+    let fs = 150; g.font = `${fs}px Denistina`;
+    const nw = g.measureText(no).width, room = w - (36 + pw - 14) - 16;
+    if (nw > room) { fs *= room / nw; g.font = `${fs}px Denistina`; }
+    g.fillStyle = '#DE5454'; g.fillText(no, 36 + pw - 14, 164);
+  }) }));
+  const white1 = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1, THREE.RGBAFormat);
+  white1.needsUpdate = true;
+  const photos = [], fix = [];
+  ARTS.forEach((a) => {
+    const h = H[a.hall], ar = AR(a.img);
+    let w = a.w || 3.1, hh = w / ar;
+    if (hh > 2.8) { hh = 2.8; w = hh * ar; }
+    const z = h.z0 - a.d, y = 2.55, dark = a.hall === DARK_HALL;
+    const g = new THREE.Group();
+    g.position.set(-HW, y, z); g.rotation.y = Math.PI / 2;
+    scene.add(g);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(w + 0.08, hh + 0.08, 0.06), a.video ? screenMat : backMat);
+    back.position.z = 0.05; back.castShadow = back.receiveShadow = true; back.userData.sharp = true; g.add(back);
+    /* снимок светится сам и вдобавок принимает свет зала: полоса солнца и софит ложатся и на него */
+    const mat = patch(new THREE.MeshStandardMaterial({ map: white1, emissiveMap: white1, emissive: 0xffffff, emissiveIntensity: 0.74, color: new THREE.Color(0.26, 0.26, 0.26), roughness: 1, metalness: 0, toneMapped: false, transparent: true, opacity: 0 }));
+    const photo = new THREE.Mesh(new THREE.PlaneGeometry(w, hh), mat);
+    photo.position.z = 0.0815; photo.receiveShadow = true; photo.userData.art = a.id; photo.userData.sharp = true; g.add(photo);
+    const pool = new THREE.Mesh(new THREE.PlaneGeometry(w + 3.2, hh + 3.4), dark ? poolDark : poolLight);
+    pool.position.set(0, 0.45, 0.004); pool.renderOrder = 1; g.add(pool);
+    const dec = new THREE.Mesh(new THREE.PlaneGeometry(w + 1.1, hh + 1.1), decalMat);
+    dec.position.set(-0.08, -0.12, 0.006); dec.renderOrder = 2; g.add(dec);
+    /* углы снимка и таблички в мировых координатах: по ним считается кадр и проверяются наложения */
+    const pts = [v3(-HW + 0.09, y - hh / 2, z + w / 2), v3(-HW + 0.09, y + hh / 2, z + w / 2), v3(-HW + 0.09, y - hh / 2, z - w / 2), v3(-HW + 0.09, y + hh / 2, z - w / 2)];
+    if (a.caseId) {
+      const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.213), labelMat(NO[a.caseId]));
+      lab.position.set(w / 2 + 0.6, 1.5 - y, 0.012); lab.userData.sharp = true; g.add(lab);
+      const lz = z - w / 2 - 0.6;
+      pts.push(v3(-HW + 0.02, 1.39, lz + 0.31), v3(-HW + 0.02, 1.61, lz + 0.31), v3(-HW + 0.02, 1.39, lz - 0.31), v3(-HW + 0.02, 1.61, lz - 0.31));
+    }
+    /* софиты на шине под потолком */
+    [-0.55, 0.55].forEach((o) => {
+      const c = new THREE.CylinderGeometry(0.06, 0.075, 0.24, 14);
+      c.rotateZ(-0.6); c.translate(-HW + 2.05, HH - 0.2, z + o);
+      fix.push(c.toNonIndexed()); c.dispose();
+    });
+    const quads = [[pts[0], pts[1], pts[3], pts[2]]];
+    if (pts.length > 4) quads.push([pts[4], pts[5], pts[7], pts[6]]);
+    Object.assign(a, { w, h: hh, center: v3(-HW + 0.08, y, z), photo, mat, group: g, pts, quads, glow: 0.93, fade: 1, tex: null, vtex: null });
+    photos.push(photo);
+  });
+  [2, 3, 4, 6].forEach((k) => {
+    const as = ARTS.filter((a) => a.hall === k);
+    boxInto(fix, -HW + 2.02, -HW + 2.08, HH - 0.07, HH - 0.02, H[k].z0 - as[as.length - 1].d - 1.6, H[k].z0 - as[0].d + 1.6);
+  });
+  scene.add(new THREE.Mesh(merge(fix), fixMat));
+  const texLoader = new THREE.TextureLoader();
+  let artsLoading = false;
+  function loadArts() {
+    if (artsLoading) return; artsLoading = true;
+    ARTS.forEach((a, i) => setTimeout(() => texLoader.load(IMG(a.img), (tex) => {
+      tex.encoding = THREE.sRGBEncoding; tex.anisotropy = ANISO;
+      a.tex = tex; if (!a.vtex || !a.playing) { a.mat.map = a.mat.emissiveMap = tex; a.mat.needsUpdate = true; }
+      gsap.to(a.mat, { opacity: 1, duration: REDUCED ? 0 : 1.4, ease: 'power2.out' });
+    }), i * 90));
+  }
+  /* AI-ролик на стене зала FAVORIT: идет без звука, пока зритель в зале */
+  const VA = ARTS.find((a) => a.video);
+  let videoEl = null;
+  function videoState(on) {
+    if (!Q.video || !VA) return;
+    if (on && !videoEl) {
+      const src = VID[VA.video];
+      if (!src) return;
+      videoEl = document.createElement('video');
+      Object.assign(videoEl, { muted: true, loop: true, playsInline: true, preload: 'auto' });
+      videoEl.setAttribute('playsinline', ''); videoEl.setAttribute('muted', '');
+      videoEl.src = src;
+      videoEl.addEventListener('playing', () => {
+        if (!VA.vtex) { VA.vtex = new THREE.VideoTexture(videoEl); VA.vtex.encoding = THREE.sRGBEncoding; VA.vtex.anisotropy = ANISO; }
+        VA.playing = true; VA.mat.map = VA.mat.emissiveMap = VA.vtex; VA.mat.needsUpdate = true;
+        if (VA.mat.opacity < 0.5) gsap.to(VA.mat, { opacity: 1, duration: 0.8 });
+      });
+    }
+    if (!videoEl) return;
+    if (on && videoEl.paused) { const p = videoEl.play(); if (p && p.catch) p.catch(() => {}); }
+    else if (!on && !videoEl.paused) videoEl.pause();
+  }
+
+  /* скамья в зале увлечений */
+  const benchParts = [], BZ = H[6].z0 - 11;
+  boxInto(benchParts, 1.55, 2.05, 0.4, 0.47, BZ - 1.5, BZ + 1.5);
+  boxInto(benchParts, 1.6, 2.0, 0, 0.4, BZ - 1.32, BZ - 1.22); boxInto(benchParts, 1.6, 2.0, 0, 0.4, BZ + 1.22, BZ + 1.32);
+  const bench = new THREE.Mesh(merge(benchParts), woodMat);
+  bench.castShadow = bench.receiveShadow = true;
+  scene.add(bench);
+
+  /* проемы: по клику ведут в следующий зал, при наведении светятся */
+  const doorTex = canvasTex(64, 256, (g, w, h) => {
+    const r = g.createLinearGradient(0, 0, 0, h);
+    r.addColorStop(0, 'rgba(255,248,236,0)'); r.addColorStop(0.55, 'rgba(255,248,236,0.5)'); r.addColorStop(1, 'rgba(255,248,236,1)');
+    g.fillStyle = r; g.fillRect(0, 0, w, h);
+  }, false);
+  const doors = [];
+  for (let k = 1; k < H.length; k++) {
+    const hit = new THREE.Mesh(new THREE.PlaneGeometry(PX * 2, PH), new THREE.MeshBasicMaterial({ visible: false }));
+    hit.position.set(0, PH / 2, H[k].front - TK / 2); hit.userData.door = k;
+    const lit = new THREE.Mesh(new THREE.PlaneGeometry(PX * 2, PH), new THREE.MeshBasicMaterial({ map: doorTex, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, fog: false }));
+    lit.position.copy(hit.position); lit.visible = false;
+    scene.add(hit, lit);
+    doors.push({ k, hit, lit, v: 0 });
+  }
+
+  /* ——— зал цифр: десять объемных чисел Aileron Black на оси анфилады, устроены как книга-раскладушка.
+     При входе числа волной приподнимаются из пола, и в обзорном кадре читаются все десять сразу.
+     Дальше у каждого свой шаг: текущее число встает в полный рост, следующие лежат на полу красными знаками
+     и ждут очереди, пройденные ложатся обратно и уходят в пол ——— */
+  const NUM_FIRST = 13.2, NUM_STEP = 2.5, NUM_LEAN = 52;
+  const NUMS = STATS.map(([raw], k) => {
+    const str = raw.replace(/[^0-9+]/g, ' ');
+    const size = clamp(5.4 / emOf(FONT_AILERON, str), 1.05, 1.7);
+    const geo = textGeo(fontA, str, size, 0.6, 0.03);
+    geo.translate(0, 0, -0.63);                 /* лицевая грань в плоскости шарнира: число откидывается назад вокруг нижней кромки */
+    geo.computeBoundingBox();
+    const b = geo.boundingBox;
+    const mesh = new THREE.Mesh(geo, numMat);
+    mesh.castShadow = mesh.receiveShadow = true; mesh.visible = false;
+    mesh.position.set(0, -0.1, H[1].z0 - NUM_FIRST - k * NUM_STEP);
+    scene.add(mesh);
+    return { mesh, w: b.max.x - b.min.x, h: b.max.y, z: mesh.position.z, th: -1, vis: -1, s: 1 };
+  });
+  let shadowDirty = false, iHall1 = 2, iNum0 = 3;
+  /* наклон числа от вертикали в градусах (0 стоит, 90 лежит на полу) и видимость */
+  function numPose(k, sf) {
+    const a = iHall1 - 1;
+    if (sf <= a) return [90, 0];
+    if (sf < iHall1) { const t = sf - a, o = 0.045 * k; return [90 - (90 - NUM_LEAN) * smooth(0.32 + o, 0.58 + o, t), smooth(0.28 + o, 0.33 + o, t)]; }
+    if (sf < iNum0) { const w = smooth(0.1 + 0.02 * k, 0.72 + 0.02 * k, sf - iHall1); return [k === 0 ? NUM_LEAN * (1 - w) : NUM_LEAN + (90 - NUM_LEAN) * w, 1]; }
+    const x = sf - iNum0;
+    if (x >= k) { const t = x - k; return [90 * smooth(0.04, 0.46, t), 1 - smooth(0.44, 0.5, t)]; }
+    return [90 * (1 - smooth(0.4, 0.95, x - (k - 1))), 1];
+  }
+  function numLevels(sf) {
+    NUMS.forEach((n, k) => {
+      const [th, vis] = numPose(k, sf);
+      if (Math.abs(th - n.th) < 0.02 && Math.abs(vis - n.vis) < 0.002) return;
+      n.th = th; n.vis = vis;
+      n.mesh.visible = vis > 0.004;
+      n.mesh.rotation.x = -rad(th);
+      n.mesh.position.y = 0.012 - (1 - vis) * 0.1;
+      shadowDirty = true;
+    });
+  }
+
+  /* ——— кадры камеры ——— */
+  const tallView = () => M() && camera.aspect < 1.15;      /* текст снизу, сцена сверху */
+  const aimAt = (P, C, sx, sy) => {
+    const f = C.clone().sub(P); const d = f.length(); f.normalize();
+    const r = new THREE.Vector3().crossVectors(f, UP).normalize();
+    const u = new THREE.Vector3().crossVectors(r, f);
+    const ty = Math.tan(rad(camera.fov / 2)), tx = ty * camera.aspect;
+    return C.clone().addScaledVector(r, -sx * tx * d).addScaledVector(u, -sy * ty * d);
+  };
+  const q3 = v3(), tmp = v3();
+  /* прямоугольник точек на экране в долях (-1..1) для примерочной камеры */
+  function ndcBox(pts, P, T) {
+    tcam.position.copy(P); tcam.lookAt(T); tcam.updateMatrixWorld();
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    pts.forEach((p) => {
+      q3.copy(p).applyMatrix4(tcam.matrixWorldInverse);
+      if (q3.z > -0.3) { x0 = Math.min(x0, q3.x < 0 ? -9 : 9); x1 = Math.max(x1, q3.x < 0 ? -9 : 9); return; }
+      q3.applyMatrix4(tcam.projectionMatrix);
+      x0 = Math.min(x0, q3.x); x1 = Math.max(x1, q3.x); y0 = Math.min(y0, q3.y); y1 = Math.max(y1, q3.y);
+    });
+    return { x0, y0, x1, y1 };
+  }
+  /* подбирает расстояние и поворот так, чтобы предмет целиком встал в свободную часть экрана */
+  function fit(pts, C, posAt, fr, fillX, fillY, cx, cy, D0, Dmin, Dmax) {
+    let D = D0, sx = cx, sy = cy, P, T;
+    for (let i = 0; i < 10; i++) {
+      P = posAt(D); T = aimAt(P, C, sx, sy);
+      const b = ndcBox(pts, P, T);
+      const k = Math.max((b.x1 - b.x0) / ((fr.x1 - fr.x0) * fillX), (b.y1 - b.y0) / ((fr.y1 - fr.y0) * fillY));
+      sx += cx - (b.x0 + b.x1) / 2; sy += cy - (b.y0 + b.y1) / 2;
+      D = clamp(D * Math.pow(k, 0.9), Dmin, Dmax);
+    }
+    P = posAt(D); T = aimAt(P, C, sx, sy);
+    return { p: P, d: T.sub(P).normalize() };
+  }
+  const pxBox = (b) => [(b.x0 + 1) / 2 * innerWidth, (1 - b.y1) / 2 * innerHeight, (b.x1 + 1) / 2 * innerWidth, (1 - b.y0) / 2 * innerHeight];
+  const overlap = (b, r) => { const w = Math.min(b[2], r[2]) - Math.max(b[0], r[0]), h = Math.min(b[3], r[3]) - Math.max(b[1], r[1]); return w > 0 && h > 0 ? w * h : 0; };
+  /* точная проверка наложений: четырехугольник обрезается плоскостью перед камерой и проецируется на экран */
+  function screenPoly(quad, cam) {
+    const cs = quad.map((p) => p.clone().applyMatrix4(cam.matrixWorldInverse)), out = [];
+    for (let i = 0; i < cs.length; i++) {
+      const a = cs[i], b = cs[(i + 1) % cs.length], ain = a.z < -0.25, bin = b.z < -0.25;
+      if (ain) out.push(a);
+      if (ain !== bin) out.push(a.clone().lerp(b, (-0.25 - a.z) / (b.z - a.z)));
+    }
+    return out.map((c) => { c.applyMatrix4(cam.projectionMatrix); return [(c.x + 1) / 2 * innerWidth, (1 - c.y) / 2 * innerHeight]; });
+  }
+  function polyRect(poly, r) {
+    const clip = (pts, inside, cut) => { const o = []; for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length], ia = inside(a), ib = inside(b); if (ia) o.push(a); if (ia !== ib) o.push(cut(a, b)); } return o; };
+    const ix = (x) => (a, b) => [x, a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0])];
+    const iy = (y) => (a, b) => [a[0] + (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]), y];
+    let p = poly;
+    if (p.length < 3) return 0;
+    p = clip(p, (q) => q[0] >= r[0], ix(r[0])); if (p.length < 3) return 0;
+    p = clip(p, (q) => q[0] <= r[2], ix(r[2])); if (p.length < 3) return 0;
+    p = clip(p, (q) => q[1] >= r[1], iy(r[1])); if (p.length < 3) return 0;
+    p = clip(p, (q) => q[1] <= r[3], iy(r[3])); if (p.length < 3) return 0;
+    let s = 0;
+    for (let i = 0; i < p.length; i++) { const a = p[i], b = p[(i + 1) % p.length]; s += a[0] * b[1] - b[0] * a[1]; }
+    return Math.abs(s) / 2;
+  }
+  /* сколько пикселей снимков и табличек лежит под текстом и навигацией при таком положении камеры */
+  function badAt(P, d, ui, extra) {
+    tcam.position.copy(P); tcam.lookAt(tmp.copy(P).add(d)); tcam.updateMatrixWorld();
+    let bad = 0;
+    const test = (quad) => { const poly = screenPoly(quad, tcam); if (poly.length >= 3) ui.forEach((u) => { bad += polyRect(poly, u); }); };
+    ARTS.forEach((ar) => ar.quads.forEach(test));
+    if (extra) test(extra);
+    return bad;
+  }
+  /* если под текст попала работа (соседняя или дальняя за проемом), камера чуть доворачивается */
+  function clearShot(sh, st, extra) {
+    const ui = st.ui;
+    if (!ui || badAt(sh.p, sh.d, ui, extra) < 1) return sh;
+    const yaw0 = Math.atan2(-sh.d.x, -sh.d.z), pit0 = Math.asin(clamp(sh.d.y, -1, 1));
+    let best = null;
+    for (let dy = -16; dy <= 16; dy++) for (let dp = -12; dp <= 12; dp++) {
+      const a = yaw0 + rad(dy), b = pit0 + rad(dp);
+      const d = v3(-Math.sin(a) * Math.cos(b), Math.sin(b), -Math.cos(a) * Math.cos(b));
+      const score = badAt(sh.p, d, ui, extra) * 10 + Math.abs(dy) * 1.5 + Math.abs(dp) * 2;
+      if (!best || score < best.score) best = { score, d };
+    }
+    return { p: sh.p, d: best.d };
+  }
+
+  function artShot(a, fr, m) {
+    const al = rad(m ? (innerWidth > 640 ? 13 : 7) : 21), eye = m ? 1.5 : EYE, h = H[a.hall];
+    const posAt = (D) => v3(a.center.x + D * Math.cos(al), eye, clamp(a.center.z + D * Math.sin(al), h.z1 + 0.9, h.z0 - 0.7));
+    return fit(a.pts, a.center, posAt, fr, m ? 0.94 : 0.8, m ? 0.88 : 0.74, (fr.x0 + fr.x1) / 2, (fr.y0 + fr.y1) / 2, 6, 2.8, (2 * HW - 1.2) / Math.cos(al));
+  }
+  let numFree = null;
+  function numShot(k, fr0, m) {
+    const fr = numFree || fr0;
+    const xo = m ? 0 : 0.85, eye = m ? 1.5 : 1.62;
+    const fillX = m ? 0.9 : clamp(Math.max(0.56, 760 / ((fr.x1 - fr.x0) * innerWidth)), 0.56, 0.92);
+    const cx = (fr.x0 + fr.x1) / 2, cy = fr.y0 + (fr.y1 - fr.y0) * (m ? 0.4 : 0.34);
+    const box = (n) => { const hw = n.w * n.s / 2, hh = n.h * n.s; return [v3(-hw, 0, n.z), v3(hw, 0, n.z), v3(-hw, hh, n.z), v3(hw, hh, n.z)]; };
+    /* расстояние подбирается по самому широкому числу и держится для всех */
+    const wide = NUMS.reduce((a, b) => (b.w > a.w ? b : a));
+    const far = fit(box(wide), v3(0, wide.h * wide.s / 2, wide.z), (D) => v3(xo, eye, wide.z + D), fr, fillX, 0.6, cx, cy, 8, 4, 16);
+    const D = far.p.z - wide.z, n = NUMS[k];
+    return fit(box(n), v3(0, n.h * n.s / 2, n.z), () => v3(xo, eye, n.z + D), fr, 1, 1, cx, cy, D, D, D);
+  }
+  /* вступление зала: камера у входа ищет ракурс, где ряд работ и следующий проем видны и ничто не уходит под текст */
+  function introShot(hall, st, m) {
+    const h = H[hall];
+    const P = m ? v3(0.9, 1.5, h.z0 - 1.5) : v3(2.5, EYE, h.z0 - 1.8);
+    const door = [v3(-PX, 0, h.z1), v3(PX, 0, h.z1), v3(-PX, HH, h.z1), v3(PX, HH, h.z1)];
+    const ui = st.ui || [], vw = innerWidth, vh = innerHeight;
+    let best = null;
+    for (let yaw = m ? 0 : -44; yaw <= (m ? 34 : 48); yaw += 2) for (let pit = -15; pit <= 5; pit++) {
+      const a = rad(yaw), b = rad(pit);
+      const d = v3(-Math.sin(a) * Math.cos(b), Math.sin(b), -Math.cos(a) * Math.cos(b));
+      const T = tmp.copy(P).add(d);
+      const bad = badAt(P, d, ui);
+      let seen = 0;
+      ARTS.forEach((ar) => {
+        if (ar.hall !== hall) return;
+        const r = pxBox(ndcBox(ar.pts, P, T));
+        if (r[0] >= 0 && r[2] <= vw && r[1] >= 0 && r[3] <= vh) seen++;
+      });
+      const dr = pxBox(ndcBox(door, P, T));
+      let doorOk = dr[0] > 0 && dr[2] < vw && dr[1] > 0 ? 1 : 0;
+      if (doorOk) ui.forEach((u) => { if (overlap(dr, u)) doorOk = 0; });
+      const score = -bad * 2 + seen * 30 + doorOk * 26 - Math.abs(yaw - (m ? 14 : 27)) - Math.abs(pit - (m ? -6 : -3)) * 2.2;
+      if (!best || score > best.score) best = { score, d: d.clone() };
+    }
+    return { p: P, d: best.d };
+  }
+
+  function shot(st) {
+    const m = tallView(), [kind, arg] = st.key.split(':');
+    const fr = st.free || { x0: -0.85, x1: 0.85, y0: -0.4, y1: 0.8 };
+    let P, C, s, hall = 0, out = null;
+    if (kind === 'intro') { P = v3(0, 1.62, 40); C = v3(0, AP.y, END); s = [0, 0]; }
+    else if (kind === 'hero') { if (m) { P = v3(0, 1.45, 27); C = v3(0, 6.6, 0); s = [0, 0.4]; } else { P = v3(0, 1.6, 15); C = v3(0, 4.3, 0); s = [0.12, 0.08]; } }
+    else if (kind === 'about') { if (m) { P = v3(0, 1.5, 8.5); C = v3(0, 2.3, -6); s = [0, 0.5]; } else { P = v3(0.5, 1.6, 5.4); C = v3(0, 2.2, -12); s = [0.3, 0.02]; } }
+    else if (kind === 'hall' && +arg === 1) { hall = 1; const z = H[1].z0; if (m) { P = v3(0, 2.5, z - 3.0); C = v3(0, 0.5, z - NUM_FIRST - 5); s = [0, 0.22]; } else { P = v3(3.3, 3.5, z - 4.6); C = v3(0, 0.5, z - NUM_FIRST - 7); s = [0.08, 0.02]; } }
+    else if (kind === 'num') { hall = 1; const n = NUMS[+arg], hw = n.w * n.s / 2, hh = n.h * n.s; out = clearShot(numShot(+arg, fr, m), st, [v3(-hw, 0, n.z), v3(-hw, hh, n.z), v3(hw, hh, n.z), v3(hw, 0, n.z)]); }
+    else if (kind === 'hall') { hall = +arg; out = introShot(hall, st, m); }
+    else if (kind === 'art') {
+      const a = ART[arg], base = artShot(a, fr, m); hall = a.hall;
+      out = clearShot(base, st);
+      st.solo = st.ui && badAt(out.p, out.d, st.ui) >= 1 ? a.id : null;
+      if (st.solo) out = base;
+    }
+    else if (kind === 'portal') { const k = +arg; hall = k - 1; const f = H[k].front; if (m) { P = v3(0, 1.5, f + 13.8); C = v3(0, 4.2, f); s = [0, 0.4]; } else { P = v3(0.7, EYE, f + 12.2); C = v3(0, 3.7, f); s = [0.12, 0.14]; } }
+    else if (kind === 'edu') { hall = 5; const h = H[5]; if (m) { P = v3(0.4, 1.45, h.z0 - 1.3); C = v3(-0.4, 3.4, h.z0 - 9); s = [0, 0.36]; } else { P = v3(2.3, 1.5, h.z0 - 1.5); C = v3(-0.6, 3.0, h.z0 - 9.5); s = [0.3, 0.04]; } }
+    else if (kind === 'skills') { hall = 5; const h = H[5]; if (m) { P = v3(0, 1.45, h.z0 - 6.5); C = v3(0, 4.0, h.z1); s = [0, 0.4]; } else { P = v3(1.4, 1.5, h.z0 - 7); C = v3(-1.0, 3.6, h.z1 + 1); s = [0.3, 0.06]; } }
+    else if (kind === 'photo') { hall = 6; const h = H[6]; if (m) { P = v3(-2.6, 1.5, h.z0 - 7); C = v3(1.8, 0.8, BZ); s = [0, 0.36]; } else { P = v3(-2.4, EYE, h.z0 - 6.2); C = v3(1.35, 1.3, h.z0 - 15.5); s = [0, 0.08]; } }
+    else if (kind === 'finale') { hall = 7; if (m) { P = v3(0, 1.45, END + 13); C = v3(0, AP.y, END); s = [0, 0.42]; } else { P = v3(-1.6, EYE, END + 10.5); C = v3(0, AP.y, END); s = st.aim || [0.34, 0.1]; } }
+    if (!out) { const T = aimAt(P, C, s[0], s[1]); out = clearShot({ p: P, d: T.sub(P).normalize() }, st); }
+    out.hall = hall;
+    return out;
+  }
+
+  /* маршрут камеры: кадры остановок и проходы точно через проемы */
+  let path = null;
+  function setStops(stops) {
+    const P = [], D = [];
+    const ahead = v3(0, 0.02, -1).normalize();
+    const pushWay = (p) => { const last = P[P.length - 1]; if (last && last.distanceTo(p) < 0.8) return; P.push(p); D.push(ahead.clone()); };
+    let prev = null;
+    const nf = stops.filter((s) => s.key.startsWith('num:') && s.free).map((s) => s.free);
+    numFree = nf.length ? { x0: Math.max(...nf.map((f) => f.x0)), x1: Math.min(...nf.map((f) => f.x1)), y0: Math.max(...nf.map((f) => f.y0)), y1: Math.min(...nf.map((f) => f.y1)) } : null;
+    const shots = stops.map((st) => shot(st));
+    /* обзор зала цифр всегда ближе ко входу, чем кадр первого числа: камера не отступает назад */
+    const i1 = stops.findIndex((s) => s.key === 'hall:1'), i0 = stops.findIndex((s) => s.key === 'num:0');
+    if (i1 >= 0 && i0 >= 0 && shots[i1].p.z < shots[i0].p.z + 0.4) shots[i1].p.z = Math.min(shots[i0].p.z + 0.4, H[1].z0 - 0.9);
+    stops.forEach((st, si) => {
+      const sh = shots[si];
+      if (prev !== null && sh.hall > prev) {
+        for (let k = prev + 1; k <= sh.hall; k++) {
+          pushWay(v3(0, EYE, H[k].front + 1.8));
+          const b = v3(0, EYE, H[k].z0 - 0.4);
+          if (k < sh.hall || b.distanceTo(sh.p) > 0.8) pushWay(b);
+        }
+      }
+      if (P.length && sh.p.z > P[P.length - 1].z + 0.05 && QS.has('debug')) console.warn('камера отступает назад у остановки', st.key, (sh.p.z - P[P.length - 1].z).toFixed(2));
+      st.ci = P.length; P.push(sh.p); D.push(sh.d); prev = sh.hall;
+    });
+    if (P.length < 2) { P.push(P[0].clone().add(v3(0, 0, -0.01))); D.push(D[0].clone()); }
+    path = { stops, n: P.length, pos: new THREE.CatmullRomCurve3(P, false, 'centripetal'), dir: new THREE.CatmullRomCurve3(D, false, 'centripetal') };
+    iHall1 = Math.max(1, stops.findIndex((s) => s.key === 'hall:1'));
+    iNum0 = Math.max(2, stops.findIndex((s) => s.key === 'num:0'));
+  }
+  const paramAt = (sf) => { const st = path.stops, i = clamp(Math.floor(sf), 0, st.length - 1), j = Math.min(i + 1, st.length - 1); return st[i].ci + (st[j].ci - st[i].ci) * (sf - i); };
+
+  /* ——— раскладка под экран ——— */
+  let reflRT = null, blurRT = null;
+  const makeRT = (w, h) => { const rt = new THREE.WebGLRenderTarget(w, h, { minFilter: THREE.LinearMipmapLinearFilter, magFilter: THREE.LinearFilter, generateMipmaps: true, stencilBuffer: false }); rt.texture.encoding = renderer.outputEncoding; return rt; };
+  function targets(w, h) {
+    [reflRT, blurRT].forEach((rt) => rt && rt.dispose());
+    reflRT = blurRT = null;
+    const k = Math.min(1, 1100 / (w * Q.pr)) * Q.pr * 0.5;
+    if (Q.refl) reflRT = makeRT(Math.max(2, Math.round(w * k)), Math.max(2, Math.round(h * k)));
+    if (Q.dof) blurRT = makeRT(Math.max(2, Math.round(w * k)), Math.max(2, Math.round(h * k)));
+    U.uRefl.value = reflRT ? reflRT.texture : null;
+    if (reflRT) U.uReflPx.value.set(1 / reflRT.width, 1 / reflRT.height);
+  }
+  function layout() {
+    const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+    renderer.setPixelRatio(Q.pr);
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.fov = camera.aspect < 0.85 ? 50 : 42;
+    camera.updateProjectionMatrix();
+    [tcam, vcam].forEach((c) => { c.fov = camera.fov; c.aspect = camera.aspect; c.updateProjectionMatrix(); });
+    targets(w, h);
+    dustMat.uniforms.uPx.value = h * Q.pr / 900;
+    const tall = camera.aspect < 0.95;
+    insc.wide.visible = !tall; insc.tall.visible = tall;
+    if (tall) { neon.scale.set(6.4, 1.6, 1); neon.position.set(0.55, 5.7, 0.32); neon.rotation.z = 0.05; }
+    else { neon.scale.set(6.4, 1.6, 1); neon.position.set(2.75, 6.12, 0.32); neon.rotation.z = 0.035; }
+    const s = tallView() ? 0.62 : 1;
+    NUMS.forEach((n) => { n.s = s; n.mesh.scale.setScalar(s); n.th = -1; });
+    shadowDirty = true;
+  }
+
+  /* ——— состояние камеры и сцены ——— */
+  const cam = { p: v3(0, 1.62, 40), d: v3(0, 0, -1) };
+  const want = { p: v3(), d: v3() };
+  const intro = { k: REDUCED ? 1 : 0, p: v3(0, 1.62, 40), d: v3(0, 0, -1) };
+  const focus = { k: 0, p: v3(), d: v3() };
+  const LIGHT = { k: REDUCED ? 1 : 0 };
+  const GLOW = { k: REDUCED ? 1 : 0, next: 14 };
+  const DIM = { k: 0 };
+  const sunAz = { v: 0 };
+  const lights = { act: 0 };
+  let spotArt = null, hoverArt = null, focusArt = null, pickArt = null, pickDoor = 0, ready = false, activeKey = null;
+  const mouse = { x: 0, y: 0 }, par = { x: 0, y: 0 }, ptr = new THREE.Vector2(9, 9);
+  let ptrDirty = false, snapNext = true, sNow = 0, darkNow = 0, frozen = null, focusMode = false;
+  const raycaster = new THREE.Raycaster();
+  const look = v3(), Lnow = v3(), Llast = v3(9, 9, 9), airNow = new THREE.Color(), rgt = v3();
+  const hallOf = (z) => { for (let k = H.length - 1; k >= 1; k--) if (z < H[k].front + 0.4) return k; return 0; };
+
+  function aimSpot(a) {
+    if (!a || spotArt === a.id) return;
+    spotArt = a.id;
+    spot.position.set(a.center.x + 3.6, HH - 0.5, a.center.z + 1.8);
+    spot.target.position.copy(a.center);
+    spot.target.updateMatrixWorld();
+  }
+  function pickNow() {
+    raycaster.setFromCamera(ptr, camera);
+    const hit = raycaster.intersectObjects(photos, false)[0];
+    pickArt = hit && hit.distance < 30 ? hit.object.userData.art : null;
+    pickDoor = 0;
+    if (!pickArt) {
+      const next = hallOf(camera.position.z) + 1, d = doors.find((x) => x.k === next);
+      if (d && raycaster.intersectObject(d.hit, false).length) pickDoor = next;
+    }
+  }
+
+  /* расфокус в режиме проекта: размытый зал рисуется поверх кадра, работа остается резкой */
+  const quadScene = new THREE.Scene(), quadCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const quadMat = new THREE.ShaderMaterial({
+    uniforms: { t: { value: null }, uK: { value: 0 }, uPx: { value: new THREE.Vector2(1, 1) } },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+    fragmentShader: `uniform sampler2D t; uniform float uK; uniform vec2 uPx; varying vec2 vUv;
+void main(){ float b = 0.6 + 2.2 * uK; vec2 o = uPx * (1.0 + 3.0 * uK);
+  vec3 c = texture2D(t, vUv + o * vec2(1.0, 0.4), b).rgb + texture2D(t, vUv + o * vec2(-0.4, 1.0), b).rgb + texture2D(t, vUv + o * vec2(-1.0, -0.4), b).rgb + texture2D(t, vUv + o * vec2(0.4, -1.0), b).rgb;
+  gl_FragColor = vec4(c * 0.25 * (1.0 - 0.22 * uK), smoothstep(0.0, 0.55, uK)); }`,
+    transparent: true, depthTest: false, depthWrite: false
+  });
+  quadScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), quadMat));
+  function solo(group, fn) {
+    const saved = [];
+    scene.children.forEach((c) => { if (c.isLight || c === group || c === sun.target || c === spot.target) return; saved.push([c, c.visible]); c.visible = false; });
+    group.children.forEach((c) => { if (!c.userData.sharp) { saved.push([c, c.visible]); c.visible = false; } });
+    const bg = scene.background; scene.background = null;
+    fn();
+    scene.background = bg; saved.forEach(([c, v]) => { c.visible = v; });
+  }
+
+  /* слежение за частотой кадров: сначала отключаются отражения и расфокус, потом снижается плотность пикселей */
+  const gov = { acc: 0, n: 0, bad: 0, lvl: 0 };
+  function govern(dt) {
+    if (!Q.auto || !ready || document.hidden || dt > 0.25) return;
+    gov.acc += dt; gov.n++;
+    if (gov.acc < 1.6 || gov.n < 8) return;
+    const avg = gov.acc / gov.n; gov.acc = gov.n = 0;
+    if (avg < 0.036) { gov.bad = 0; return; }
+    if (++gov.bad < 2 && avg < 0.07) return;
+    gov.bad = 0; gov.lvl++;
+    if (gov.lvl === 1 && (Q.refl || Q.dof)) { Q.refl = Q.dof = false; }
+    else if (Q.pr > 0.8) { Q.pr = Math.max(0.75, Q.pr * 0.8); }
+    else { Q.auto = false; return; }
+    layout();
+  }
+
+  function render(dt, rawDt, t, sTarget) {
+    if (!path) return;
+    govern(rawDt);
+    /* камера идет строго по маршруту, отставая от прокрутки на долю секунды */
+    const jump = snapNext || REDUCED;
+    if (jump) { sNow = sTarget; snapNext = false; } else sNow += (sTarget - sNow) * (1 - Math.exp(-dt * 4.4));
+    const u = path.n > 1 ? paramAt(sNow) / (path.n - 1) : 0;
+    path.pos.getPoint(u, want.p); path.dir.getPoint(u, want.d).normalize();
+    if (intro.k < 1) { want.p.lerpVectors(intro.p, want.p, intro.k); want.d.lerpVectors(intro.d, want.d, intro.k).normalize(); }
+    if (focus.k > 0) { want.p.lerp(focus.p, focus.k); want.d.lerp(focus.d, focus.k).normalize(); }
+    cam.p.copy(want.p); cam.d.copy(want.d);
+    if (!REDUCED) { par.x += (mouse.x - par.x) * 0.05; par.y += (mouse.y - par.y) * 0.05; }
+    const right = rgt.crossVectors(cam.d, UP).normalize();
+    const breathe = REDUCED ? 0 : Math.sin(t * 0.33) * 0.035;
+    const pk = 1 - focus.k * 0.7;
+    camera.position.copy(cam.p).addScaledVector(right, par.x * 0.22 * pk).addScaledVector(UP, (-par.y * 0.12) * pk + breathe);
+    look.copy(cam.p).addScaledVector(cam.d, 10).addScaledVector(right, par.x * 0.1 * pk).addScaledVector(UP, -par.y * 0.05 * pk);
+    camera.lookAt(look);
+    if (frozen) { camera.position.copy(frozen.p); look.copy(frozen.t); camera.lookAt(look); }
+    const near = Math.round(sNow);
+    const nearStop = path.stops[clamp(near, 0, path.stops.length - 1)];
+    activeKey = Math.abs(sNow - near) < 0.3 ? nearStop.key : null;
+    const soloArt = Math.abs(sNow - near) < 0.45 && nearStop.solo ? nearStop.solo : null;
+    numLevels(sNow);
+
+    /* свет по времени суток */
+    const z = camera.position.z, hallNow = hallOf(z);
+    darkNow = darkAt(z);
+    sunAt(clamp((15 - z) / (15 - (END + 6)), 0, 1));
+    const k = LIGHT.k, d = DIM.k;
+    sun.color.copy(SUN.sc); sun.intensity = SUN.si * k * (1 - 0.72 * d);
+    hemi.color.copy(SUN.hs); hemi.groundColor.copy(SUN.hg); hemi.intensity = SUN.hi * (0.15 + 0.85 * k) * (1 - 0.5 * d);
+    airNow.copy(VOID).lerp(SUN.air, k).lerp(DARK, 0.3 * d);
+    scene.background.copy(airNow); scene.fog.color.copy(airNow);
+    sunDir(SUN.el, SUN.az + sunAz.v, Lnow);
+    if (Lnow.distanceToSquared(Llast) > 1e-8) { fitShadow(Lnow); buildRays(Lnow); Llast.copy(Lnow); dustMat.uniforms.uL.value.copy(Lnow); }
+    rayMat.uniforms.uK.value = (0.1 + 0.05 * darkNow) * k * (1 - 0.8 * d);
+    dustMat.uniforms.uK.value = 0.5 * k * (1 - 0.7 * d); dustMat.uniforms.uT.value = REDUCED ? 0 : t;
+    U.uTubeK.value = 1.25 * (0.2 + 0.8 * k) * (1 - 0.45 * d);
+    if (shadowDirty) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
+    redL.intensity = 2.6 * k * smooth(END + 40, END + 8, z);
+    /* круг дышит, неон изредка вздрагивает */
+    glow.material.opacity = GLOW.k * (REDUCED ? 1 : 0.92 + 0.08 * Math.sin(t * 0.9));
+    if (!REDUCED && ready && t > GLOW.next) {
+      GLOW.next = t + 9 + Math.random() * 12;
+      if (z > -4 && intro.k >= 1) { const o = neonMat.uniforms.uOn; gsap.timeline().to(o, { value: 0.45, duration: 0.05 }).to(o, { value: 1, duration: 0.06 }).to(o, { value: 0.7, duration: 0.05, delay: 0.1 }).to(o, { value: 1, duration: 0.16 }); }
+    }
+    videoState(ready && !document.hidden && (hallNow === DARK_HALL || (hallNow === DARK_HALL - 1 && z < H[DARK_HALL].front + 9)));
+
+    /* экспонаты: активный светлее, в режиме просмотра остальные гаснут; проем под курсором светится */
+    const actArt = activeKey && activeKey.startsWith('art:') ? ART[activeKey.slice(4)] : null;
+    if (ptrDirty && ready && !focusArt) {
+      ptrDirty = false; pickNow();
+      canvas.style.cursor = (pickArt && ART[pickArt].caseId) || pickDoor ? 'pointer' : '';
+    }
+    const lit = focusArt || hoverArt || pickArt || (actArt && actArt.id);
+    if (lit) aimSpot(ART[lit]);
+    const spotGoal = focusArt ? 2.8 : (hoverArt || pickArt) ? 1.6 : actArt ? 0.9 : 0;
+    lights.act += (spotGoal - lights.act) * (1 - Math.exp(-dt * 3));
+    spot.intensity = lights.act * k;
+    ARTS.forEach((ar) => {
+      const goal = ar.id === focusArt ? 1 : (ar.id === lit ? 1 : 0.92) * (1 - 0.58 * d);
+      ar.glow += (goal - ar.glow) * (1 - Math.exp(-dt * 4));
+      ar.mat.emissiveIntensity = 0.8 * ar.glow; ar.mat.color.setScalar(0.28 * ar.glow);
+      /* в режиме проекта соседние работы уходят в стену, в зале остается одна */
+      const fg = (focusMode && ar.id !== focusArt) || (soloArt && ar.id !== soloArt) ? 0 : 1;
+      if (Math.abs(fg - ar.fade) > 0.002) {
+        ar.fade = jump ? fg : ar.fade + (fg - ar.fade) * (1 - Math.exp(-dt * 3.4));
+        if (Math.abs(fg - ar.fade) <= 0.002) ar.fade = fg;
+        ar.group.position.x = -HW - 0.15 * (1 - ar.fade); ar.group.visible = ar.fade > 0.04;
+      }
+    });
+    doors.forEach((dr) => {
+      const goal = dr.k === pickDoor && !focusArt ? 0.34 : 0;
+      dr.v += (goal - dr.v) * (1 - Math.exp(-dt * 6));
+      dr.lit.visible = dr.v > 0.004; dr.lit.material.opacity = dr.v * k;
+    });
+
+    /* отражения в полированном полу */
+    if (reflRT && Q.refl && k > 0.03) {
+      vcam.position.set(camera.position.x, -camera.position.y, camera.position.z);
+      vcam.up.set(0, 1, 0);
+      vcam.lookAt(look.x, -look.y, look.z);
+      vcam.updateMatrixWorld();
+      U.uReflMat.value.set(0.5, 0, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0.5, 0, 0, 0, 1).multiply(vcam.projectionMatrix).multiply(vcam.matrixWorldInverse);
+      floor.visible = false; dust.visible = false;
+      renderer.setRenderTarget(reflRT); renderer.render(scene, vcam); renderer.setRenderTarget(null);
+      floor.visible = true; dust.visible = true;
+      U.uReflK.value = k;
+    } else U.uReflK.value = 0;
+
+    renderer.render(scene, camera);
+
+    if (blurRT && Q.dof && focusArt && focus.k > 0.02) {
+      renderer.setRenderTarget(blurRT); renderer.render(scene, camera); renderer.setRenderTarget(null);
+      quadMat.uniforms.t.value = blurRT.texture; quadMat.uniforms.uK.value = focus.k;
+      quadMat.uniforms.uPx.value.set(1 / blurRT.width, 1 / blurRT.height);
+      renderer.autoClear = false;
+      renderer.render(quadScene, quadCam);
+      renderer.clearDepth();
+      solo(ART[focusArt].group, () => renderer.render(scene, camera));
+      renderer.autoClear = true;
+    }
+  }
+
+  /* ——— просмотр проекта: работа целиком встает слева от панели ——— */
+  function focusShot(id) {
+    const a = ART[id];
+    if (!a || Math.abs(a.center.z - cam.p.z) > 30) return null;
+    if (M()) return artShot(a, { x0: -0.9, x1: 0.9, y0: -0.2, y1: 0.75 }, tallView());
+    const vw = innerWidth, vh = innerHeight, dw = Math.min(vw * 0.46, 760);
+    const fr = { x0: 48 / vw * 2 - 1, x1: (vw - dw - 44) / vw * 2 - 1, y0: 1 - (vh - 44) / vh * 2, y1: 1 - 84 / vh * 2 };
+    const al = rad(11), h = H[a.hall];
+    const posAt = (D) => v3(a.center.x + D * Math.cos(al), a.center.y - 0.35, clamp(a.center.z + D * Math.sin(al), h.z1 + 0.9, h.z0 - 0.7));
+    return fit(a.pts, a.center, posAt, fr, 0.9, 0.82, (fr.x0 + fr.x1) / 2, (fr.y0 + fr.y1) / 2, 5, 2.4, 9.5);
+  }
+  function setFocus(id) {
+    const s = id ? focusShot(id) : null;
+    focusArt = s ? id : null; focusMode = true;
+    if (s) { focus.p.copy(s.p); focus.d.copy(s.d); }
+    else { focus.p.copy(cam.p).addScaledVector(cam.d, 2.2); focus.d.copy(cam.d); }
+    gsap.to(focus, { k: 1, duration: REDUCED ? 0 : 1.9, ease: 'power3.inOut', overwrite: true });
+    gsap.to(DIM, { k: 1, duration: REDUCED ? 0 : 1.4, ease: 'power2.inOut', overwrite: true });
+    return !!s;
+  }
+  function clearFocus() {
+    if (videoEl) videoEl.muted = true;
+    focusMode = false;
+    gsap.to(focus, { k: 0, duration: REDUCED ? 0 : 1.7, ease: 'power3.inOut', overwrite: true, onComplete: () => { focusArt = null; } });
+    gsap.to(DIM, { k: 0, duration: REDUCED ? 0 : 1.4, ease: 'power2.inOut', overwrite: true });
+  }
+
+  /* ——— открывающий титр ——— */
+  function playIntro(onUI, onDone) {
+    const s = shot({ key: 'intro' }); intro.p.copy(s.p); intro.d.copy(s.d); cam.p.copy(s.p); cam.d.copy(s.d);
+    LIGHT.k = 0; sunAz.v = -9; U.uWave.value = END - 40; neonMat.uniforms.uReveal.value = 0;
+    const flicker = () => { if (REDUCED) return; const o = neonMat.uniforms.uOn; gsap.timeline().to(o, { value: 0.3, duration: 0.05 }).to(o, { value: 1, duration: 0.05 }).to(o, { value: 0.55, duration: 0.07, delay: 0.14 }).to(o, { value: 1, duration: 0.12 }); };
+    const tl = gsap.timeline({ onComplete: onDone });
+    tl.to(disc.material, { opacity: 1, duration: 1.4, ease: 'power2.out' }, 0.35)
+      .to(GLOW, { k: 1, duration: 2.2, ease: 'power2.out' }, 0.7)
+      .to(U.uWave, { value: 70, duration: 3.6, ease: 'power2.inOut' }, 1.2)
+      .to(LIGHT, { k: 1, duration: 3.3, ease: 'power2.inOut' }, 1.35)
+      .to(intro, { k: 1, duration: 5.6, ease: 'power3.inOut' }, 0.5)
+      .to(sunAz, { v: 0, duration: 3.4, ease: 'power2.out' }, 2.3)
+      .to(neonMat.uniforms.uReveal, { value: 1.05, duration: 2.1, ease: 'power1.inOut' }, 3.6)
+      .add(flicker, 5.75)
+      .add(onUI, 4.9)
+      .add(loadArts, 2.0);
+    return tl;
+  }
+  function finishIntro() {
+    intro.k = 1; LIGHT.k = 1; sunAz.v = 0; U.uWave.value = 1e4;
+    disc.material.opacity = 1; GLOW.k = 1; neonMat.uniforms.uReveal.value = 1.05; neonMat.uniforms.uOn.value = 1;
+    loadArts(); ready = true;
+  }
+
+  const proj = v3();
+  return {
+    H, END, Q,
+    layout, setStops, render, setFocus, clearFocus, playIntro, finishIntro,
+    setReady: () => { ready = true; },
+    snap: () => { snapNext = true; },
+    hover: (id) => { hoverArt = id && ART[id] ? id : null; },
+    pointer: (x, y) => { mouse.x = x * 0.5; mouse.y = -y * 0.5; ptr.set(x, y); ptrDirty = true; },
+    /* что под курсором или пальцем: экспонат с проектом или проем в следующий зал */
+    pickAt: (x, y) => { ptr.set(x, y); pickNow(); return { art: pickArt && ART[pickArt].caseId ? pickArt : null, door: pickDoor }; },
+    sound: (on) => { if (!videoEl) return false; videoEl.muted = !on; if (on && videoEl.paused) { const p = videoEl.play(); if (p && p.catch) p.catch(() => {}); } return !videoEl.muted; },
+    hasVideo: () => !!(videoEl && VA.playing),
+    camZ: () => camera.position.z,
+    hall: () => hallOf(camera.position.z),
+    dark: () => darkNow,
+    finaleK: () => smooth(END + 24, END + 13.6, camera.position.z) * (1 - focus.k),
+    aperture: () => {
+      proj.set(0, AP.y, END).project(camera);
+      const x = (proj.x + 1) / 2 * innerWidth, y = (1 - proj.y) / 2 * innerHeight;
+      proj.set(AP.r, AP.y, END).project(camera);
+      return { x, y, r: Math.abs((proj.x + 1) / 2 * innerWidth - x) };
+    },
+    freeze: (p, t) => { frozen = p ? { p: v3(...p), t: v3(...t) } : null; },
+    /* для проверки: сколько пикселей каждого снимка и таблички лежит под заданными прямоугольниками интерфейса */
+    overlaps: (rects) => {
+      camera.updateMatrixWorld();
+      const out = [];
+      ARTS.forEach((a) => { if (a.fade < 0.05) return; a.quads.forEach((quad, qi) => { const poly = screenPoly(quad, camera); if (poly.length < 3) return; rects.forEach((u) => { const ar = polyRect(poly, u.r); if (ar > 6) out.push(`${a.id}${qi ? ' (табличка)' : ''} под «${u.name}» ${Math.round(ar)} px²`); }); }); });
+      return out;
+    },
+    state: () => ({ s: sNow, key: activeKey, hall: hallOf(camera.position.z), refl: !!(reflRT && Q.refl), pr: Q.pr, cam: camera.position.toArray().map((v) => +v.toFixed(2)) })
+  };
+}
+
+/* ——— запуск ——— */
+const canvas = $('#scene'), track = $('#track'), dock = $('#dock'), veil = $('#veil'), root = document.documentElement;
+let S = null, drawerOpen = false;
+
+/* остановки камеры: каждая панель с data-stop держит свой кадр, порядок как в разметке */
+const STOPS = $$('[data-stop]').map((el) => { const sec = el.closest('section').id; return { key: el.dataset.stop, el, sec, hall: SECTIONS.indexOf(sec), y: 0, ci: 0 }; });
+const LAST = STOPS.length - 1;
+const HALL_FIRST = SECTIONS.map((_, h) => STOPS.findIndex((s) => s.hall === h));
+const HALL_LAST = SECTIONS.map((_, h) => { let n = -1; STOPS.forEach((s, i) => { if (s.hall === h) n = i; }); return n; });
+const isNum = (s) => s.key.startsWith('num:');
+/* длина отрезка прокрутки между остановками в высотах экрана: переход в зал длиннее, шаг между цифрами короче */
+const segLen = (a, b) => (a.hall !== b.hall ? 1.05 : isNum(a) && isNum(b) ? 0.5 : 0.76);
+const ease = (t) => { const x = clamp((t - 0.12) / 0.74, 0, 1); return x * x * x * (x * (x * 6 - 15) + 10); };
+
+const dkPrev = $('#dkPrev'), dkNext = $('#dkNext'), dkCount = $('#dkCount'), dkName = $('#dkName'), dkTicks = $('#dkTicks'), dkNextLabel = $('#dkNextLabel'), dkNextHint = $('#dkNextHint');
+
+/* свободная часть экрана для каждой остановки: по ней сцена ставит работу так, чтобы текст ее не закрывал */
+function measure() {
+  const vw = innerWidth, vh = innerHeight, m = M(), hdr = m ? 62 : 72;
+  document.body.classList.add('measure');
+  const keep = [dkNextLabel.textContent, dkNextHint.hidden, dkName.textContent];
+  dkNextLabel.textContent = 'FAVORIT MOTORS'; dkNextHint.hidden = false; dkName.textContent = 'FAVORIT MOTORS';
+  const dk = dock.getBoundingClientRect();
+  [dkNextLabel.textContent, dkNextHint.hidden, dkName.textContent] = keep;
+  if (!m) root.style.setProperty('--dock-w', `${Math.ceil(dk.width)}px`);
+  STOPS.forEach((s) => {
+    const r = s.el.getBoundingClientRect();
+    s.box = [r.left, r.top, r.right, r.bottom];
+    s.ui = [[r.left - 12, r.top - 12, r.right + 12, r.bottom + 12], [dk.left - 10, dk.top - 10, dk.right + 10, dk.bottom + 10], [0, 0, vw, hdr - 10]];
+    /* панель во всю ширину (телефон, планшет стоя): сцена над ней; невысокая этикетка: сцена над ней; высокая карточка: сцена справа */
+    const sheet = r.width > vw * 0.62;
+    const above = sheet ? [12, hdr, vw - 12, r.top - 14] : [r.left, hdr, vw - r.left, r.top - 22];
+    const right = [r.right + (m ? 16 : 32), hdr, vw - r.left, Math.min(dk.top, vh - 20) - (m ? 12 : 26)];
+    const area = (q) => Math.max(0, q[2] - q[0]) * Math.max(0, q[3] - q[1]);
+    let f = sheet || (r.height <= vh * 0.38 && area(above) >= area(right) * 0.8) ? above : right;
+    if (s.key === 'finale' && !sheet) {
+      /* финал: портрет встает справа от карточки в полный рост, красный круг приходится на уровень головы */
+      const x0 = r.right + 28, x1 = vw - r.left, hp = Math.min((x1 - x0) * 1393 / 900, vh * 0.76);
+      s.port = { hp };
+      s.aim = [(x0 + x1) / vw - 1, 1 - (vh - 0.72 * hp) / vh * 2];
+    } else { s.aim = null; s.port = null; }
+    s.free = { x0: f[0] / vw * 2 - 1, x1: f[2] / vw * 2 - 1, y0: 1 - f[3] / vh * 2, y1: 1 - f[1] / vh * 2 };
+  });
+  document.body.classList.remove('measure');
+  const sig = `${vw}x${vh}|${Math.round(dk.left)},${Math.round(dk.top)}|` + STOPS.map((s) => s.box.map(Math.round).join(',')).join('|');
+  const changed = sig !== measure.sig;
+  measure.sig = sig;
+  return changed;
+}
+function layoutStops() {
+  const vh = innerHeight;
+  let y = 0;
+  STOPS.forEach((s, i) => { if (i) y += Math.round(segLen(STOPS[i - 1], s) * vh); s.y = y; });
+  track.style.height = `${y + vh}px`;
+  measure();
+  if (S) S.setStops(STOPS);
+  planMetrics();
+}
+/* шрифты и стили догружаются, размеры панелей меняются: кадры пересчитываются */
+if ('ResizeObserver' in window) {
+  let ro = 0;
+  const obs = new ResizeObserver(() => { clearTimeout(ro); ro = setTimeout(() => { if (measure() && S) S.setStops(STOPS); planMetrics(); }, 90); });
+  STOPS.forEach((s) => obs.observe(s.el)); obs.observe(dock);
+}
+function scrollState(y) {
+  if (y <= 0) return { i: 0, t: 0 };
+  for (let i = 0; i < LAST; i++) { const b = STOPS[i + 1].y; if (y < b) return { i, t: (y - STOPS[i].y) / Math.max(1, b - STOPS[i].y) }; }
+  return { i: LAST, t: 0 };
+}
+const nearest = () => { const { i, t } = scrollState(scrollY); return t < 0.5 ? i : Math.min(LAST, i + 1); };
+
+/* ——— переходы: кнопки, клавиши, план, мягкая доводка до кадра ——— */
+let glideTween = null, navIdx = -1, idleT = 0, lastY = 0, dir = 1, touching = false, pressing = false;
+function stopGlide() { if (glideTween) { glideTween.kill(); glideTween = null; } }
+function glide(y, dur) {
+  stopGlide(); clearTimeout(idleT);
+  const from = scrollY, dist = Math.abs(y - from);
+  if (dist < 1) { navIdx = -1; return; }
+  if (REDUCED) { scrollTo(0, y); navIdx = -1; return; }
+  const o = { v: from };
+  glideTween = gsap.to(o, { v: y, duration: dur || clamp(0.5 + dist / innerHeight * 0.42, 0.65, 1.5), ease: 'power2.inOut', onUpdate: () => scrollTo(0, o.v), onComplete: () => { glideTween = null; navIdx = -1; } });
+}
+/* дальний переход идет через короткий наплыв, а не полетом сквозь все залы */
+function dissolveTo(y) {
+  stopGlide(); clearTimeout(idleT);
+  veil.classList.add('on');
+  setTimeout(() => { scrollTo(0, y); if (S) S.snap(); navIdx = -1; setTimeout(() => veil.classList.remove('on'), 120); }, 350);
+}
+function goStop(n) {
+  n = clamp(n, 0, LAST);
+  const from = nearest();
+  navIdx = n;
+  if (!REDUCED && (Math.abs(n - from) > 3 || Math.abs(STOPS[n].hall - STOPS[from].hall) > 1)) dissolveTo(STOPS[n].y);
+  else glide(STOPS[n].y);
+}
+const navBase = () => (navIdx >= 0 ? navIdx : nearest());
+const step = (d) => goStop(navBase() + d);
+const goHall = (h) => goStop(HALL_FIRST[clamp(h, 0, SECTIONS.length - 1)]);
+function stepHall(d) {
+  const n = navBase(), h = STOPS[n].hall;
+  if (d < 0 && n > HALL_FIRST[h]) goHall(h); else if (h + d >= 0 && h + d < SECTIONS.length) goHall(h + d); else goStop(d > 0 ? LAST : 0);
+}
+function go(id) {
+  const h = SECTIONS.indexOf(id);
+  if (h < 0) return;
+  if (S) goHall(h); else { const el = $(`#${id} .panel`); if (el) el.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' }); }      /* без WebGL это обычная страница */
+}
+/* прокрутка не останавливается между кадрами: после паузы страница сама доезжает до остановки по ходу движения */
+function settle() {
+  if (glideTween || touching || pressing || drawerOpen || !S || window.__HOLD || document.body.classList.contains('intro')) return;
+  const { i, t } = scrollState(scrollY);
+  if (i >= LAST || t < 0.003) return;
+  const n = dir > 0 ? (t > 0.05 ? i + 1 : i) : (t < 0.95 ? i : i + 1);
+  glide(STOPS[n].y, clamp(0.42 + Math.abs(STOPS[n].y - scrollY) / innerHeight * 0.55, 0.5, 1.1));
+}
+addEventListener('scroll', () => {
+  const y = scrollY;
+  if (!glideTween) { if (y !== lastY) dir = y > lastY ? 1 : -1; clearTimeout(idleT); idleT = setTimeout(settle, 170); }
+  lastY = y;
+}, { passive: true });
+const userTook = () => { if (glideTween) { stopGlide(); navIdx = -1; clearTimeout(idleT); idleT = setTimeout(settle, 260); } };
+addEventListener('wheel', userTook, { passive: true });
+addEventListener('touchstart', () => { touching = true; userTook(); }, { passive: true });
+['touchend', 'touchcancel'].forEach((ev) => addEventListener(ev, () => { touching = false; clearTimeout(idleT); idleT = setTimeout(settle, 220); }, { passive: true }));
+addEventListener('mousedown', (e) => { if (e.clientX >= root.clientWidth) { pressing = true; userTook(); } });
+addEventListener('mouseup', () => { if (pressing) { pressing = false; clearTimeout(idleT); idleT = setTimeout(settle, 200); } });
+
+dkPrev.addEventListener('click', () => step(-1));
+dkNext.addEventListener('click', () => { if (navBase() >= LAST) goStop(0); else step(1); });
+
+/* меню, ссылки и план */
+const menu = $('#menu'), menuBtn = $('#menuBtn');
+function closeMenu() { if (menu.hidden) return; menu.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); menuBtn.textContent = 'Меню'; }
+menuBtn.addEventListener('click', () => { const open = menu.hidden; menu.hidden = !open; menuBtn.setAttribute('aria-expanded', String(open)); menuBtn.textContent = open ? 'Закрыть' : 'Меню'; });
+$$('[data-go]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); closeMenu(); go(a.getAttribute('href').slice(1)); }));
+const hallLinks = $$('[data-hall]'), planLinks = $$('.plan [data-hall]'), planYou = $('.plan .you');
+let planBox = [];
+function planMetrics() { const o = $('.plan').getBoundingClientRect(); planBox = planLinks.map((c) => { const r = c.getBoundingClientRect(); return [r.left - o.left, r.width]; }); }
+
+function updateDock(n) {
+  const h = STOPS[n].hall, first = HALL_FIRST[h], count = HALL_LAST[h] - first + 1;
+  if (dkName.textContent !== HALL_NAMES[h]) { [dkName, dkCount].forEach((el) => { el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip'); }); }      /* вход в зал отмечается в панели */
+  dkCount.textContent = `${two(h + 1)} / ${two(SECTIONS.length)}`;
+  dkName.textContent = HALL_NAMES[h];
+  if (dkTicks.childElementCount !== count) dkTicks.innerHTML = '<i></i>'.repeat(count);
+  Array.from(dkTicks.children).forEach((el, j) => { el.className = j === n - first ? 'on' : j < n - first ? 'was' : ''; });
+  dkTicks.style.visibility = count > 1 ? 'visible' : 'hidden';
+  dkPrev.disabled = n === 0;
+  const endHall = n === HALL_LAST[h] && n < LAST && n > 0;
+  dkNextHint.hidden = !endHall;
+  dkNextLabel.textContent = n === LAST ? 'В начало' : n === 0 ? 'Войти в анфиладу' : endHall ? HALL_NAMES[h + 1] : 'Дальше';
+  dkNext.classList.toggle('cue', n === 0);
+  dock.classList.toggle('end', n === LAST);
+}
+
+/* клавиатура: стрелки и пробел ведут по кадрам, PageUp и PageDown по залам, Home и End в начало и конец */
+addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeCase(); closeMenu(); return; }
+  if (drawerOpen) {
+    if (e.key === 'Tab') {
+      const f = $$('a[href], button, video[controls]', drawer).filter((x) => x.offsetParent !== null);
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    }
+    return;
+  }
+  if (!S || !menu.hidden || e.metaKey || e.ctrlKey || e.altKey || document.body.classList.contains('intro')) return;
+  const el = document.activeElement, tag = el ? el.tagName : '';
+  if (/^(INPUT|TEXTAREA|SELECT|VIDEO)$/.test(tag)) return;
+  const onControl = tag === 'BUTTON' || tag === 'A';
+  let did = true;
+  switch (e.key) {
+    case 'ArrowDown': case 'ArrowRight': step(1); break;
+    case 'ArrowUp': case 'ArrowLeft': step(-1); break;
+    case ' ': if (onControl) return; step(e.shiftKey ? -1 : 1); break;
+    case 'PageDown': stepHall(1); break;
+    case 'PageUp': stepHall(-1); break;
+    case 'Home': goStop(0); break;
+    case 'End': goStop(LAST); break;
+    default: did = false;
+  }
+  if (did) e.preventDefault();
 });
 
-/* панель кейса */
-const drawer = document.getElementById('drawer'), dBody = document.getElementById('d-body');
-function rows(list, pattern) {
-  let k = 0;
-  return pattern.map((n) => { const part = list.slice(k, k + n); k += n; return `<div class="flex gap-2">${part.map((m) => `<div style="flex:${AR(m).toFixed(4)} 1 0%"><img src="${IMG(m)}" alt="" loading="lazy" class="block w-full h-auto"></div>`).join('')}</div>`; }).join('');
-}
-function patternFor(n) { if (n <= 2) return [n]; if (n === 3) return [1, 2]; if (n === 4) return [2, 2]; if (n === 5) return [2, 3]; return [2, 2, Math.min(3, n - 4)]; }
+/* подсветка экспоната при наведении на этикетку, клик по экспонату и по проему в сцене */
+$$('.panel[data-art]').forEach((c) => {
+  c.addEventListener('pointerenter', () => S && S.hover(c.dataset.art));
+  c.addEventListener('pointerleave', () => S && S.hover(null));
+});
+const ndc = (e) => [e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1];
+addEventListener('pointermove', (e) => { if (S && e.pointerType === 'mouse') S.pointer(...ndc(e)); }, { passive: true });
+canvas.addEventListener('click', (e) => {
+  if (!S || drawerOpen || document.body.classList.contains('intro')) return;
+  const hit = S.pickAt(...ndc(e));
+  if (hit.art) openCase(ART[hit.art].caseId, hit.art, null);
+  else if (hit.door) goHall(hit.door);
+});
+
+/* ——— панель проекта ——— */
+const drawer = $('#drawer'), dBody = $('#d-body'), dEye = $('#d-eyebrow');
 let lastFocus = null;
-function openCase(id, sourceEl) {
-  const c = CASES[id]; if (!c) return;
-  lastFocus = sourceEl;
-  const imgs = c.imgs.slice(0, 7);
-  document.getElementById('d-eyebrow').textContent = `${c.place} · ${c.year}`;
-  dBody.innerHTML = `
-    <h3 id="d-title" class="font-serif text-[clamp(36px,4vw,60px)] leading-[.95]">${c.title}</h3>
-    <p class="mt-5 text-lg leading-relaxed text-bone/90">${c.lead}</p>
-    ${c.metrics ? `<div class="grid grid-cols-2 sm:grid-cols-${Math.min(c.metrics.length, 4)} gap-px bg-white/10 border border-white/10 mt-8">${c.metrics.map(([v, l]) => `<div class="bg-[#101014] p-4"><p class="font-serif text-3xl leading-none text-ember">${v}</p><p class="text-[13px] text-bone/60 mt-2 leading-tight">${l}</p></div>`).join('')}</div>` : ''}
-    ${c.points && c.points.length ? `<ul class="mt-8 space-y-3 text-[15.5px] leading-relaxed text-bone/85">${c.points.map((p) => `<li class="flex gap-3"><span class="text-ember mt-[2px]">·</span><span>${p}</span></li>`).join('')}</ul>` : ''}
-    <p class="mt-8 eyebrow">Роль</p><p class="mt-1 text-[15px]">${c.role}</p>
-    ${c.links ? `<div class="mt-8 grid sm:grid-cols-2 gap-3">${c.links.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener" class="border border-white/20 px-4 py-3 hover:border-ember hover:text-ember transition"><span class="eyebrow block">Сюжет</span><span class="block mt-1">${t} ↗</span></a>`).join('')}</div>` : ''}
-    ${c.videos ? `<div class="flex gap-2 mt-10">${c.videos.map(([f, cap]) => `<figure style="flex:${AR(f).toFixed(4)} 1 0%"><video class="block w-full h-auto bg-black" src="${VID[f]}" controls playsinline preload="metadata" poster="${IMG(f.replace('.mp4', '-poster'))}"></video><figcaption class="eyebrow mt-2">${cap}</figcaption></figure>`).join('')}</div>` : ''}
-    <div class="space-y-2 ${c.videos ? 'mt-2' : 'mt-10'}">${rows(imgs, patternFor(imgs.length))}</div>`;
+const patternFor = (n) => { if (n <= 3) return [n]; const r = Math.ceil(n / 3), base = Math.floor(n / r), extra = n % r; return Array.from({ length: r }, (_, i) => base + (i >= r - extra ? 1 : 0)); };
+function rows(list) {
+  let k = 0;
+  return patternFor(list.length).map((n) => { const part = list.slice(k, k + n); k += n; return `<div class="row">${part.map((m) => `<div style="flex:${AR(m).toFixed(4)} 1 0%"><img src="${IMG(m)}" alt="" loading="lazy" decoding="async"></div>`).join('')}</div>`; }).join('');
+}
+/* то, что уже висит перед зрителем на стене (снимок или ролик), в панели не повторяется */
+function caseHTML(id, wallImg, wallVideo) {
+  const c = CASES[id];
+  const imgs = c.imgs.filter((m) => m !== wallImg);
+  const vids = (c.videos || []).filter(([f]) => f !== wallVideo);
+  const cut = imgs.filter((m) => m.endsWith('.png')), photos = imgs.filter((m) => !m.endsWith('.png'));
+  return `
+    <p class="proj" aria-hidden="true"><span class="display">project</span><span class="hand">${NO[id]}</span></p>
+    <h3 id="d-title" class="display mt-6 text-[clamp(32px,3.2vw,54px)] leading-[.95]">${c.title}</h3>
+    <p class="mt-6 text-[18px] leading-relaxed text-ink/90">${c.lead}</p>
+    ${wallVideo ? '<button class="sound" type="button" data-sound aria-pressed="false"><i aria-hidden="true"></i><span>Включить звук</span></button>' : ''}
+    ${c.metrics ? `<div class="metrics mt-8">${c.metrics.map(([v, l]) => `<div><p class="v">${v}</p><p class="l">${l}</p></div>`).join('')}</div>` : ''}
+    ${c.points && c.points.length ? `<ul class="points mt-8">${c.points.map((p) => `<li><span>${p}</span></li>`).join('')}</ul>` : ''}
+    <p class="label mt-8">Роль</p><p class="mt-2 text-[15px]">${c.role}</p>
+    ${c.links ? `<div class="mt-8 grid sm:grid-cols-2 gap-3">${c.links.map(([t, u]) => `<a class="link" href="${u}" target="_blank" rel="noopener"><span class="label block">Сюжет</span><span class="block mt-1">${t} ↗</span></a>`).join('')}</div>` : ''}
+    ${vids.length ? `<div class="gal mt-10"><div class="row">${vids.map(([f, cap]) => `<figure style="flex:${AR(f).toFixed(4)} 1 0%"><video src="${VID[f]}" controls playsinline preload="metadata" poster="${IMG(f.replace('.mp4', '-poster'))}"></video><figcaption class="label mt-2">${cap}</figcaption></figure>`).join('')}</div></div>` : ''}
+    ${cut.length ? `<div class="mt-10 space-y-2">${cut.map((m) => `<div class="cut"><img src="${IMG(m)}" alt="Анна Беликова" loading="lazy"></div>`).join('')}</div>` : ''}
+    ${photos.length ? `<div class="gal ${vids.length || cut.length ? 'mt-2' : 'mt-10'}">${rows(photos)}</div>` : ''}`;
+}
+function openCase(id, artId, src) {
+  if (!CASES[id] || drawerOpen) return;
+  closeMenu(); stopGlide(); clearTimeout(idleT);
+  lastFocus = src || null;
+  const shown = S ? S.setFocus(artId || null) : false;
+  const wall = shown && !M() && ART[artId] ? ART[artId] : null;
+  dEye.textContent = `${CASES[id].place} · ${CASES[id].year}`;
+  dBody.innerHTML = caseHTML(id, wall ? wall.img : null, wall && wall.video && S.Q.video ? wall.video : null);
   drawer.hidden = false;
-  document.body.classList.add('focus');
-  requestAnimationFrame(() => drawer.classList.add('open'));
   drawer.querySelector('.scroll').scrollTop = 0;
+  requestAnimationFrame(() => requestAnimationFrame(() => drawer.classList.add('open')));
+  root.classList.add('lock');
+  document.body.classList.add('focus');
   drawerOpen = true;
-  lightOn(1);
-
-  /* изображение кейса в пространстве */
-  const cover = c.imgs.find((m) => !m.endsWith('.png')) || c.imgs[0];
-  loader.load(IMG(cover), (tex) => {
-    tex.encoding = THREE.sRGBEncoding;
-    card.material.map = tex; card.material.needsUpdate = true;
-    const a = AR(cover), h = a > 1 ? 2.6 / a : 2.4; card.scale.set(h * a, h, 1);
-    card.visible = true;
-    gsap.fromTo(card.material, { opacity: 0 }, { opacity: 1, duration: REDUCED ? 0 : 1.4, delay: REDUCED ? 0 : 0.5, ease: 'power2.out' });
-  }, undefined, () => { card.visible = false; });
-
-  /* кинематографичный подлёт камеры */
-  const i = +(sourceEl && sourceEl.dataset.i || 0);
-  const ang = -0.32 + (i % 5) * 0.16;
-  const desk = !isMobile();
-  /* кадр: монолит и снимок в центре свободной левой половины экрана */
-  const R = desk ? 9.6 : 10.5, cx = 1.0;
-  gsap.to(cam, { x: cx + Math.sin(ang) * R, y: 0.7 + (i % 3) * 0.3, z: Math.cos(ang) * R,
-    lx: desk ? cx + 2.6 : cx, ly: 0.1, lz: 0, duration: REDUCED ? 0 : 2.2, ease: 'power3.inOut', overwrite: true });
-  drawer.querySelector('[data-close]').focus();
+  drawer.querySelector('[data-close]').focus({ preventScroll: true });
 }
 function closeCase() {
   if (!drawerOpen) return;
-  drawer.classList.remove('open');
-  document.body.classList.remove('focus');
-  setTimeout(() => { if (!drawerOpen) drawer.hidden = true; }, 900);
   drawerOpen = false;
-  gsap.to(card.material, { opacity: 0, duration: REDUCED ? 0 : 0.6, onComplete: () => { card.visible = false; } });
-  document.querySelectorAll('.list').forEach((l) => { l.classList.remove('dim'); l.querySelectorAll('.case').forEach((x) => x.classList.remove('lit')); });
-  lightOff();
-  view(current, 2);
+  drawer.classList.remove('open');
+  $$('video', drawer).forEach((v) => v.pause());
+  root.classList.remove('lock');
+  document.body.classList.remove('focus');
+  if (S) S.clearFocus();
+  setTimeout(() => { if (!drawerOpen) { drawer.hidden = true; dBody.innerHTML = ''; } }, REDUCED ? 0 : 1050);
   if (lastFocus) lastFocus.focus({ preventScroll: true });
 }
 document.addEventListener('click', (e) => {
-  const o = e.target.closest('[data-open]'); if (o) { openCase(o.dataset.open, o); return; }
+  const o = e.target.closest('[data-open]');
+  if (o) { openCase(o.dataset.open, o.dataset.art, o); return; }
+  const snd = e.target.closest('[data-sound]');
+  if (snd && S) { const on = S.sound(snd.getAttribute('aria-pressed') !== 'true'); snd.setAttribute('aria-pressed', String(on)); snd.querySelector('span').textContent = on ? 'Выключить звук' : 'Включить звук'; return; }
   if (e.target.closest('[data-close]')) closeCase();
 });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCase(); });
 
-view('hero', 0.01);
+/* ——— портрет Анны на фоне красного круга в финале ——— */
+const portrait = $('#portrait'), finalCard = $('#final-card');
+function updatePortrait() {
+  const k = S.finaleK();
+  if (k < 0.002) { if (portrait.style.opacity !== '0') portrait.style.opacity = '0'; return; }
+  if (!portrait.getAttribute('src')) portrait.src = IMG('anna-folder.png');
+  const c = S.aperture(), vh = innerHeight;
+  const port = STOPS[LAST].port;                            /* на широком экране портрет не заходит под карточку */
+  const bottom = port ? vh : Math.min(vh, finalCard.getBoundingClientRect().top + 48);
+  const hp = port ? port.hp : clamp((bottom - c.y) / 0.72, 160, vh * 1.1), wp = hp * 900 / 1393;
+  portrait.style.height = `${hp}px`; portrait.style.width = `${wp}px`;
+  portrait.style.transform = `translate3d(${c.x - wp / 2}px, ${bottom - hp + (1 - k) * 46}px, 0)`;
+  portrait.style.opacity = String(k);
+}
+
+/* ——— синхронизация интерфейса с камерой ——— */
+let activeIdx = -1, lastHall = -1, lastNear = -1, lastDark = null;
+function setActive(idx) {
+  if (idx === activeIdx) return;
+  if (activeIdx >= 0) STOPS[activeIdx].el.classList.remove('on');
+  activeIdx = idx;
+  if (idx >= 0) STOPS[idx].el.classList.add('on');
+}
+function syncUI(near) {
+  const hall = S.hall();
+  if (hall !== lastHall) { lastHall = hall; hallLinks.forEach((a) => { const on = +a.dataset.hall === hall; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); }); }
+  if (near !== lastNear) { lastNear = near; updateDock(near); }
+  const dark = S.dark() > 0.5;
+  if (dark !== lastDark) { lastDark = dark; document.body.classList.toggle('dark', dark); }
+  if (planBox.length && planBox[hall] && !M()) {
+    const z = S.camZ(), h = S.H[hall];
+    const k = hall === 0 ? clamp((15 - z) / 15, 0, 1) : clamp((h.front - z) / (h.front - h.z1), 0, 1);
+    planYou.style.transform = `translateX(${planBox[hall][0] + planBox[hall][1] * k}px)`;
+  }
+  updatePortrait();
+}
+
+/* проверка для отладки: какие снимки и таблички попали под текст и навигацию */
+function check() {
+  const ui = [];
+  const add = (el, name) => { if (!el) return; const r = el.getBoundingClientRect(), cs = getComputedStyle(el); if (cs.visibility === 'hidden' || cs.display === 'none' || !r.width) return; ui.push({ name, r: [r.left, r.top, r.right, r.bottom] }); };
+  if (drawerOpen) add(drawer, 'панель проекта'); else { ui.push({ name: 'этикетка', r: STOPS[nearest()].box }); add(dock, 'навигация'); }
+  add($('.brand'), 'имя'); add($('.plan'), 'план'); add(menuBtn, 'меню');
+  return { stop: STOPS[nearest()].key, size: `${innerWidth}×${innerHeight}`, hits: S.overlaps(ui) };
+}
+
+/* проверка всех остановок подряд: на каждой камера встает в кадр, затем ищутся наложения; с флагом open еще и в режиме проекта */
+async function checkAll(open) {
+  const frames = (n) => new Promise((res) => { const f = () => (n-- > 0 ? requestAnimationFrame(f) : res()); f(); });
+  const wait = (ms) => new Promise((res) => setTimeout(res, ms));
+  const bad = [];
+  window.__HOLD = true;
+  for (let n = 0; n <= LAST; n++) {
+    scrollTo(0, STOPS[n].y); S.snap(); await frames(4);
+    const c = check();
+    if (c.hits.length) bad.push(`${STOPS[n].key}: ${c.hits.join('; ')}`);
+    const btn = open && $('[data-open]', STOPS[n].el);
+    if (btn) {
+      btn.click(); await wait(REDUCED ? 300 : 2600);
+      const d = check();
+      if (d.hits.length) bad.push(`${STOPS[n].key}, открыт проект: ${d.hits.join('; ')}`);
+      closeCase(); await wait(REDUCED ? 300 : 2100);
+    }
+  }
+  window.__HOLD = false;
+  return { size: `${innerWidth}×${innerHeight}`, stops: LAST + 1, bad };
+}
+
+/* шум пленки */
+(function grain() {
+  const c = document.createElement('canvas'); c.width = c.height = 180;
+  const g = c.getContext('2d'), d = g.createImageData(180, 180);
+  for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+  g.putImageData(d, 0, 0);
+  $('.grain').style.backgroundImage = `url(${c.toDataURL('image/png')})`;
+})();
+
+let last = performance.now();
+function tick(now) {
+  const raw = (now - last) / 1000, dt = Math.min(0.05, raw); last = now;
+  if (S) {
+    const { i, t } = scrollState(scrollY);
+    S.render(dt, raw, now / 1000, i + (REDUCED ? (t < 0.5 ? 0 : 1) : ease(t)));
+    setActive(t <= 0.3 ? i : t >= 0.7 ? Math.min(LAST, i + 1) : -1);
+    syncUI(t < 0.5 ? i : Math.min(LAST, i + 1));
+  }
+  requestAnimationFrame(tick);
+}
+
+let lastW = 0, lastH = 0, rt = 0;
+function onResize(force) {
+  if (!force && innerWidth === lastW && Math.abs(innerHeight - lastH) < 140) return;
+  const keep = S ? nearest() : 0;
+  lastW = innerWidth; lastH = innerHeight;
+  if (S) S.layout();
+  layoutStops();
+  if (S && !force) { scrollTo(0, STOPS[keep].y); S.snap(); }
+}
+addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => onResize(false), 120); });
+
+addEventListener('hashchange', () => { const id = location.hash.slice(1); if (S && SECTIONS.includes(id)) go(id); });
+
+const fontsReady = Promise.race([
+  Promise.all(['700 40px "Soyuz Grotesk"', '40px Denistina', '900 40px Aileron', '300 40px Aileron'].map((f) => document.fonts.load(f))).catch(() => {}),
+  new Promise((r) => setTimeout(r, 3500))
+]);
+
+(async function boot() {
+  const cnt = $('#count'), counter = { v: 0 };
+  const show = () => { cnt.textContent = String(Math.round(counter.v)).padStart(3, '0'); };
+  gsap.to(counter, { v: 82, duration: 1.4, ease: 'power1.out', onUpdate: show });
+  await fontsReady;
+  try { S = window.THREE && typeof FONT_SOYUZ !== 'undefined' ? createScene(canvas) : null; } catch (err) { console.error(err); S = null; }
+  if (!S) {
+    root.classList.add('no-webgl');
+    document.body.classList.remove('intro');
+    return;
+  }
+  onResize(true);
+  if (QS.has('debug') || QS.has('at')) { window.__S = S; window.__STOPS = () => STOPS.map((s) => [s.key, s.y, s.hall, s.free, s.box, s.solo || null]); window.__CHECK = check; window.__CHECKALL = checkAll; window.__GO = goStop; window.__KEY = () => STOPS[nearest()].key; }
+  setActive(0); updateDock(0);
+  gsap.to(counter, { v: 100, duration: 0.35, onUpdate: show });
+  requestAnimationFrame(tick);
+
+  const hash = location.hash.slice(1);
+  const at = QS.get('at');
+  const skipAll = REDUCED || at || (hash && SECTIONS.includes(hash) && hash !== 'hero');
+  const showUI = () => document.body.classList.remove('intro');
+  const skipBtn = $('#skip');
+  if (skipAll) {
+    $('#loader').remove(); skipBtn.remove();
+    S.finishIntro(); showUI();
+    /* служебный режим для проверки кадров: ?at=art:zar&open=zar:zar */
+    const n = at ? Math.max(0, STOPS.findIndex((x) => x.key === at)) : hash ? HALL_FIRST[SECTIONS.indexOf(hash)] : 0;
+    const jump = () => { layoutStops(); scrollTo(0, STOPS[n].y); S.snap(); };
+    requestAnimationFrame(jump);
+    setTimeout(jump, 700); setTimeout(jump, 1600);
+    if (at) {
+      const op = QS.get('open');
+      if (op) { const [c, a] = op.split(':'); setTimeout(() => openCase(c, a, null), 1500); }
+    }
+    return;
+  }
+  scrollTo(0, 0);
+  let done = false;
+  const end = () => {
+    if (done) return; done = true;
+    S.finishIntro(); showUI();
+    skipBtn.classList.add('gone');
+    setTimeout(() => skipBtn.remove(), 700);
+    ['wheel', 'touchstart', 'keydown'].forEach((ev) => removeEventListener(ev, skip));
+  };
+  const tl = S.playIntro(showUI, end);
+  tl.add(() => skipBtn.classList.add('dark'), 2.2);
+  gsap.to('#loader', { autoAlpha: 0, duration: 0.9, delay: 0.3, ease: 'power1.out', onComplete: () => $('#loader').remove() });
+  function skip() { tl.progress(1); end(); }
+  skipBtn.addEventListener('click', skip);
+  ['wheel', 'touchstart', 'keydown'].forEach((ev) => addEventListener(ev, skip, { passive: true }));
+})();
+})();
 </script>
 </body>
 </html>
